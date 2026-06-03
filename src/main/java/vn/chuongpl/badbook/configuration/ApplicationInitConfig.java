@@ -24,34 +24,39 @@ import java.util.HashSet;
 @Slf4j
 public class ApplicationInitConfig {
 
-    @NonFinal
-    static final String ADMIN_EMAIL = "admin@gmail.com";
-    @NonFinal
-    static final String ADMIN_PASSWORD = "123456";
+    @NonFinal static final String ADMIN_EMAIL = "admin@gmail.com";
+    @NonFinal static final String ADMIN_PASSWORD = "Admin@123456";
+
     PasswordEncoder passwordEncoder;
 
     @Bean
     @Transactional
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-            if (userRepository.findByEmail(ADMIN_EMAIL).isEmpty()) {
-                var roles = new HashSet<Role>();
-                Role role = roleRepository.findById("ADMIN")
-                        .orElseGet(() -> roleRepository.save(Role.builder().name("ADMIN").description("Administrator").build()));
-                roles.add(role);
+            seedRole(roleRepository, "ADMIN", "Quản trị viên hệ thống");
+            seedRole(roleRepository, "VENUE_MANAGER", "Chủ sân cầu lông");
+            seedRole(roleRepository, "USER", "Người dùng");
 
-                User user = User.builder()
-                        .name("admin")
+            if (userRepository.findByEmail(ADMIN_EMAIL).isEmpty()) {
+                Role adminRole = roleRepository.findById("ADMIN").orElseThrow();
+                var roles = new HashSet<Role>();
+                roles.add(adminRole);
+                userRepository.save(User.builder()
+                        .name("Admin")
                         .email(ADMIN_EMAIL)
                         .password(passwordEncoder.encode(ADMIN_PASSWORD))
-                        .phone("0377948504")
+                        .phone("0000000000")
                         .roles(roles)
                         .createdAt(LocalDateTime.now())
-                        .build();
-
-                if (user != null) userRepository.save(user);
+                        .build());
+                log.info("Admin account created: {}", ADMIN_EMAIL);
             }
         };
     }
 
+    private void seedRole(RoleRepository repo, String name, String description) {
+        if (repo.findById(name).isEmpty()) {
+            repo.save(Role.builder().name(name).description(description).build());
+        }
+    }
 }
