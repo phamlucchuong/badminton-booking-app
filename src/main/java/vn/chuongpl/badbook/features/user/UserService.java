@@ -76,6 +76,7 @@ public class UserService {
         int pageCurrent = (page > 0 && page != null) ? page - 1 : 0;
         Pageable pageable = PageRequest.of(pageCurrent, limit , Sort.by(Sort.Direction.DESC , "name"));
         List<String> roles = List.of(Role.USER.name(),
+                Role.VENUE_MANAGER.name(),
                 Role.ADMIN.name());
         Page<User> users = userRepository.findByRolesIn(roles , pageable);
 

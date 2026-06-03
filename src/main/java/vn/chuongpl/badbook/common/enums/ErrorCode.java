@@ -6,45 +6,66 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
-    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error"),
-    ACCOUNT_NOT_FOUND(1004, "Account not found !"),
-    AUTHENTICATION_FAILED(1001, "Your password is incorrect !"),
-    UNAUTHENTICATED(1004, "Bạn không có quyền truy cập"),
-    PERMISSION_EXITED(1009, "Permission exited"),
-    ROLE_ALREADY_EXISTS(1009, "Role exited"),
-    ROLE_NOT_FOUND(1009, "Role exited"),
-    RESTAURANT_CATEGORY_NOT_EXISTS(1008, "Restaurant category not exists"),
-    RESTAURANT_CATEGORY_ALREADY_EXISTS(1005, "Restaurant category already exists"),
-    RESTAURANT_NOT_EXISTS(1006, "Restaurant not exists"),
-    RESTAURANT_ALREADY_EXISTS(1007, "Restaurant already exists"),
-    RESTAURANT_UNAUTHENTICATED(1010, "Restaurant is not approved yet"),
+    // System
+    UNCATEGORIZED_EXCEPTION(9999, "Lỗi hệ thống không xác định"),
+    UNAUTHENTICATED(1001, "Bạn chưa đăng nhập"),
+    UNAUTHORIZED(1002, "Bạn không có quyền thực hiện thao tác này"),
+    ID_INVALID(1003, "ID không hợp lệ"),
+    FILE_UPLOAD_FAILED(1004, "Upload file thất bại"),
+    GEOCODING_FAILED(1005, "Không thể chuyển đổi địa chỉ thành tọa độ"),
 
-    CATEGORY_REQUIRED(1002, "Phải chọn ít nhất 1 lĩnh vực kinh doanh"),
-    CATEGORY_NOT_FOUND(1003, "Một số lĩnh vực kinh doanh không tồn tại"),
-    GEOCODING_FAILED(1004, "Không thể chuyển đổi địa chỉ thành tọa độ"),
-    FILE_UPLOAD_FAILED(1005, "Upload file thất bại"),
+    // Auth / User
+    ACCOUNT_NOT_FOUND(2001, "Tài khoản không tồn tại"),
+    AUTHENTICATION_FAILED(2002, "Mật khẩu không đúng"),
+    EMAIL_EXISTED(2003, "Email đã tồn tại"),
+    OTP_INVALID(2004, "Mã OTP không hợp lệ hoặc đã hết hạn"),
 
+    // Role / Permission
+    ROLE_NOT_FOUND(3001, "Role không tồn tại"),
+    ROLE_ALREADY_EXISTS(3002, "Role đã tồn tại"),
+    PERMISSION_EXISTED(3003, "Permission đã tồn tại"),
 
-    FOOD_CATEGORY_ALREADY_EXISTS(1008, "Food category already exists"),
-    FOOD_CATEGORY_NOT_EXISTS(1009, "Food category not exists"),
-    FOOD_CATEGORY_HAS_FOODS(1010, "Food category has foods"),
-    FOOD_NOT_EXISTS(1011, "Food not exists"),
-    ORDER_DETAIL_NOT_FOUND(1012, "Order detail not found"),
-    EMAIL_EXISTED(1013, "Email already exists"),
-    ORDER_NOT_FOUND(1014, "Order not found"),
-    STATUS_SAME_AS_BEFORE(1015, "Status is the same as before"),
-    REVIEW_NOT_FOUND(1016, "Review not found"),
-    REVIEW_ALREADY_EXISTS(1017, "Review already exists"),
-    FOOD_CREATION_FAILED(1018, "Food creation failed"),
-    ORDER_DETAIL_ID_EMPTY(1019, "Order detail ID is empty"),
-    ORDER_NOT_COMPLETED(1020, "Order not completed"),
-    REVIEW_ALREADY_REPLIED(1021, "Review already replied"),
-    REVIEW_ALREADY_DELETED(1022, "Review already deleted"),
-    ID_INVALID(1023, "ID is invalid"),
-    ORDER_CANNOT_BE_COMPLETED(1024, "Order cannot be completed"),
-    FINANCE_NOT_FOUND(1025, "Finance not found")
-    ;
+    // Venue
+    VENUE_NOT_FOUND(4001, "Cơ sở không tồn tại"),
+    VENUE_NOT_APPROVED(4002, "Cơ sở chưa được duyệt"),
+    VENUE_ALREADY_EXISTS(4003, "Người dùng đã đăng ký một cơ sở"),
+    VENUE_NOT_OWNED_BY_USER(4004, "Bạn không phải chủ cơ sở này"),
 
-    private int code;
-    private String message;
+    // Court
+    COURT_NOT_FOUND(5001, "Sân không tồn tại"),
+    COURT_NOT_AVAILABLE(5002, "Sân không khả dụng trong khung giờ này"),
+    COURT_NOT_IN_VENUE(5003, "Sân không thuộc cơ sở này"),
+
+    // Product
+    PRODUCT_NOT_FOUND(6001, "Sản phẩm không tồn tại"),
+    PRODUCT_OUT_OF_STOCK(6002, "Sản phẩm đã hết hàng"),
+    PRODUCT_NOT_IN_VENUE(6003, "Sản phẩm không thuộc cơ sở này"),
+
+    // Booking
+    BOOKING_NOT_FOUND(7001, "Lịch đặt không tồn tại"),
+    BOOKING_CONFLICT(7002, "Sân đã được đặt trong khung giờ này"),
+    BOOKING_CANNOT_CANCEL(7003, "Không thể hủy lịch đặt ở trạng thái hiện tại"),
+    BOOKING_NOT_COMPLETED(7004, "Lịch đặt chưa hoàn thành"),
+
+    // Payment
+    PAYMENT_NOT_FOUND(8001, "Thông tin thanh toán không tồn tại"),
+    PAYMENT_FAILED(8002, "Thanh toán thất bại"),
+    PAYMENT_ALREADY_PROCESSED(8003, "Thanh toán đã được xử lý"),
+
+    // Review
+    REVIEW_ONLY_AFTER_COMPLETION(9001, "Chỉ được đánh giá sau khi hoàn thành lịch đặt"),
+    REVIEW_ALREADY_SUBMITTED(9002, "Bạn đã đánh giá booking này"),
+    REVIEW_NOT_FOUND(9003, "Đánh giá không tồn tại"),
+    REVIEW_ALREADY_REPLIED(9004, "Đánh giá đã được phản hồi"),
+
+    // Finance
+    INVOICE_NOT_FOUND(10001, "Hóa đơn không tồn tại"),
+    PLATFORM_FEE_ALREADY_PAID(10002, "Phí sàn đã được thanh toán"),
+
+    // Schedule
+    SCHEDULE_NOT_FOUND(11001, "Lịch cố định không tồn tại"),
+    SCHEDULE_CONFLICT(11002, "Lịch cố định bị trùng với lịch đặt hiện có");
+
+    private final int code;
+    private final String message;
 }
