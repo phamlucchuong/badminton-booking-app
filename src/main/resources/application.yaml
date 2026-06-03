@@ -93,3 +93,8 @@ cloudinary:
   cloudName: ${CLOUDINARY_CLOUD_NAME:your-cloud-name}
   apiKey: ${CLOUDINARY_API_KEY:your-api-key}
   apiSecret: ${CLOUDINARY_API_SECRET:your-api-secret}
+
+goong:
+  api:
+    key: ${GOONG_API_KEY:your-goong-key}
+    base-url: https://rsapi.goong.io
