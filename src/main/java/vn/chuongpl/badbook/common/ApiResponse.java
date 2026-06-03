@@ -1,25 +1,18 @@
 package vn.chuongpl.badbook.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-@Data
+@Getter
+@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ApiResponse<T> {
-    @Builder.Default
-    boolean ok = true;
-    @Builder.Default
-    int code = 1000;
+    @Builder.Default int code = 200;
     String message;
     T data;
 }

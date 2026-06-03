@@ -49,11 +49,11 @@ public class User {
     String imageId;
 
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, columnDefinition = "timestamp default current_timestamp")
     @Generated(org.hibernate.annotations.GenerationTime.INSERT)
     LocalDateTime createdAt;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
     @Generated(org.hibernate.annotations.GenerationTime.ALWAYS)
     boolean deleted;
 

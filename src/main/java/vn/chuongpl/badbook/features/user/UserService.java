@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -20,6 +21,8 @@ import vn.chuongpl.badbook.common.PageResponse;
 import vn.chuongpl.badbook.common.enums.ErrorCode;
 import vn.chuongpl.badbook.common.enums.Role;
 import vn.chuongpl.badbook.common.exception.AppException;
+import vn.chuongpl.badbook.features.auth.dto.request.RegisterRequest;
+import vn.chuongpl.badbook.features.role.RoleRepository;
 import vn.chuongpl.badbook.features.user.dto.request.UserCreateRequest;
 import vn.chuongpl.badbook.features.user.dto.request.UserUpdateRequest;
 import vn.chuongpl.badbook.features.user.dto.response.UserResponse;
@@ -28,10 +31,28 @@ import vn.chuongpl.badbook.features.user.dto.response.UserResponse;
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
-//    RoleRepository roleRepository;
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
+    RoleRepository roleRepository;
+
+    public UserResponse register(RegisterRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+        var userRole = roleRepository.findById("USER")
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        var roles = new HashSet<>(Set.of(userRole));
+        User user = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phone(request.getPhone())
+                .roles(roles)
+                .createdAt(LocalDateTime.now())
+                .build();
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
 
 
     protected User getUserById(String id) {

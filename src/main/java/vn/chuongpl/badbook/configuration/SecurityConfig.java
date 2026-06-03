@@ -31,34 +31,19 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_POST_ENDPOINT = {
             "api/auth",
-            "api/auth/introspect",
-            "api/users",
-            "api/otp/send/email",
-            "api/search",
-            "api/restaurants/detail",
-            "api/goong/geocoding",
-            "api/goong/reverse-geocoding",
+            "api/auth/register",
+            "api/otp/send",
+            "api/location/geocode",
             "api/media"
-    };
-
-    private final String[] PUBLIC_PUT_ENDPOINT = {
-            "api/users/{email}"
     };
 
     private final String[] PUBLIC_GET_ENDPOINT = {
             "api/users/verify-email/{email}",
             "api/otp/verify",
-            "api/searchs/hot",
-            "api/restaurant-categories",
-            "api/restaurants",
-    };
-
-    private final String[] SWAGGER_ENDPOINT = {
+            "api/location/reverse-geocode",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/swagger-resources/**",
-            "/webjars/**"
+            "/swagger-ui.html"
     };
 
     @Autowired
@@ -75,12 +60,10 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .addFilterBefore(jwtBlacklistFilter, BearerTokenAuthenticationFilter.class)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(SWAGGER_ENDPOINT).permitAll()
                         .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINT).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINT).permitAll()
-                        .requestMatchers(HttpMethod.PUT, PUBLIC_PUT_ENDPOINT).permitAll()
                         .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfiguer -> jwtConfiguer
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
                         .decoder(customerJwtDecoder)
                         .jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return httpSecurity.build();
