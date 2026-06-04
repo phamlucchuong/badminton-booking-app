@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Bootstrap dev environment for BadBook Backend & Infra.
-# Usage: bash backend/scripts/bootstrap.sh
+# Usage: bash apps/backend/scripts/bootstrap.sh
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-BACKEND_DIR="${REPO_ROOT}/backend"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
+BACKEND_DIR="${REPO_ROOT}/apps/backend"
 BACKEND_ENV_FILE="${BACKEND_DIR}/.env"
 LEGACY_ENV_FILE="${REPO_ROOT}/.env"
 
@@ -30,15 +30,15 @@ echo "[2/4] Setting up environment variables..."
 if [ ! -f "${BACKEND_ENV_FILE}" ]; then
   if [ -f "${LEGACY_ENV_FILE}" ]; then
     cp "${LEGACY_ENV_FILE}" "${BACKEND_ENV_FILE}"
-    echo "Created backend/.env from legacy root .env"
+    echo "Created apps/backend/.env from legacy root .env"
   elif [ -f "${BACKEND_DIR}/.env.example" ]; then
     cp "${BACKEND_DIR}/.env.example" "${BACKEND_ENV_FILE}"
-    echo "Created backend/.env from backend/.env.example"
+    echo "Created apps/backend/.env from apps/backend/.env.example"
   else
-    echo "Warning: backend/.env.example not found. Please create backend/.env manually."
+    echo "Warning: apps/backend/.env.example not found. Please create apps/backend/.env manually."
   fi
 else
-  echo "backend/.env already exists, skipping"
+  echo "apps/backend/.env already exists, skipping"
 fi
 
 # 3. Backend Build
@@ -55,8 +55,8 @@ echo ""
 echo "=== Bootstrap Complete ==="
 echo ""
 echo "Next steps:"
-echo "  1. Check containers status: docker compose --env-file backend/.env -f backend/docker-compose.dev.yaml ps"
-echo "  2. View logs: docker compose --env-file backend/.env -f backend/docker-compose.dev.yaml logs -f"
+echo "  1. Check containers status: docker compose --env-file apps/backend/.env -f apps/backend/docker-compose.dev.yaml ps"
+echo "  2. View logs: docker compose --env-file apps/backend/.env -f apps/backend/docker-compose.dev.yaml logs -f"
 echo "  3. Run application: 'make run'"
 echo ""
 echo "Endpoints (default):"
