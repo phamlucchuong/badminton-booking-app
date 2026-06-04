@@ -1,0 +1,9 @@
+{
+  "name": "badminton-booking-frontend",
+  "private": true,
+  "scripts": {
+    "dev:web-admin": "pnpm --filter web-admin dev",
+    "build:web-admin": "pnpm --filter web-admin build",
+    "lint:web-admin": "pnpm --filter web-admin lint"
+  }
+}
