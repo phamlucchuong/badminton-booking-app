@@ -3,14 +3,18 @@ on:
   push:
     branches: [ "main", "dev" ]
     paths:
-      - 'src/**'
-      - 'pom.xml'
+      - 'backend/.mvn/**'
+      - 'backend/mvnw'
+      - 'backend/src/**'
+      - 'backend/pom.xml'
       - '.github/workflows/ci.yml'
   pull_request:
     branches: [ "main", "dev" ]
     paths:
-      - 'src/**'
-      - 'pom.xml'
+      - 'backend/.mvn/**'
+      - 'backend/mvnw'
+      - 'backend/src/**'
+      - 'backend/pom.xml'
 jobs:
   test-user:
     runs-on: ubuntu-latest
@@ -23,7 +27,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+          cache-dependency-path: backend/pom.xml
 
       - name: Run Auth Tests
         run: |
-          mvn clean verify
+          ./backend/mvnw -f backend/pom.xml clean verify
