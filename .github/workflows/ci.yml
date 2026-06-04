@@ -50,5 +50,3 @@ jobs:
         working-directory: apps/app-user
       - run: flutter test
         working-directory: apps/app-user
-      - run: flutter build apk --debug
-        working-directory: apps/app-user
