@@ -66,7 +66,6 @@ abstract class FlutterFlowTheme {
   late Color accentContainer;
   late Color onAccentContainer;
   late Color onBackground;
-  late Color secondaryBackground;
   late Color onSurface;
   late Color surfaceVariant;
   late Color onSurfaceVariant;
@@ -207,7 +206,6 @@ class LightModeTheme extends FlutterFlowTheme {
   late Color accentContainer = const Color(0x1AFACC15);
   late Color onAccentContainer = const Color(0xFF0F172A);
   late Color onBackground = const Color(0xFF0F172A);
-  late Color secondaryBackground = const Color(0xFFFFFFFF);
   late Color onSurface = const Color(0xFF0F172A);
   late Color surfaceVariant = const Color(0xFFF1F5F9);
   late Color onSurfaceVariant = const Color(0xFF64748B);
@@ -429,7 +427,6 @@ class DarkModeTheme extends FlutterFlowTheme {
   late Color accentContainer = const Color(0x24FACC15);
   late Color onAccentContainer = const Color(0xFFF8FAFC);
   late Color onBackground = const Color(0xFFF8FAFC);
-  late Color secondaryBackground = const Color(0xFF1E293B);
   late Color onSurface = const Color(0xFFF8FAFC);
   late Color surfaceVariant = const Color(0xFF334155);
   late Color onSurfaceVariant = const Color(0xFF94A3B8);

@@ -199,7 +199,9 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
                                     FFAppState().language =
-                                        'FFAppState().language == \"EN\" ? \"VI\" : \"EN\"';
+                                        FFAppState().language == 'EN'
+                                            ? 'VI'
+                                            : 'EN';
                                     FFAppState().update(() {});
                                   },
                                   child: Container(
@@ -260,7 +262,7 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                                   ),
                                   onPressed: () async {
                                     FFAppState().darkMode =
-                                        !(FFAppState().darkMode ?? true);
+                                        !FFAppState().darkMode;
                                     FFAppState().update(() {});
                                   },
                                 ),

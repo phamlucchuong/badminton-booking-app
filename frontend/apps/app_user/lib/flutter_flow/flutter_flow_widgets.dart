@@ -1,4 +1,3 @@
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
@@ -210,8 +209,8 @@ class _FFButtonWidgetState extends State<FFButtonWidget> {
     );
 
     if ((widget.icon != null || widget.iconData != null) && !loading) {
-      Widget icon = widget.icon ??
-          FaIcon(
+      final icon = widget.icon ??
+          Icon(
             widget.iconData!,
             size: widget.options.iconSize,
             color: widget.options.iconColor,

@@ -104,7 +104,9 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                                         highlightColor: Colors.transparent,
                                         onTap: () async {
                                           FFAppState().language =
-                                              'FFAppState().language == \"EN\" ? \"VI\" : \"EN\"';
+                                              FFAppState().language == 'EN'
+                                                  ? 'VI'
+                                                  : 'EN';
                                           FFAppState().update(() {});
                                         },
                                         child: Container(
@@ -179,7 +181,7 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                                         ),
                                         onPressed: () async {
                                           FFAppState().darkMode =
-                                              !(FFAppState().darkMode ?? true);
+                                              !FFAppState().darkMode;
                                           FFAppState().update(() {});
                                         },
                                       ),
