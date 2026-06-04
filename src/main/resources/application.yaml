@@ -86,8 +86,9 @@ springdoc:
 
 vnpay:
   payUrl: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-  returnUrl: "http://localhost:8080/api/v1/payment/vnpay-callback"
-  apiUrl: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
+  returnUrl: "${APP_URL:http://localhost:8080}/badbook/api/payments/vnpay-callback"
+  tmnCode: ${VNPAY_TMN_CODE:TESTCODE}
+  secretKey: ${VNPAY_SECRET_KEY:testsecretkey12345678901234567890}
 
 cloudinary:
   cloudName: ${CLOUDINARY_CLOUD_NAME:your-cloud-name}

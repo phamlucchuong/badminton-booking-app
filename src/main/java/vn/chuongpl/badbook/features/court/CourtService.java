@@ -84,7 +84,7 @@ public class CourtService {
             throw new AppException(ErrorCode.VENUE_NOT_OWNED_BY_USER);
     }
 
-    Court findCourt(String courtId) {
+    public Court findCourt(String courtId) {
         try {
             return courtRepository.findById(UUID.fromString(courtId))
                     .orElseThrow(() -> new AppException(ErrorCode.COURT_NOT_FOUND));
