@@ -20,6 +20,7 @@ import vn.chuongpl.badbook.features.product.Product;
 import vn.chuongpl.badbook.features.product.ProductService;
 import vn.chuongpl.badbook.features.user.User;
 import vn.chuongpl.badbook.features.user.UserRepository;
+import vn.chuongpl.badbook.features.finance.FinanceService;
 import vn.chuongpl.badbook.features.venue.Venue;
 import vn.chuongpl.badbook.features.venue.VenueRepository;
 
@@ -41,6 +42,7 @@ public class BookingService {
     CourtService courtService;
     ProductService productService;
     BookingMapper bookingMapper;
+    FinanceService financeService;
 
     @Transactional
     public BookingResponse createBooking(String userId, BookingCreateRequest request) {
@@ -134,6 +136,7 @@ public class BookingService {
             throw new AppException(ErrorCode.BOOKING_CANNOT_CANCEL);
         booking.setStatus(BookingStatus.COMPLETED);
         Booking saved = bookingRepository.save(booking);
+        financeService.createFinanceRecord(saved);
         return bookingMapper.toResponse(saved);
     }
 
