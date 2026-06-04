@@ -21,6 +21,7 @@ void main() async {
 
   final appState = FFAppState(); // Initialize FFAppState
   await appState.initializePersistedState();
+  appState.isLoggedIn = (await appState.tokenStore.read()) != null;
 
   runApp(ChangeNotifierProvider(
     create: (context) => appState,
