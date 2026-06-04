@@ -106,7 +106,6 @@ class BookingServiceTest {
         Booking booking = Booking.builder().id(bookingId).user(user).status(BookingStatus.COMPLETED).build();
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         assertThatThrownBy(() -> bookingService.cancelBooking(bookingId.toString(), userId.toString(), "test"))
                 .isInstanceOf(AppException.class)

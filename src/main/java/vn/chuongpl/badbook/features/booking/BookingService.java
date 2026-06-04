@@ -115,15 +115,16 @@ public class BookingService {
     @Transactional
     public BookingResponse cancelBooking(String bookingId, String userId, String reason) {
         Booking booking = findBooking(bookingId);
-        User user = findUser(userId);
-        boolean isOwner = booking.getUser().getId().equals(user.getId());
-        boolean isManager = booking.getVenue().getOwner().getId().equals(user.getId());
-        if (!isOwner && !isManager) throw new AppException(ErrorCode.UNAUTHORIZED);
         if (booking.getStatus() == BookingStatus.COMPLETED
                 || booking.getStatus() == BookingStatus.IN_PROGRESS
                 || booking.getStatus() == BookingStatus.CANCELLED) {
             throw new AppException(ErrorCode.BOOKING_CANNOT_CANCEL);
         }
+        User user = findUser(userId);
+        boolean isOwner = booking.getUser().getId().equals(user.getId());
+        boolean isManager = booking.getVenue() != null
+                && booking.getVenue().getOwner().getId().equals(user.getId());
+        if (!isOwner && !isManager) throw new AppException(ErrorCode.UNAUTHORIZED);
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setCancelReason(reason);
         return bookingMapper.toResponse(bookingRepository.save(booking));
