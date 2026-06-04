@@ -41,6 +41,7 @@ public class SecurityConfig {
             "api/users/verify-email/{email}",
             "api/otp/verify",
             "api/location/reverse-geocode",
+            "/actuator/health",
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html"

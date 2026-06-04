@@ -31,7 +31,7 @@ test:
 backend-verify:
 	$(BACKEND_MVN) -f $(BACKEND_POM) clean verify
 
-verify: backend-verify web-admin-lint web-admin-build app-user-analyze app-user-test app-user-build
+verify: backend-verify web-admin-lint web-admin-build app-user-analyze app-user-test
 
 # Docker Compose commands
 compose-up:

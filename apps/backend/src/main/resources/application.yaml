@@ -75,6 +75,16 @@ logging:
   pattern:
     console: "%d{HH:mm:ss.SSS} %-5level %msg%n"
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
 # Springdoc OpenAPI Configuration
 springdoc:
   api-docs:

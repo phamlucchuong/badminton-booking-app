@@ -25,7 +25,8 @@
 - `make web-admin-install`: install pnpm workspace dependencies.
 - `make web-admin-dev`: start the admin web app.
 - `make app-user-pub-get`: install Flutter dependencies.
-- `make verify`: run backend tests, web lint/build, and Flutter analyze/test/APK build.
+- `make verify`: run backend tests, web lint/build, and Flutter analyze/tests.
+- `make app-user-build`: build a debug APK when an installable artifact is needed.
 
 ## Notes
 
