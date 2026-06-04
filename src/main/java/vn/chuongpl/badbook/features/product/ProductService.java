@@ -63,7 +63,7 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    Product findProduct(String productId) {
+    public Product findProduct(String productId) {
         return productRepository.findById(UUID.fromString(productId))
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
     }
