@@ -1,6 +1,6 @@
 ENV_FILE ?= .env
 
-.PHONY: run build test compose-up compose-down compose-logs compose-reset db-create migrate migrate-info migrate-repair rollback-reset
+.PHONY: run build test compose-up compose-down compose-logs compose-reset wait-db db-create migrate migrate-info migrate-repair rollback-reset
 
 ifneq ("$(wildcard $(ENV_FILE))","")
 include $(ENV_FILE)
@@ -14,7 +14,7 @@ DB_PORT ?= 5432
 DB_URL ?= jdbc:postgresql://localhost:$(DB_PORT)/$(DB_NAME)
 
 # Spring Boot commands
-run:
+run: compose-up wait-db db-create
 	./mvnw spring-boot:run
 build:
 	./mvnw clean package -DskipTests
@@ -31,6 +31,9 @@ compose-logs:
 compose-reset:
 	docker compose -f docker-compose.dev.yaml down -v
 	docker compose -f docker-compose.dev.yaml up -d
+
+wait-db:
+	@docker exec -i badbook-db sh -c 'until pg_isready -U "$(DB_USER)" -d postgres >/dev/null 2>&1; do sleep 1; done'
 
 db-create:
 	@docker exec -i badbook-db psql -U $(DB_USER) -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$(DB_NAME)'" | grep -q 1 || \
