@@ -11,6 +11,7 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'q_r_payment_model.dart';
 export 'q_r_payment_model.dart';
 
@@ -26,6 +27,7 @@ class QRPaymentWidget extends StatefulWidget {
 
 class _QRPaymentWidgetState extends State<QRPaymentWidget> {
   late QRPaymentModel _model;
+  late Future<String> _payUrlFuture;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -33,6 +35,9 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => QRPaymentModel());
+    _payUrlFuture = FFAppState().paymentRepository.createVnpayUrl(
+          FFAppState().currentBookingId,
+        );
   }
 
   @override
@@ -754,8 +759,19 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                             hoverColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: () async {
-                              context
-                                  .goNamed(BookingConfirmationWidget.routeName);
+                              try {
+                                final url = await _payUrlFuture;
+                                if (url.isNotEmpty) {
+                                  await launchUrl(Uri.parse(url),
+                                      mode: LaunchMode.externalApplication);
+                                }
+                              } catch (_) {
+                                // URL launch failure is non-fatal; proceed to confirmation anyway
+                              }
+                              if (context.mounted) {
+                                context.goNamed(
+                                    BookingConfirmationWidget.routeName);
+                              }
                             },
                             child: wrapWithModel(
                               model: _model.buttonModel1,
