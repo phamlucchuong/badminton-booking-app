@@ -50,3 +50,4 @@ apps/app-user/.packages
 apps/app-user/pubspec_overrides.yaml
 apps/app-user/flutter_*.log
 node_modules/
+frontend/

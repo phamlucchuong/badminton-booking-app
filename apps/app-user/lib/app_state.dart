@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '/backend/backend.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'dart:convert';
@@ -10,6 +9,7 @@ import 'repositories/venue_repository.dart';
 import 'repositories/booking_repository.dart';
 import 'repositories/payment_repository.dart';
 import 'repositories/review_repository.dart';
+import 'models/booking.dart';
 
 class FFAppState extends ChangeNotifier {
   static FFAppState _instance = FFAppState._internal();
@@ -45,6 +45,12 @@ class FFAppState extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool get isLoggedIn => _isLoggedIn;
   set isLoggedIn(bool value) => _isLoggedIn = value;
+
+  // Transient booking-flow state — set in time_slot_matrix, consumed in review_order / payment.
+  String currentVenueId = '';
+  String currentBookingId = '';
+  String currentBookingDate = '';
+  Booking? currentBooking;
 
   String _searchQuery = '';
   String get searchQuery => _searchQuery;

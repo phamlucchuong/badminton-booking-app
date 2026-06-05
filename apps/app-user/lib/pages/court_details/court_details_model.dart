@@ -1,4 +1,3 @@
-import '/backend/backend.dart';
 import '/components/button/button_widget.dart';
 import '/components/equipment_item/equipment_item_widget.dart';
 import '/components/review_item/review_item_widget.dart';
