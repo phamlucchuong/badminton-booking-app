@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'services/api_client.dart';
 import 'services/token_store.dart';
 import 'repositories/auth_repository.dart';
+import 'repositories/venue_repository.dart';
 
 class FFAppState extends ChangeNotifier {
   static FFAppState _instance = FFAppState._internal();
@@ -33,6 +34,7 @@ class FFAppState extends ChangeNotifier {
       ApiClient(tokenProvider: tokenStore.read);
   late final AuthRepository authRepository =
       AuthRepository(apiClient, tokenStore);
+  late final VenueRepository venueRepository = VenueRepository(apiClient);
 
   bool _isLoggedIn = false;
   bool get isLoggedIn => _isLoggedIn;
