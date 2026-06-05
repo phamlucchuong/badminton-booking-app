@@ -1,50 +1,64 @@
-import { Navigate, createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import { AdminLayout } from '@/components/layouts/admin-layout'
+import { VenueLayout } from '@/components/layouts/venue-layout'
+import { AdminGuard } from '@/guards/admin-guard'
+import { VenueGuard } from '@/guards/venue-guard'
+import { AdminDashboardPage } from '@/pages/admin/dashboard'
+import { AdminInvoicesPage } from '@/pages/admin/invoices'
+import { AdminReviewsPage } from '@/pages/admin/reviews'
+import { AdminUsersPage } from '@/pages/admin/users'
+import { AdminVenuesPage } from '@/pages/admin/venues'
+import { LoginPage } from '@/pages/login'
 import { NotFoundPage } from '@/pages/not-found-page'
-import { SignInPage } from '@/pages/sign-in-page'
-import { AdminAiConfigPage } from '@/pages/admin/admin-ai-config-page'
-import { AdminAuditLogsPage } from '@/pages/admin/admin-audit-logs-page'
-import { AdminDashboardPage } from '@/pages/admin/admin-dashboard-page'
-import { AdminEmployerVerificationPage } from '@/pages/admin/admin-employer-verification-page'
-import { AdminJobModerationPage } from '@/pages/admin/admin-job-moderation-page'
-import { AdminPackagesPage } from '@/pages/admin/admin-packages-page'
-import { AdminPaymentsPage } from '@/pages/admin/admin-payments-page'
-import { AdminRbacPage } from '@/pages/admin/admin-rbac-page'
-import { AdminSettingsPage } from '@/pages/admin/admin-settings-page'
-import { AdminUsersPage } from '@/pages/admin/admin-users-page'
+import { RootRedirectPage } from '@/pages/root-redirect-page'
+import { RoleSelectPage } from '@/pages/select-role'
+import { VenueBookingsPage } from '@/pages/venue/bookings'
+import { VenueCourtsPage } from '@/pages/venue/courts'
+import { VenueDashboardPage } from '@/pages/venue/dashboard'
+import { VenueHoursPage } from '@/pages/venue/hours'
+import { VenueInvoicesPage } from '@/pages/venue/invoices'
+import { VenueMediaPage } from '@/pages/venue/media'
+import { VenueProductsPage } from '@/pages/venue/products'
+import { VenueProfilePage } from '@/pages/venue/profile'
+import { VenueReviewsPage } from '@/pages/venue/reviews'
 
 export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Navigate to="/admin" replace />,
-    errorElement: <NotFoundPage />,
-  },
-  {
-    path: '/signin',
-    element: <SignInPage />,
-  },
+  { path: '/', element: <RootRedirectPage /> },
+  { path: '/login', element: <LoginPage /> },
+  { path: '/select-role', element: <RoleSelectPage /> },
   {
     path: '/admin',
-    element: <AdminLayout />,
-    errorElement: <NotFoundPage />,
+    element: (
+      <AdminGuard>
+        <AdminLayout />
+      </AdminGuard>
+    ),
     children: [
       { index: true, element: <AdminDashboardPage /> },
+      { path: 'venues', element: <AdminVenuesPage /> },
       { path: 'users', element: <AdminUsersPage /> },
-      { path: 'rbac', element: <AdminRbacPage /> },
-      {
-        path: 'employer-verification',
-        element: <AdminEmployerVerificationPage />,
-      },
-      { path: 'job-moderation', element: <AdminJobModerationPage /> },
-      { path: 'packages', element: <AdminPackagesPage /> },
-      { path: 'payments', element: <AdminPaymentsPage /> },
-      { path: 'ai-config', element: <AdminAiConfigPage /> },
-      { path: 'settings', element: <AdminSettingsPage /> },
-      { path: 'audit-logs', element: <AdminAuditLogsPage /> },
+      { path: 'invoices', element: <AdminInvoicesPage /> },
+      { path: 'reviews', element: <AdminReviewsPage /> },
     ],
   },
   {
-    path: '*',
-    element: <NotFoundPage />,
+    path: '/venue',
+    element: (
+      <VenueGuard>
+        <VenueLayout />
+      </VenueGuard>
+    ),
+    children: [
+      { index: true, element: <VenueDashboardPage /> },
+      { path: 'profile', element: <VenueProfilePage /> },
+      { path: 'courts', element: <VenueCourtsPage /> },
+      { path: 'hours', element: <VenueHoursPage /> },
+      { path: 'products', element: <VenueProductsPage /> },
+      { path: 'bookings', element: <VenueBookingsPage /> },
+      { path: 'reviews', element: <VenueReviewsPage /> },
+      { path: 'media', element: <VenueMediaPage /> },
+      { path: 'invoices', element: <VenueInvoicesPage /> },
+    ],
   },
+  { path: '*', element: <NotFoundPage /> },
 ])

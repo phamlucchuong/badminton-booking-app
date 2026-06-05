@@ -4,10 +4,10 @@ type Language = 'EN' | 'VI'
 
 const copy = {
   EN: {
-    brand: 'Badminton Admin',
+    brand: 'BadBook',
     accountActions: 'Administrator',
     searchPlaceholder: 'Search users, bookings, payments...',
-    signInTitle: 'Admin sign in',
+    signInTitle: 'Portal sign in',
     signInVisualTitle: 'Operate the badminton platform with one command center.',
     signInVisualDesc:
       'Review courts, bookings, transactions and moderation from a single dashboard.',
@@ -15,10 +15,22 @@ const copy = {
     password: 'Password',
     login: 'Sign in',
     forgotPassword: 'Forgot password?',
+    logout: 'Sign out',
+    loading: 'Loading...',
+    loginError: 'Invalid email or password',
+    selectRoleTitle: 'Choose a portal',
+    selectRoleDesc:
+      'You have access to multiple portals. Select one to continue.',
+    adminPortal: 'Admin Portal',
+    adminPortalDesc:
+      'Manage venues, users, invoices and platform settings.',
+    venuePortal: 'Venue Manager Portal',
+    venuePortalDesc:
+      'Manage your courts, bookings, products and reviews.',
     backHome: 'Back to dashboard',
     notFoundTitle: '404',
     notFoundHeading: 'Page not found',
-    notFoundDesc: 'The page you requested does not exist in the admin portal.',
+    notFoundDesc: 'The page you requested does not exist in the portal.',
     collapseSidebar: 'Collapse sidebar',
     overviewGroup: 'Overview',
     accessGroup: 'Access',
@@ -76,10 +88,10 @@ const copy = {
     allActions: 'All actions',
   },
   VI: {
-    brand: 'Badminton Admin',
+    brand: 'BadBook',
     accountActions: 'Quản trị viên',
     searchPlaceholder: 'Tìm người dùng, booking, thanh toán...',
-    signInTitle: 'Đăng nhập quản trị',
+    signInTitle: 'Đăng nhập cổng quản lý',
     signInVisualTitle: 'Điều hành nền tảng cầu lông trong một bảng điều khiển.',
     signInVisualDesc:
       'Kiểm duyệt sân, booking, giao dịch và vận hành từ một giao diện duy nhất.',
@@ -87,11 +99,23 @@ const copy = {
     password: 'Mật khẩu',
     login: 'Đăng nhập',
     forgotPassword: 'Quên mật khẩu?',
+    logout: 'Đăng xuất',
+    loading: 'Đang xử lý...',
+    loginError: 'Email hoặc mật khẩu không đúng',
+    selectRoleTitle: 'Chọn giao diện',
+    selectRoleDesc:
+      'Tài khoản của bạn có nhiều vai trò. Chọn giao diện để tiếp tục.',
+    adminPortal: 'Cổng Quản trị',
+    adminPortalDesc:
+      'Quản lý sân, người dùng, hóa đơn và cài đặt hệ thống.',
+    venuePortal: 'Cổng Quản lý Sân',
+    venuePortalDesc:
+      'Quản lý sân, booking, sản phẩm và đánh giá.',
     backHome: 'Về trang quản trị',
     notFoundTitle: '404',
     notFoundHeading: 'Không tìm thấy trang',
     notFoundDesc:
-      'Trang bạn yêu cầu không tồn tại trong cổng quản trị hiện tại.',
+      'Trang bạn yêu cầu không tồn tại trong cổng quản lý hiện tại.',
     collapseSidebar: 'Thu gọn menu',
     overviewGroup: 'Tổng quan',
     accessGroup: 'Phân quyền',
