@@ -1,5 +1,6 @@
 package vn.chuongpl.badbook.configuration;
 
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.Objects;
 import javax.crypto.spec.SecretKeySpec;
@@ -36,11 +37,19 @@ public class CustomerJwtDecoder implements JwtDecoder {
         }
 
         if(Objects.isNull(nimbusJwtDecoder)){
-            SecretKeySpec secretKey = new SecretKeySpec(SIGN_KEY.getBytes() , "HS512");
+            SecretKeySpec secretKey = new SecretKeySpec(signingKeyBytes(), "HS512");
             nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey)
                     .macAlgorithm(MacAlgorithm.HS512)
                     .build();
         }
         return nimbusJwtDecoder.decode(token);
+    }
+
+    private byte[] signingKeyBytes() {
+        byte[] keyBytes = SIGN_KEY.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 64) {
+            throw new JwtException("JWT_SECRET must be at least 64 bytes for HS512");
+        }
+        return keyBytes;
     }
 }

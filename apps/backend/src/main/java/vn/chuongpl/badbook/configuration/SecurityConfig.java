@@ -30,17 +30,21 @@ public class SecurityConfig {
     private String FE_DOMAIN;
 
     private final String[] PUBLIC_POST_ENDPOINT = {
-            "api/auth",
-            "api/auth/register",
-            "api/otp/send",
-            "api/location/geocode",
-            "api/media"
+            "/api/auth",
+            "/api/auth/register",
+            "/api/auth/refresh",
+            "/api/auth/reset-password",
+            "/api/otp/send",
+            "/api/location/geocode",
+            "/api/media"
     };
 
     private final String[] PUBLIC_GET_ENDPOINT = {
-            "api/users/verify-email/{email}",
-            "api/otp/verify",
-            "api/location/reverse-geocode",
+            "/api/users/verify-email/{email}",
+            "/api/otp/verify",
+            "/api/location/reverse-geocode",
+            "/api/venues/*/operating-hours",
+            "/api/venues/*/availability",
             "/actuator/health",
             "/v3/api-docs/**",
             "/swagger-ui/**",

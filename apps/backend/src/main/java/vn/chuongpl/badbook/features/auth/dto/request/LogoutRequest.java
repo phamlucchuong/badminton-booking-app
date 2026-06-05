@@ -1,4 +1,4 @@
-package vn.chuongpl.badbook.features.auth.dto.response;
+package vn.chuongpl.badbook.features.auth.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthResponse {
-    private String token;
+public class LogoutRequest {
     private String refreshToken;
-    private boolean authenticated;
 }
