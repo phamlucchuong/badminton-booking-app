@@ -1,5 +1,6 @@
 package vn.chuongpl.badbook.features.venue;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import vn.chuongpl.badbook.common.ApiResponse;
 import vn.chuongpl.badbook.common.PageResponse;
 import vn.chuongpl.badbook.features.venue.dto.request.VenueCreateRequest;
 import vn.chuongpl.badbook.features.venue.dto.request.VenueOperatingHourRequest;
+import vn.chuongpl.badbook.features.venue.dto.request.VenueUpdateRequest;
 import vn.chuongpl.badbook.features.venue.dto.response.VenueAvailabilityResponse;
 import vn.chuongpl.badbook.features.venue.dto.response.VenueOperatingHourResponse;
 import vn.chuongpl.badbook.features.venue.dto.response.VenueResponse;
@@ -36,6 +38,16 @@ public class VenueController {
                                                   @RequestBody VenueCreateRequest request) {
         return ApiResponse.<VenueResponse>builder()
                 .data(venueService.createVenue(jwt.getSubject(), request)).build();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('VENUE_MANAGER')")
+    public ApiResponse<VenueResponse> updateVenue(@PathVariable String id,
+                                                  @RequestBody @Valid VenueUpdateRequest request,
+                                                  @AuthenticationPrincipal Jwt jwt) {
+        return ApiResponse.<VenueResponse>builder()
+                .data(venueService.updateVenue(id, jwt.getSubject(), request))
+                .build();
     }
 
     @GetMapping("/my")
