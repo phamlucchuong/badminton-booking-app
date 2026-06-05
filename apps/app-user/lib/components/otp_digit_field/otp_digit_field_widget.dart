@@ -11,7 +11,7 @@ class OtpDigitFieldWidget extends StatefulWidget {
   const OtpDigitFieldWidget({
     super.key,
     String? value,
-  }) : this.value = value ?? '4';
+  }) : this.value = value ?? '';
 
   final String value;
 
@@ -57,10 +57,7 @@ class _OtpDigitFieldWidgetState extends State<OtpDigitFieldWidget> {
       ),
       alignment: AlignmentDirectional(0.0, 0.0),
       child: Text(
-        valueOrDefault<String>(
-          widget!.value,
-          '4',
-        ),
+        widget!.value,
         style: FlutterFlowTheme.of(context).titleLarge.override(
               font: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.bold,
