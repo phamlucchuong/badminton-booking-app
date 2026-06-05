@@ -19,6 +19,8 @@ public enum ErrorCode {
     AUTHENTICATION_FAILED(2002, "Mật khẩu không đúng"),
     EMAIL_EXISTED(2003, "Email đã tồn tại"),
     OTP_INVALID(2004, "Mã OTP không hợp lệ hoặc đã hết hạn"),
+    INVALID_PASSWORD(2005, "Mật khẩu hiện tại không đúng"),
+    INVALID_TOKEN(2006, "Token không hợp lệ hoặc đã hết hạn"),
 
     // Role / Permission
     ROLE_NOT_FOUND(3001, "Role không tồn tại"),

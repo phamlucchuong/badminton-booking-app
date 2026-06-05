@@ -1,4 +1,5 @@
 import '../services/api_client.dart';
+import '../services/api_exception.dart';
 import '../services/token_store.dart';
 import '../models/auth_models.dart';
 
@@ -10,25 +11,35 @@ class AuthRepository {
   AuthRepository(this._api, this._tokens);
 
   Future<void> register(RegisterRequest request) async {
-    await _api.post('/api/auth/register', body: request.toJson());
+    await _api.post('/api/auth/register',
+        body: request.toJson(), authenticated: false);
   }
 
   Future<void> sendOtp(String email) async {
-    await _api.post('/api/otp/send', query: {'email': email});
+    await _api.post('/api/otp/send',
+        query: {'email': email}, authenticated: false);
   }
 
   Future<bool> verifyOtp(String email, String otp) async {
-    final data = await _api.get('/api/otp/verify', query: {
-      'email': email,
-      'otp': otp,
-    });
+    final data = await _api.get('/api/otp/verify',
+        query: {
+          'email': email,
+          'otp': otp,
+        },
+        authenticated: false);
     return data as bool;
   }
 
   Future<AuthResult> login(String email, String password) async {
-    final data = await _api
-        .post('/api/auth', body: {'email': email, 'password': password});
-    final result = AuthResult.fromJson(data as Map<String, dynamic>);
+    final data = await _api.post('/api/auth',
+        body: {'email': email, 'password': password}, authenticated: false);
+    if (data is! Map<String, dynamic>) {
+      throw ApiException(
+        500,
+        'Login response is missing token data. Check backend response shape.',
+      );
+    }
+    final result = AuthResult.fromJson(data);
     await _tokens.save(result.token);
     return result;
   }

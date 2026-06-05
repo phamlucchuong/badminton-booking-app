@@ -33,4 +33,13 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     Page<Booking> findByUser(User user, Pageable pageable);
     Page<Booking> findByVenue(Venue venue, Pageable pageable);
     List<Booking> findByVenueAndStatusAndBookingDate(Venue venue, BookingStatus status, LocalDate date);
+
+    @Query("""
+        SELECT b FROM Booking b
+        WHERE b.court = :court
+        AND b.bookingDate = :date
+        AND b.status IN ('PENDING', 'CONFIRMED')
+    """)
+    List<Booking> findActiveBookingsForCourtOnDate(@Param("court") Court court,
+                                                   @Param("date") LocalDate date);
 }

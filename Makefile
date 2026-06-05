@@ -7,7 +7,7 @@ WEB_ADMIN_DIR ?= apps/web-admin
 APP_USER_DIR ?= apps/app-user
 COMPOSE_ENV_ARG = $(if $(wildcard $(BACKEND_ENV_FILE)),--env-file $(BACKEND_ENV_FILE),)
 
-.PHONY: run build test backend-verify verify compose-up compose-down compose-logs compose-reset wait-db db-create migrate migrate-info migrate-repair rollback-reset web-admin-install web-admin-dev web-admin-build web-admin-lint app-user-pub-get app-user-run app-user-analyze app-user-test app-user-build env-backend-init
+.PHONY: run build test backend-verify verify compose-up compose-down compose-logs compose-reset wait-db db-create migrate migrate-info migrate-repair rollback-reset seed-alobo seed-alobo-images reset-seed-alobo web-admin-install web-admin-dev web-admin-build web-admin-lint app-user-pub-get app-user-run app-user-analyze app-user-test app-user-build env-backend-init
 
 ifneq ("$(wildcard $(BACKEND_ENV_FILE))","")
 include $(BACKEND_ENV_FILE)
@@ -64,6 +64,16 @@ migrate-repair:
 rollback-reset:
 	$(BACKEND_MVN) -f $(BACKEND_POM) flyway:clean -Dflyway.url=$(DB_URL) -Dflyway.user=$(DB_USER) -Dflyway.password=$(DB_PASSWORD) -Dflyway.cleanDisabled=false
 	$(BACKEND_MVN) -f $(BACKEND_POM) flyway:migrate -Dflyway.url=$(DB_URL) -Dflyway.user=$(DB_USER) -Dflyway.password=$(DB_PASSWORD)
+
+seed-alobo-images:
+	python3 $(BACKEND_DIR)/scripts/upload_alobo_images.py
+
+seed-alobo:
+	docker exec -i badbook-db psql -U $(DB_USER) -d $(DB_NAME) -v ON_ERROR_STOP=1 < $(BACKEND_DIR)/scripts/seed_alobo.sql
+
+reset-seed-alobo:
+	docker exec -i badbook-db psql -U $(DB_USER) -d $(DB_NAME) -v ON_ERROR_STOP=1 -c "TRUNCATE TABLE booking_products, bookings, courts, finances, fixed_schedules, payments, platform_fee_invoices, products, reviews, search_history, user_roles, users, venue_operating_hours, venues RESTART IDENTITY CASCADE;"
+	$(MAKE) seed-alobo
 
 # Frontend commands
 web-admin-install:

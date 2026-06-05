@@ -19,6 +19,8 @@ class HomeDashboardModel extends FlutterFlowModel<HomeDashboardWidget> {
   late PromoBannerModel promoBannerModel1;
   // Model for PromoBanner.
   late PromoBannerModel promoBannerModel2;
+  // Model for PromoBanner.
+  late PromoBannerModel promoBannerModel3;
   // Model for TextField.
   late TextFieldModel textFieldModel;
 
@@ -26,6 +28,7 @@ class HomeDashboardModel extends FlutterFlowModel<HomeDashboardWidget> {
   void initState(BuildContext context) {
     promoBannerModel1 = createModel(context, () => PromoBannerModel());
     promoBannerModel2 = createModel(context, () => PromoBannerModel());
+    promoBannerModel3 = createModel(context, () => PromoBannerModel());
     textFieldModel = createModel(context, () => TextFieldModel());
   }
 
@@ -33,6 +36,7 @@ class HomeDashboardModel extends FlutterFlowModel<HomeDashboardWidget> {
   void dispose() {
     promoBannerModel1.dispose();
     promoBannerModel2.dispose();
+    promoBannerModel3.dispose();
     textFieldModel.dispose();
   }
 }

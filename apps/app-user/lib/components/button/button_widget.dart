@@ -73,6 +73,7 @@ class _ButtonWidgetState extends State<ButtonWidget> {
     return Opacity(
       opacity: widget!.disabled ? 0.55 : 1.0,
       child: Container(
+        width: widget!.fullWidth ? double.infinity : null,
         decoration: BoxDecoration(
           color: () {
             if (widget!.variant == 'secondary') {

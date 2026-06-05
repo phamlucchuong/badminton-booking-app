@@ -7,6 +7,7 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:ui';
+import 'dart:async';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,6 +27,9 @@ class HomeDashboardWidget extends StatefulWidget {
 
 class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
   late HomeDashboardModel _model;
+  PageController? _bannerPageController;
+  Timer? _bannerTimer;
+  int _currentBannerIndex = 0;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -33,10 +37,25 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => HomeDashboardModel());
+    _bannerPageController = PageController(initialPage: 0, viewportFraction: 0.9);
+
+    // Auto-scroll every 3 seconds in a loop
+    _bannerTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (_bannerPageController != null && _bannerPageController!.hasClients) {
+        final nextPage = (_currentBannerIndex + 1) % 3;
+        _bannerPageController!.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _bannerTimer?.cancel();
+    _bannerPageController?.dispose();
     _model.dispose();
 
     super.dispose();
@@ -54,9 +73,11 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: SingleChildScrollView(
-          primary: false,
-          child: Column(
+        body: SafeArea(
+          top: true,
+          child: SingleChildScrollView(
+            primary: false,
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -283,59 +304,73 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                 ),
               ),
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 24.0),
+                padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(
-                      height: 160.0,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: EdgeInsetsDirectional.fromSTEB(
-                                  24.0, 0.0, 24.0, 0.0),
-                              child: Container(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    wrapWithModel(
-                                      model: _model.promoBannerModel1,
-                                      updateCallback: () => safeSetState(() {}),
-                                      child: PromoBannerWidget(
-                                        imgDesc:
-                                            'https://dimg.dreamflow.cloud/v1/image/badminton%20court%20tournament%20action',
-                                        tag: 'Special Offer',
-                                        title: '30% Off Morning Slots',
-                                      ),
-                                    ),
-                                    wrapWithModel(
-                                      model: _model.promoBannerModel2,
-                                      updateCallback: () => safeSetState(() {}),
-                                      child: PromoBannerWidget(
-                                        imgDesc:
-                                            'https://dimg.dreamflow.cloud/v1/image/professional%20badminton%20rackets%20and%20shuttlecocks',
-                                        tag: 'New Equipment',
-                                        title: 'Rent Pro Rackets Now',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                      height: 176.0,
+                      child: PageView(
+                        controller: _bannerPageController,
+                        onPageChanged: (index) {
+                          safeSetState(() {
+                            _currentBannerIndex = index;
+                          });
+                        },
+                        children: [
+                          wrapWithModel(
+                            model: _model.promoBannerModel1,
+                            updateCallback: () => safeSetState(() {}),
+                            child: const PromoBannerWidget(
+                              imgDesc:
+                                  'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=800&auto=format&fit=crop',
+                              tag: 'Special Offer',
+                              title: '30% Off Morning Slots',
                             ),
-                          ],
-                        ),
+                          ),
+                          wrapWithModel(
+                            model: _model.promoBannerModel2,
+                            updateCallback: () => safeSetState(() {}),
+                            child: const PromoBannerWidget(
+                              imgDesc:
+                                  'https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=800&auto=format&fit=crop',
+                              tag: 'New Equipment',
+                              title: 'Rent Pro Rackets Now',
+                            ),
+                          ),
+                          wrapWithModel(
+                            model: _model.promoBannerModel3,
+                            updateCallback: () => safeSetState(() {}),
+                            child: const PromoBannerWidget(
+                              imgDesc:
+                                  'https://images.unsplash.com/photo-1622279457486-62dcc4a4b1fa?q=80&w=800&auto=format&fit=crop',
+                              tag: 'Tournament',
+                              title: 'Weekend Championship Signup',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ].divide(SizedBox(height: 16.0)),
+                    const SizedBox(height: 8.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(3, (index) {
+                        final isSelected = _currentBannerIndex == index;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                          width: isSelected ? 24.0 : 8.0,
+                          height: 8.0,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? FlutterFlowTheme.of(context).primary
+                                : FlutterFlowTheme.of(context).alternate,
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
                 ),
               ),
               Container(
@@ -803,6 +838,7 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                 height: 40.0,
               ),
             ],
+          ),
           ),
         ),
       ),

@@ -1,6 +1,5 @@
 package vn.chuongpl.badbook.features.auth.dto.response;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,5 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AuthResponse {
     private String token;
+    private String refreshToken;
     private boolean authenticated;
 }

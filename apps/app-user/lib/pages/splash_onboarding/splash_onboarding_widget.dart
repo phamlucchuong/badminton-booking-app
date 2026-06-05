@@ -1,3 +1,4 @@
+import 'dart:async';
 import '/components/button/button_widget.dart';
 import '/components/onboarding_slide/onboarding_slide_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -24,6 +25,7 @@ class SplashOnboardingWidget extends StatefulWidget {
 
 class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
   late SplashOnboardingModel _model;
+  Timer? _timer;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -31,10 +33,26 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => SplashOnboardingModel());
+    _model.pageViewController = PageController(initialPage: 0);
+
+    // Auto-scroll every 3 seconds in a loop
+    _timer = Timer.periodic(Duration(seconds: 3), (timer) {
+      if (_model.pageViewController != null &&
+          _model.pageViewController!.hasClients) {
+        final nextPage = (_model.pageViewCurrentIndex + 1) % 3;
+        _model.pageViewController!.animateToPage(
+          nextPage,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
+    _timer?.cancel();
+    _model.pageViewController?.dispose();
     _model.dispose();
 
     super.dispose();
@@ -69,22 +87,22 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                 ),
               ),
             ),
-            SingleChildScrollView(
-              primary: false,
+            SafeArea(
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Padding(
-                    padding:
-                        EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 24.0),
-                    child: Container(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
+                  Expanded(
+                    child: Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 24.0),
+                      child: Container(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
                           Container(
                             child: Padding(
                               padding: EdgeInsets.all(24.0),
@@ -253,63 +271,71 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                               ),
                             ),
                           ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              wrapWithModel(
-                                model: _model.onboardingSlideModel,
-                                updateCallback: () => safeSetState(() {}),
-                                child: OnboardingSlideWidget(
-                                  imageDesc:
-                                      'https://dimg.dreamflow.cloud/v1/image/professional%20indoor%20badminton%20court%20with%20blue%20floor%20and%20bright%20lights',
-                                  title: 'Find Your Perfect Court',
-                                  description:
-                                      'Browse and book top-rated badminton courts in your city with just a few taps.',
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: PageView(
+                                    controller: _model.pageViewController,
+                                    onPageChanged: (_) => safeSetState(() {}),
+                                    children: [
+                                      wrapWithModel(
+                                        model: _model.onboardingSlideModel1,
+                                        updateCallback: () => safeSetState(() {}),
+                                        child: OnboardingSlideWidget(
+                                          imageDesc: 'assets/images/onboarding_1.png',
+                                          title: 'Find Your Perfect Court',
+                                          description:
+                                              'Browse and book top-rated badminton courts in your city with just a few taps.',
+                                        ),
+                                      ),
+                                      wrapWithModel(
+                                        model: _model.onboardingSlideModel2,
+                                        updateCallback: () => safeSetState(() {}),
+                                        child: OnboardingSlideWidget(
+                                          imageDesc: 'assets/images/onboarding_2.png',
+                                          title: 'Easy Booking',
+                                          description:
+                                              'Check availability in real-time and secure your slot instantly without any hassle.',
+                                        ),
+                                      ),
+                                      wrapWithModel(
+                                        model: _model.onboardingSlideModel3,
+                                        updateCallback: () => safeSetState(() {}),
+                                        child: OnboardingSlideWidget(
+                                          imageDesc: 'assets/images/onboarding_3.png',
+                                          title: 'Play & Connect',
+                                          description:
+                                              'Join local communities, find playing partners, and level up your game.',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
                               Row(
                                 mainAxisSize: MainAxisSize.max,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 24.0,
+                                children: List.generate(3, (index) {
+                                  final isSelected = _model.pageViewCurrentIndex == index;
+                                  return AnimatedContainer(
+                                    duration: Duration(milliseconds: 300),
+                                    width: isSelected ? 24.0 : 8.0,
                                     height: 8.0,
                                     decoration: BoxDecoration(
-                                      color:
-                                          FlutterFlowTheme.of(context).primary,
-                                      borderRadius:
-                                          BorderRadius.circular(9999.0),
-                                      shape: BoxShape.rectangle,
+                                      color: isSelected
+                                          ? FlutterFlowTheme.of(context).primary
+                                          : FlutterFlowTheme.of(context).alternate,
+                                      borderRadius: BorderRadius.circular(9999.0),
                                     ),
-                                  ),
-                                  Container(
-                                    width: 8.0,
-                                    height: 8.0,
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                      borderRadius:
-                                          BorderRadius.circular(9999.0),
-                                      shape: BoxShape.rectangle,
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 8.0,
-                                    height: 8.0,
-                                    decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context)
-                                          .alternate,
-                                      borderRadius:
-                                          BorderRadius.circular(9999.0),
-                                      shape: BoxShape.rectangle,
-                                    ),
-                                  ),
-                                ].divide(SizedBox(width: 4.0)),
+                                  );
+                                }).divide(SizedBox(width: 4.0)),
                               ),
-                            ].divide(SizedBox(height: 32.0)),
+                              ].divide(SizedBox(height: 32.0)),
+                            ),
                           ),
                           Container(
                             height: 40.0,
@@ -335,35 +361,11 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                                     model: _model.buttonModel1,
                                     updateCallback: () => safeSetState(() {}),
                                     child: ButtonWidget(
-                                      content: 'Get Started',
+                                      content: 'Start',
                                       iconPresent: false,
                                       iconEndPresent: false,
                                       variant: 'primary',
                                       size: 'large',
-                                      fullWidth: false,
-                                      loading: false,
-                                      disabled: false,
-                                    ),
-                                  ),
-                                ),
-                                InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    context.goNamed(
-                                        AuthenticationWidget.routeName);
-                                  },
-                                  child: wrapWithModel(
-                                    model: _model.buttonModel2,
-                                    updateCallback: () => safeSetState(() {}),
-                                    child: ButtonWidget(
-                                      content: 'I already have an account',
-                                      iconPresent: false,
-                                      iconEndPresent: false,
-                                      variant: 'ghost',
-                                      size: 'medium',
                                       fullWidth: false,
                                       loading: false,
                                       disabled: false,
@@ -377,6 +379,7 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                             height: 20.0,
                           ),
                         ],
+                      ),
                       ),
                     ),
                   ),

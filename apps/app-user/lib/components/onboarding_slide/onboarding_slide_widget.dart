@@ -15,8 +15,7 @@ class OnboardingSlideWidget extends StatefulWidget {
     String? imageDesc,
     String? title,
     String? description,
-  })  : this.imageDesc = imageDesc ??
-            'https://dimg.dreamflow.cloud/v1/image/professional%20indoor%20badminton%20court%20with%20blue%20floor%20and%20bright%20lights',
+  })  : this.imageDesc = imageDesc ?? 'assets/images/onboarding_1.png',
         this.title = title ?? 'Find Your Perfect Court',
         this.description = description ??
             'Browse and book top-rated badminton courts in your city with just a few taps.';
@@ -56,27 +55,36 @@ class _OnboardingSlideWidgetState extends State<OnboardingSlideWidget> {
     return Padding(
       padding: EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(24.0),
-            child: Container(
-              height: 300.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24.0),
-                shape: BoxShape.rectangle,
-              ),
-              child: CachedNetworkImage(
-                fadeInDuration: Duration(milliseconds: 0),
-                fadeOutDuration: Duration(milliseconds: 0),
-                imageUrl: valueOrDefault<String>(
-                  widget!.imageDesc,
-                  'https://dimg.dreamflow.cloud/v1/image/professional%20indoor%20badminton%20court%20with%20blue%20floor%20and%20bright%20lights',
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24.0),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24.0),
+                  shape: BoxShape.rectangle,
                 ),
-                fit: BoxFit.cover,
-                alignment: Alignment(0.0, 0.0),
+                child: widget.imageDesc.startsWith('assets/') ||
+                        !widget.imageDesc.startsWith('http')
+                    ? Image.asset(
+                        widget.imageDesc,
+                        fit: BoxFit.cover,
+                        alignment: Alignment(0.0, 0.0),
+                      )
+                    : CachedNetworkImage(
+                        fadeInDuration: Duration(milliseconds: 0),
+                        fadeOutDuration: Duration(milliseconds: 0),
+                        imageUrl: valueOrDefault<String>(
+                          widget.imageDesc,
+                          'https://dimg.dreamflow.cloud/v1/image/professional%20indoor%20badminton%20court%20with%20blue%20floor%20and%20bright%20lights',
+                        ),
+                        fit: BoxFit.cover,
+                        alignment: Alignment(0.0, 0.0),
+                      ),
               ),
             ),
           ),
