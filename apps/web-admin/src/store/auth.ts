@@ -9,8 +9,17 @@ interface AuthUser {
 
 interface AuthState {
   token: string | null
+  refreshToken: string | null
   user: AuthUser | null
-  setAuth: (payload: { token: string; user: AuthUser }) => void
+  roles: string[]
+  activeRole: string | null
+  setAuth: (payload: {
+    token: string
+    refreshToken: string
+    user: AuthUser
+    roles: string[]
+  }) => void
+  setActiveRole: (role: string) => void
   clearAuth: () => void
 }
 
@@ -18,12 +27,30 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       token: null,
+      refreshToken: null,
       user: null,
-      setAuth: ({ token, user }) => set({ token, user }),
-      clearAuth: () => set({ token: null, user: null }),
+      roles: [],
+      activeRole: null,
+      setAuth: ({ token, refreshToken, user, roles }) =>
+        set({
+          token,
+          refreshToken,
+          user,
+          roles,
+          activeRole: roles.length === 1 ? roles[0] : null,
+        }),
+      setActiveRole: (role) => set({ activeRole: role }),
+      clearAuth: () =>
+        set({
+          token: null,
+          refreshToken: null,
+          user: null,
+          roles: [],
+          activeRole: null,
+        }),
     }),
     {
-      name: 'badminton-admin-auth',
+      name: 'badminton-portal-auth',
     },
   ),
 )
