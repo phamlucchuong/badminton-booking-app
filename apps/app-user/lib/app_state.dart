@@ -10,6 +10,7 @@ import 'repositories/venue_repository.dart';
 import 'repositories/booking_repository.dart';
 import 'repositories/payment_repository.dart';
 import 'repositories/review_repository.dart';
+import 'models/booking.dart';
 
 class FFAppState extends ChangeNotifier {
   static FFAppState _instance = FFAppState._internal();
@@ -50,6 +51,7 @@ class FFAppState extends ChangeNotifier {
   String currentVenueId = '';
   String currentBookingId = '';
   String currentBookingDate = '';
+  Booking? currentBooking;
 
   String _searchQuery = '';
   String get searchQuery => _searchQuery;

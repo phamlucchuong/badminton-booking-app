@@ -785,7 +785,10 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                     final booking = await FFAppState()
                                         .bookingRepository
                                         .createBooking(request);
-                                    FFAppState().update(() => FFAppState().currentBookingId = booking.id);
+                                    FFAppState().update(() {
+                                      FFAppState().currentBookingId = booking.id;
+                                      FFAppState().currentBooking = booking;
+                                    });
                                     if (context.mounted) {
                                       context.goNamed(
                                           QRPaymentWidget.routeName);
