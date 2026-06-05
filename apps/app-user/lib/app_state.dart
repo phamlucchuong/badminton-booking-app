@@ -9,6 +9,7 @@ import 'repositories/auth_repository.dart';
 import 'repositories/venue_repository.dart';
 import 'repositories/booking_repository.dart';
 import 'repositories/payment_repository.dart';
+import 'repositories/review_repository.dart';
 
 class FFAppState extends ChangeNotifier {
   static FFAppState _instance = FFAppState._internal();
@@ -39,6 +40,7 @@ class FFAppState extends ChangeNotifier {
   late final VenueRepository venueRepository = VenueRepository(apiClient);
   late final BookingRepository bookingRepository = BookingRepository(apiClient);
   late final PaymentRepository paymentRepository = PaymentRepository(apiClient);
+  late final ReviewRepository reviewRepository = ReviewRepository(apiClient);
 
   bool _isLoggedIn = false;
   bool get isLoggedIn => _isLoggedIn;
