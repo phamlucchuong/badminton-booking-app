@@ -49,9 +49,9 @@ class _TimeSlotMatrixWidgetState extends State<TimeSlotMatrixWidget> {
         _selectedKeys.add(key);
       }
       final allSlots = _selectedKeys.map((k) {
-        final parts = k.split(':');
-        final cId = parts[0];
-        final idx = int.parse(parts[1]);
+        final sep = k.lastIndexOf(':');
+        final cId = k.substring(0, sep);
+        final idx = int.parse(k.substring(sep + 1));
         final sh = 8 + idx;
         return <String, dynamic>{
           'courtId': cId,
@@ -357,6 +357,12 @@ class _TimeSlotMatrixWidgetState extends State<TimeSlotMatrixWidget> {
               child: FutureBuilder<List<Court>>(
                 future: _courtsFuture,
                 builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Failed to load courts',
+                          style: FlutterFlowTheme.of(context).bodyMedium),
+                    );
+                  }
                   if (!snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
                   }
