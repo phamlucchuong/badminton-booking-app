@@ -40,4 +40,16 @@ void main() {
       throwsA(isA<ApiException>().having((e) => e.code, 'code', 2002)),
     );
   });
+
+  test('decodes UTF-8 body when Content-Type lacks charset', () async {
+    final mock = MockClient((req) async => http.Response.bytes(
+        utf8.encode('{"code":2002,"message":"Mật khẩu không đúng"}'), 200));
+    final client = ApiClient(
+      httpClient: mock, baseUrl: 'http://test/badbook',
+      tokenProvider: () async => null);
+    expect(
+      () => client.get('/api/x'),
+      throwsA(isA<ApiException>().having((e) => e.message, 'message', 'Mật khẩu không đúng')),
+    );
+  });
 }

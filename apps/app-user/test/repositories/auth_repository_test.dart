@@ -4,7 +4,6 @@ import 'package:http/testing.dart';
 import 'package:app_user/services/api_client.dart';
 import 'package:app_user/services/token_store.dart';
 import 'package:app_user/repositories/auth_repository.dart';
-import 'package:app_user/models/auth_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

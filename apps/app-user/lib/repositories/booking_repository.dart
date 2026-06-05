@@ -11,9 +11,9 @@ class BookingRepository {
     return Booking.fromJson(data as Map<String, dynamic>);
   }
 
-  Future<List<Booking>> myBookings({int page = 0}) async {
+  Future<List<Booking>> myBookings({int page = 1}) async {
     final data = await _api.get('/api/bookings/my', query: {'page': page});
-    final list = data is Map<String, dynamic> ? data['content'] : data;
+    final list = data is Map<String, dynamic> ? data['items'] : data;
     return (list as List)
         .map((e) => Booking.fromJson(e as Map<String, dynamic>))
         .toList();

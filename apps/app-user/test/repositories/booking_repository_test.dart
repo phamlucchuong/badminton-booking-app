@@ -9,7 +9,7 @@ void main() {
   test('createBooking posts request and parses response', () async {
     late http.Request captured;
     final mock = MockClient((req) async {
-      captured = req as http.Request;
+      captured = req;
       return http.Response(
           '{"code":200,"message":"ok","data":{"id":"b1","courtName":"Florida","venueName":"Club","status":"PENDING","totalAmount":240000}}',
           200);

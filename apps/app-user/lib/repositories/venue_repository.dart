@@ -9,13 +9,13 @@ class VenueRepository {
   VenueRepository(this._api);
 
   List<T> _contentOf<T>(dynamic data, T Function(Map<String, dynamic>) fromJson) {
-    final list = data is Map<String, dynamic> ? data['content'] : data;
+    final list = data is Map<String, dynamic> ? data['items'] : data;
     return (list as List)
         .map((e) => fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
-  Future<List<Venue>> getActiveVenues({int page = 0}) async {
+  Future<List<Venue>> getActiveVenues({int page = 1}) async {
     final data = await _api.get('/api/venues', query: {'page': page});
     return _contentOf(data, Venue.fromJson);
   }
@@ -25,7 +25,7 @@ class VenueRepository {
     return Venue.fromJson(data as Map<String, dynamic>);
   }
 
-  Future<List<Venue>> search(String keyword, {int page = 0}) async {
+  Future<List<Venue>> search(String keyword, {int page = 1}) async {
     final data =
         await _api.get('/api/search', query: {'keyword': keyword, 'page': page});
     return _contentOf(data, Venue.fromJson);

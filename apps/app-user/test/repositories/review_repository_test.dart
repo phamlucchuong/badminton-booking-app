@@ -8,7 +8,7 @@ void main() {
   test('createReview posts the review payload', () async {
     late http.Request captured;
     final mock = MockClient((req) async {
-      captured = req as http.Request;
+      captured = req;
       return http.Response('{"code":200,"message":"ok","data":{"id":"r1"}}', 200);
     });
     final repo = ReviewRepository(ApiClient(

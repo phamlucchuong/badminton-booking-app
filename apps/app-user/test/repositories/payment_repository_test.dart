@@ -8,7 +8,7 @@ void main() {
   test('createVnpayUrl returns the payment URL string', () async {
     late http.Request captured;
     final mock = MockClient((req) async {
-      captured = req as http.Request;
+      captured = req;
       return http.Response(
           '{"code":200,"message":"ok","data":"https://sandbox.vnpayment.vn/pay?x=1"}',
           200);

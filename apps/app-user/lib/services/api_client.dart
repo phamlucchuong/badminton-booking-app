@@ -35,27 +35,30 @@ class ApiClient {
             query?.map((k, v) => MapEntry(k, v.toString())),
       );
 
+  String _decodeBody(http.Response res) =>
+      res.bodyBytes.isEmpty ? '' : utf8.decode(res.bodyBytes, allowMalformed: true);
+
   Future<dynamic> get(String path, {Map<String, dynamic>? query}) async {
     final res = await _http.get(_uri(path, query), headers: await _headers());
-    return ApiResponse.unwrap(res.body);
+    return ApiResponse.unwrap(_decodeBody(res));
   }
 
   Future<dynamic> post(String path,
       {Object? body, Map<String, dynamic>? query}) async {
     final res = await _http.post(_uri(path, query),
         headers: await _headers(), body: body == null ? null : jsonEncode(body));
-    return ApiResponse.unwrap(res.body);
+    return ApiResponse.unwrap(_decodeBody(res));
   }
 
   Future<dynamic> put(String path,
       {Object? body, Map<String, dynamic>? query}) async {
     final res = await _http.put(_uri(path, query),
         headers: await _headers(), body: body == null ? null : jsonEncode(body));
-    return ApiResponse.unwrap(res.body);
+    return ApiResponse.unwrap(_decodeBody(res));
   }
 
   Future<dynamic> delete(String path) async {
     final res = await _http.delete(_uri(path), headers: await _headers());
-    return ApiResponse.unwrap(res.body);
+    return ApiResponse.unwrap(_decodeBody(res));
   }
 }
