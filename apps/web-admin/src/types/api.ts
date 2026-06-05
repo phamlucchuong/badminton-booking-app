@@ -146,3 +146,30 @@ export interface PlatformFeeInvoice {
   dueDate: string
   paidAt: string | null
 }
+
+export interface SystemStatsResponse {
+  totalUsers: number
+  totalVenues: number
+  activeVenues: number
+  pendingVenues: number
+  totalBookings: number
+  completedBookings: number
+  totalPlatformRevenue: number
+  pendingInvoices: number
+}
+
+export interface AdminUserResponse {
+  id: string
+  name: string
+  phone: string
+  email: string
+  createdAt: string
+  deleted: boolean
+}
+
+export interface AdminUserCreateRequest {
+  name: string
+  phone: string
+  email: string
+  password: string
+}
