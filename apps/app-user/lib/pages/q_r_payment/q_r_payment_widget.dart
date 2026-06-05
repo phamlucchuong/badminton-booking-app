@@ -762,11 +762,21 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                               try {
                                 final url = await _payUrlFuture;
                                 if (url.isNotEmpty) {
-                                  await launchUrl(Uri.parse(url),
-                                      mode: LaunchMode.externalApplication);
+                                  try {
+                                    await launchUrl(Uri.parse(url),
+                                        mode: LaunchMode.externalApplication);
+                                  } catch (_) {
+                                    // URL launch failure is non-fatal
+                                  }
                                 }
-                              } catch (_) {
-                                // URL launch failure is non-fatal; proceed to confirmation anyway
+                              } on Exception catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Could not load payment URL: $e')));
+                                }
+                                return;
                               }
                               if (context.mounted) {
                                 context.goNamed(
