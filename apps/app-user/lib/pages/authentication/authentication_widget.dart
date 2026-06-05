@@ -5,6 +5,9 @@ import '/components/tab_group/tab_group_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/models/auth_models.dart';
+import '/pages/home_dashboard/home_dashboard_widget.dart';
+import '/services/api_exception.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,6 +30,16 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  // TextEditingControllers for form inputs
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _otpController = TextEditingController();
+
+  // Whether we are on the OTP step (after successful register+sendOtp)
+  bool _isOtpStep = false;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +48,11 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
 
   @override
   void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    _otpController.dispose();
     _model.dispose();
 
     super.dispose();
@@ -304,7 +322,179 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                       Container(
                         height: 40.0,
                       ),
-                      if (_model.isSignup ?? true)
+                      // ── Email/password form ──────────────────────────────
+                      Container(
+                        decoration: BoxDecoration(
+                          color: FlutterFlowTheme.of(context)
+                              .secondaryBackground,
+                          borderRadius: BorderRadius.circular(24.0),
+                          shape: BoxShape.rectangle,
+                          border: Border.all(
+                            color:
+                                FlutterFlowTheme.of(context).alternate,
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.stretch,
+                            children: [
+                              if (_model.isSignup ?? false)
+                                _buildInputField(
+                                  context: context,
+                                  controller: _nameController,
+                                  label: 'Full Name',
+                                  hint: 'Enter your name',
+                                  obscure: false,
+                                ),
+                              if (_model.isSignup ?? false)
+                                SizedBox(height: 12.0),
+                              _buildInputField(
+                                context: context,
+                                controller: _emailController,
+                                label: 'Email',
+                                hint: 'Enter your email',
+                                obscure: false,
+                                keyboardType:
+                                    TextInputType.emailAddress,
+                                onChanged: (v) {
+                                  _model.email = v;
+                                },
+                              ),
+                              SizedBox(height: 12.0),
+                              _buildInputField(
+                                context: context,
+                                controller: _passwordController,
+                                label: 'Password',
+                                hint: 'Enter your password',
+                                obscure: true,
+                                onChanged: (v) {
+                                  _model.password = v;
+                                },
+                              ),
+                              if (_model.isSignup ?? false)
+                                SizedBox(height: 12.0),
+                              if (_model.isSignup ?? false)
+                                _buildInputField(
+                                  context: context,
+                                  controller: _phoneController,
+                                  label: 'Phone',
+                                  hint: 'Enter your phone number',
+                                  obscure: false,
+                                  keyboardType: TextInputType.phone,
+                                ),
+                              SizedBox(height: 20.0),
+                              // ── Submit button ────────────────────────────
+                              InkWell(
+                                splashColor: Colors.transparent,
+                                focusColor: Colors.transparent,
+                                hoverColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                onTap: () async {
+                                  // Sync text fields → model
+                                  _model.email =
+                                      _emailController.text.trim();
+                                  _model.password =
+                                      _passwordController.text;
+
+                                  if (_model.isSignup ?? false) {
+                                    // ── Sign-up flow ─────────────────────
+                                    try {
+                                      await FFAppState()
+                                          .authRepository
+                                          .register(
+                                            RegisterRequest(
+                                              name: _nameController
+                                                  .text
+                                                  .trim(),
+                                              email: _model.email ??
+                                                  '',
+                                              password:
+                                                  _model.password ??
+                                                      '',
+                                              phone: _phoneController
+                                                  .text
+                                                  .trim(),
+                                            ),
+                                          );
+                                      await FFAppState()
+                                          .authRepository
+                                          .sendOtp(
+                                              _model.email ?? '');
+                                      if (context.mounted) {
+                                        safeSetState(() {
+                                          _isOtpStep = true;
+                                          _model.otpCode = '';
+                                        });
+                                      }
+                                    } on ApiException catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(e.message),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  } else {
+                                    // ── Login flow ───────────────────────
+                                    try {
+                                      await FFAppState()
+                                          .authRepository
+                                          .login(
+                                            _model.email ?? '',
+                                            _model.password ?? '',
+                                          );
+                                      FFAppState().update(() =>
+                                          FFAppState().isLoggedIn =
+                                              true);
+                                      if (context.mounted) {
+                                        context.goNamed(
+                                            HomeDashboardWidget
+                                                .routeName);
+                                      }
+                                    } on ApiException catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(e.message),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  }
+                                },
+                                child: wrapWithModel(
+                                  model: _model.buttonModel1,
+                                  updateCallback: () =>
+                                      safeSetState(() {}),
+                                  child: ButtonWidget(
+                                    content: (_model.isSignup ?? false)
+                                        ? 'Create Account'
+                                        : 'Log In',
+                                    iconPresent: false,
+                                    iconEndPresent: false,
+                                    variant: 'primary',
+                                    size: 'medium',
+                                    fullWidth: true,
+                                    loading: false,
+                                    disabled: false,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        height: 24.0,
+                      ),
+                      if (_isOtpStep)
                         Container(
                           decoration: BoxDecoration(
                             color: FlutterFlowTheme.of(context)
@@ -383,6 +573,69 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                       ),
                                     ].divide(SizedBox(height: 8.0)),
                                   ),
+                                  // OTP text input field
+                                  TextField(
+                                    controller: _otpController,
+                                    maxLength: 6,
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    onChanged: (v) {
+                                      _model.otpCode = v;
+                                      safeSetState(() {});
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: 'Enter 6-digit code',
+                                      counterText: '',
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color: FlutterFlowTheme.of(context)
+                                              .alternate,
+                                        ),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color: FlutterFlowTheme.of(context)
+                                              .alternate,
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                        borderSide: BorderSide(
+                                          color:
+                                              FlutterFlowTheme.of(context)
+                                                  .primary,
+                                          width: 2.0,
+                                        ),
+                                      ),
+                                      filled: true,
+                                      fillColor:
+                                          FlutterFlowTheme.of(context)
+                                              .primaryBackground,
+                                    ),
+                                    style: FlutterFlowTheme.of(context)
+                                        .titleLarge
+                                        .override(
+                                          font: GoogleFonts.plusJakartaSans(
+                                            fontWeight: FontWeight.bold,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .titleLarge
+                                                    .fontStyle,
+                                          ),
+                                          letterSpacing: 8.0,
+                                          fontWeight: FontWeight.bold,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleLarge
+                                                  .fontStyle,
+                                        ),
+                                  ),
+                                  // OTP digit display row (decorative)
                                   Row(
                                     mainAxisSize: MainAxisSize.max,
                                     mainAxisAlignment:
@@ -395,7 +648,10 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         updateCallback: () =>
                                             safeSetState(() {}),
                                         child: OtpDigitFieldWidget(
-                                          value: '4',
+                                          value: (_model.otpCode != null &&
+                                                  _model.otpCode!.length > 0)
+                                              ? _model.otpCode![0]
+                                              : '',
                                         ),
                                       ),
                                       wrapWithModel(
@@ -403,7 +659,10 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         updateCallback: () =>
                                             safeSetState(() {}),
                                         child: OtpDigitFieldWidget(
-                                          value: '2',
+                                          value: (_model.otpCode != null &&
+                                                  _model.otpCode!.length > 1)
+                                              ? _model.otpCode![1]
+                                              : '',
                                         ),
                                       ),
                                       wrapWithModel(
@@ -411,7 +670,10 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         updateCallback: () =>
                                             safeSetState(() {}),
                                         child: OtpDigitFieldWidget(
-                                          value: '0',
+                                          value: (_model.otpCode != null &&
+                                                  _model.otpCode!.length > 2)
+                                              ? _model.otpCode![2]
+                                              : '',
                                         ),
                                       ),
                                       wrapWithModel(
@@ -419,7 +681,10 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         updateCallback: () =>
                                             safeSetState(() {}),
                                         child: OtpDigitFieldWidget(
-                                          value: '',
+                                          value: (_model.otpCode != null &&
+                                                  _model.otpCode!.length > 3)
+                                              ? _model.otpCode![3]
+                                              : '',
                                         ),
                                       ),
                                       wrapWithModel(
@@ -427,7 +692,10 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         updateCallback: () =>
                                             safeSetState(() {}),
                                         child: OtpDigitFieldWidget(
-                                          value: '',
+                                          value: (_model.otpCode != null &&
+                                                  _model.otpCode!.length > 4)
+                                              ? _model.otpCode![4]
+                                              : '',
                                         ),
                                       ),
                                       wrapWithModel(
@@ -435,26 +703,72 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         updateCallback: () =>
                                             safeSetState(() {}),
                                         child: OtpDigitFieldWidget(
-                                          value: '',
+                                          value: (_model.otpCode != null &&
+                                                  _model.otpCode!.length > 5)
+                                              ? _model.otpCode![5]
+                                              : '',
                                         ),
                                       ),
                                     ],
                                   ),
+                                  // Verify & Continue button (wired)
                                   InkWell(
                                     splashColor: Colors.transparent,
                                     focusColor: Colors.transparent,
                                     hoverColor: Colors.transparent,
                                     highlightColor: Colors.transparent,
                                     onTap: () async {
-                                      if (_model.otpCode!.length < 6) {
+                                      if ((_model.otpCode ?? '').length < 6) {
                                         _model.error =
-                                            '\"Please enter the full verification code\"';
+                                            'Please enter the full verification code';
                                         safeSetState(() {});
                                         return;
                                       }
+                                      try {
+                                        final ok = await FFAppState()
+                                            .authRepository
+                                            .verifyOtp(
+                                              _model.email ?? '',
+                                              _model.otpCode ?? '',
+                                            );
+                                        if (ok) {
+                                          if (context.mounted) {
+                                            safeSetState(() {
+                                              _isOtpStep = false;
+                                              _model.isSignup = false;
+                                            });
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Email verified! Please log in.'),
+                                              ),
+                                            );
+                                          }
+                                        } else {
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Invalid verification code. Please try again.'),
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      } on ApiException catch (e) {
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: Text(e.message),
+                                            ),
+                                          );
+                                        }
+                                      }
                                     },
                                     child: wrapWithModel(
-                                      model: _model.buttonModel1,
+                                      model: _model.buttonModel2,
                                       updateCallback: () => safeSetState(() {}),
                                       child: ButtonWidget(
                                         content: 'Verify & Continue',
@@ -504,19 +818,51 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                               lineHeight: 1.5,
                                             ),
                                       ),
-                                      wrapWithModel(
-                                        model: _model.buttonModel2,
-                                        updateCallback: () =>
-                                            safeSetState(() {}),
-                                        child: ButtonWidget(
-                                          content: 'Resend',
-                                          iconPresent: false,
-                                          iconEndPresent: false,
-                                          variant: 'ghost',
-                                          size: 'small',
-                                          fullWidth: false,
-                                          loading: false,
-                                          disabled: false,
+                                      // Resend button (wired)
+                                      InkWell(
+                                        splashColor: Colors.transparent,
+                                        focusColor: Colors.transparent,
+                                        hoverColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                        onTap: () async {
+                                          try {
+                                            await FFAppState()
+                                                .authRepository
+                                                .sendOtp(_model.email ?? '');
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      'Verification code resent.'),
+                                                ),
+                                              );
+                                            }
+                                          } on ApiException catch (e) {
+                                            if (context.mounted) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(e.message),
+                                                ),
+                                              );
+                                            }
+                                          }
+                                        },
+                                        child: wrapWithModel(
+                                          model: _model.buttonModel1,
+                                          updateCallback: () =>
+                                              safeSetState(() {}),
+                                          child: ButtonWidget(
+                                            content: 'Resend',
+                                            iconPresent: false,
+                                            iconEndPresent: false,
+                                            variant: 'ghost',
+                                            size: 'small',
+                                            fullWidth: false,
+                                            loading: false,
+                                            disabled: false,
+                                          ),
                                         ),
                                       ),
                                     ].divide(SizedBox(width: 4.0)),
@@ -534,6 +880,95 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInputField({
+    required BuildContext context,
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required bool obscure,
+    TextInputType keyboardType = TextInputType.text,
+    void Function(String)? onChanged,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: FlutterFlowTheme.of(context).labelSmall.override(
+                font: GoogleFonts.inter(
+                  fontWeight:
+                      FlutterFlowTheme.of(context).labelSmall.fontWeight,
+                  fontStyle:
+                      FlutterFlowTheme.of(context).labelSmall.fontStyle,
+                ),
+                color: FlutterFlowTheme.of(context).secondaryText,
+                letterSpacing: 0.0,
+                fontWeight:
+                    FlutterFlowTheme.of(context).labelSmall.fontWeight,
+                fontStyle:
+                    FlutterFlowTheme.of(context).labelSmall.fontStyle,
+              ),
+        ),
+        SizedBox(height: 6.0),
+        TextField(
+          controller: controller,
+          obscureText: obscure,
+          keyboardType: keyboardType,
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: FlutterFlowTheme.of(context).bodyMedium.override(
+                  font: GoogleFonts.inter(
+                    fontWeight: FlutterFlowTheme.of(context)
+                        .bodyMedium
+                        .fontWeight,
+                    fontStyle: FlutterFlowTheme.of(context)
+                        .bodyMedium
+                        .fontStyle,
+                  ),
+                  color: FlutterFlowTheme.of(context).secondaryText,
+                  letterSpacing: 0.0,
+                ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: FlutterFlowTheme.of(context).alternate,
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: FlutterFlowTheme.of(context).alternate,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: FlutterFlowTheme.of(context).primary,
+                width: 2.0,
+              ),
+            ),
+            filled: true,
+            fillColor: FlutterFlowTheme.of(context).primaryBackground,
+            contentPadding:
+                EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 12.0),
+          ),
+          style: FlutterFlowTheme.of(context).bodyMedium.override(
+                font: GoogleFonts.inter(
+                  fontWeight:
+                      FlutterFlowTheme.of(context).bodyMedium.fontWeight,
+                  fontStyle:
+                      FlutterFlowTheme.of(context).bodyMedium.fontStyle,
+                ),
+                color: FlutterFlowTheme.of(context).primaryText,
+                letterSpacing: 0.0,
+              ),
+        ),
+      ],
     );
   }
 }
