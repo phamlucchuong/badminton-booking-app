@@ -69,6 +69,8 @@ class _TimeSlotMatrixWidgetState extends State<TimeSlotMatrixWidget> {
     _model = createModel(context, () => TimeSlotMatrixModel());
     FFAppState().currentVenueId = widget.courtId ?? '';
     FFAppState().update(() => FFAppState().selectedSlots = []);
+    FFAppState().currentBookingDate =
+        DateTime.now().toIso8601String().split('T').first;
     _courtsFuture =
         FFAppState().venueRepository.getCourts(widget.courtId ?? '');
   }

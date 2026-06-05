@@ -759,10 +759,9 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                       .cartAddons
                                       .whereType<Map<String, dynamic>>()
                                       .toList();
-                                  final today = DateTime.now()
-                                      .toIso8601String()
-                                      .split('T')
-                                      .first;
+                                  final today = FFAppState().currentBookingDate.isNotEmpty
+                                      ? FFAppState().currentBookingDate
+                                      : DateTime.now().toIso8601String().split('T').first;
                                   final request = BookingCreateRequest(
                                     courtId: slots.first['courtId'] as String,
                                     venueId: FFAppState().currentVenueId,
@@ -786,7 +785,7 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                     final booking = await FFAppState()
                                         .bookingRepository
                                         .createBooking(request);
-                                    FFAppState().currentBookingId = booking.id;
+                                    FFAppState().update(() => FFAppState().currentBookingId = booking.id);
                                     if (context.mounted) {
                                       context.goNamed(
                                           QRPaymentWidget.routeName);
@@ -796,6 +795,11 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
                                               content: Text(e.message)));
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Network error. Please try again.')));
                                     }
                                   }
                                 },

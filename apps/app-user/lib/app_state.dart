@@ -46,6 +46,11 @@ class FFAppState extends ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
   set isLoggedIn(bool value) => _isLoggedIn = value;
 
+  // Transient booking-flow state — set in time_slot_matrix, consumed in review_order / payment.
+  String currentVenueId = '';
+  String currentBookingId = '';
+  String currentBookingDate = '';
+
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
   set searchQuery(String value) {
