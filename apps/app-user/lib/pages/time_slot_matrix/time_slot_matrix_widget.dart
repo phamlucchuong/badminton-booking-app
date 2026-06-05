@@ -5,8 +5,7 @@ import '/components/time_header/time_header_widget.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'dart:ui';
+import '/models/court.dart';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -34,10 +33,44 @@ class _TimeSlotMatrixWidgetState extends State<TimeSlotMatrixWidget> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  late Future<List<Court>> _courtsFuture;
+  final Set<String> _selectedKeys = {}; // '${courtId}:${slotIndex}'
+
+  bool _isSelected(String courtId, int slotIndex) =>
+      _selectedKeys.contains('$courtId:$slotIndex');
+
+  void _toggleSlot(String courtId, int slotIndex) {
+    final key = '$courtId:$slotIndex';
+
+    setState(() {
+      if (_selectedKeys.contains(key)) {
+        _selectedKeys.remove(key);
+      } else {
+        _selectedKeys.add(key);
+      }
+      final allSlots = _selectedKeys.map((k) {
+        final parts = k.split(':');
+        final cId = parts[0];
+        final idx = int.parse(parts[1]);
+        final sh = 8 + idx;
+        return <String, dynamic>{
+          'courtId': cId,
+          'startTime': '${sh.toString().padLeft(2, '0')}:00:00',
+          'endTime': '${(sh + 1).toString().padLeft(2, '0')}:00:00',
+        };
+      }).toList();
+      FFAppState().update(() => FFAppState().selectedSlots = allSlots);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => TimeSlotMatrixModel());
+    FFAppState().currentVenueId = widget.courtId ?? '';
+    FFAppState().update(() => FFAppState().selectedSlots = []);
+    _courtsFuture =
+        FFAppState().venueRepository.getCourts(widget.courtId ?? '');
   }
 
   @override
@@ -321,657 +354,62 @@ class _TimeSlotMatrixWidgetState extends State<TimeSlotMatrixWidget> {
             ),
             Expanded(
               flex: 1,
-              child: Stack(
-                alignment: AlignmentDirectional(-1.0, -1.0),
-                children: [
-                  SingleChildScrollView(
+              child: FutureBuilder<List<Court>>(
+                future: _courtsFuture,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  final courts = snapshot.data!;
+                  final timeLabels = List.generate(
+                      10, (i) => '${(8 + i).toString().padLeft(2, '0')}:00');
+                  return SingleChildScrollView(
                     primary: false,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                            const SizedBox(height: 40),
+                            ...courts.map((c) => CourtHeaderWidget(name: c.name)),
+                          ],
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  height: 40.0,
+                                Row(
+                                  children: timeLabels
+                                      .map((t) => TimeHeaderWidget(time: t))
+                                      .toList(),
                                 ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel1,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 1',
-                                  ),
-                                ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel2,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 2',
-                                  ),
-                                ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel3,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 3',
-                                  ),
-                                ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel4,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 4',
-                                  ),
-                                ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel5,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 5',
-                                  ),
-                                ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel6,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 6',
-                                  ),
-                                ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel7,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 7',
-                                  ),
-                                ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel8,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 8',
-                                  ),
-                                ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel9,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 9',
-                                  ),
-                                ),
-                                wrapWithModel(
-                                  model: _model.courtHeaderModel10,
-                                  updateCallback: () => safeSetState(() {}),
-                                  child: CourtHeaderWidget(
-                                    name: 'Court 10',
+                                ...courts.map(
+                                  (court) => Row(
+                                    children: List.generate(10, (slotIdx) {
+                                      final selected =
+                                          _isSelected(court.id, slotIdx);
+                                      return GestureDetector(
+                                        onTap: () =>
+                                            _toggleSlot(court.id, slotIdx),
+                                        child: GridSlotWidget(
+                                            state: selected
+                                                ? 'selected'
+                                                : 'available'),
+                                      );
+                                    }),
                                   ),
                                 ),
                               ],
                             ),
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                child: SingleChildScrollView(
-                                  primary: false,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel1,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '08:00',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel2,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '09:00',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel3,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '10:00',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel4,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '11:00',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel5,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '12:00',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel6,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '13:00',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel7,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '14:00',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel8,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '15:00',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel9,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '16:00',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.timeHeaderModel10,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: TimeHeaderWidget(
-                                              time: '17:00',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel1,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel2,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel3,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'selected',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel4,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel5,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel6,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel7,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel8,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel9,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel10,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel11,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel12,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel13,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel14,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'selected',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel15,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel16,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel17,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel18,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel19,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel20,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel21,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel22,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel23,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel24,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel25,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel26,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel27,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel28,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel29,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel30,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel31,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel32,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel33,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel34,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel35,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel36,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel37,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'selected',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel38,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'selected',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel39,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel40,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel41,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel42,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel43,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel44,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'unavailable',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel45,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel46,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel47,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel48,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel49,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                          wrapWithModel(
-                                            model: _model.gridSlotModel50,
-                                            updateCallback: () =>
-                                                safeSetState(() {}),
-                                            child: GridSlotWidget(
-                                              state: 'available',
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
             Container(
