@@ -6,6 +6,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/models/venue.dart';
 import 'dart:ui';
 import '/index.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -50,24 +51,19 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<CourtsRecord>(
-      stream: CourtsRecord.getDocument('courts/${widget!.courtId}'.ref),
+    return FutureBuilder<Venue>(
+      future: FFAppState().venueRepository.getVenue(widget!.courtId ?? ''),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
-          return Scaffold(
-            backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+          return const Scaffold(
             body: Center(
-              child: SizedBox(
-                width: 50,
-                height: 50,
-                child: CircularProgressIndicator(),
-              ),
+              child: CircularProgressIndicator(),
             ),
           );
         }
 
-        final courtDetailsCourtsRecord = snapshot.data!;
+        final courtDetailsVenue = snapshot.data!;
 
         return GestureDetector(
           onTap: () {
@@ -211,13 +207,8 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                courtDetailsCourtsRecord.name !=
-                                                            null &&
-                                                        courtDetailsCourtsRecord
-                                                                .name !=
-                                                            ''
-                                                    ? courtDetailsCourtsRecord
-                                                        .name
+                                                courtDetailsVenue.name != ''
+                                                    ? courtDetailsVenue.name
                                                     : 'Smash Central Arena',
                                                 style:
                                                     FlutterFlowTheme.of(context)
@@ -262,14 +253,8 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                                     size: 16.0,
                                                   ),
                                                   Text(
-                                                    courtDetailsCourtsRecord
-                                                                    .address !=
-                                                                null &&
-                                                            courtDetailsCourtsRecord
-                                                                    .address !=
-                                                                ''
-                                                        ? courtDetailsCourtsRecord
-                                                            .address
+                                                    courtDetailsVenue.address != ''
+                                                        ? courtDetailsVenue.address
                                                         : 'District 7, Ho Chi Minh City',
                                                     style: FlutterFlowTheme.of(
                                                             context)
@@ -324,7 +309,7 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                                     16.0, 8.0, 16.0, 8.0),
                                             child: Container(
                                               child: Text(
-                                                '\$${courtDetailsCourtsRecord.pricePerHour != null ? courtDetailsCourtsRecord.pricePerHour.toString() : '15'}/hr',
+                                                '\$--/hr',
                                                 style:
                                                     FlutterFlowTheme.of(context)
                                                         .titleMedium
@@ -380,12 +365,7 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                               size: 20.0,
                                             ),
                                             Text(
-                                              courtDetailsCourtsRecord.rating !=
-                                                      null
-                                                  ? courtDetailsCourtsRecord
-                                                      .rating
-                                                      .toString()
-                                                  : '4.8',
+                                              '--',
                                               style: FlutterFlowTheme.of(
                                                       context)
                                                   .titleSmall
@@ -511,12 +491,8 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                           ),
                                     ),
                                     Text(
-                                      courtDetailsCourtsRecord.description !=
-                                                  null &&
-                                              courtDetailsCourtsRecord
-                                                      .description !=
-                                                  ''
-                                          ? courtDetailsCourtsRecord.description
+                                      (courtDetailsVenue.description != null && courtDetailsVenue.description != '')
+                                          ? courtDetailsVenue.description ?? ''
                                           : 'Professional grade badminton court featuring high-quality Yonex mats, excellent LED lighting, and climate control. Perfect for both casual games and competitive training sessions. Amenities include changing rooms, showers, and a pro-shop.',
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
@@ -842,7 +818,7 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                             ),
                                       ),
                                       Text(
-                                        '\$${courtDetailsCourtsRecord.pricePerHour != null ? courtDetailsCourtsRecord.pricePerHour.toString() : '15.00'}',
+                                        '\$--',
                                         style: FlutterFlowTheme.of(context)
                                             .titleLarge
                                             .override(
