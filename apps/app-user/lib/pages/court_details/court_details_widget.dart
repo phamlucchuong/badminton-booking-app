@@ -1,4 +1,3 @@
-import '/backend/backend.dart';
 import '/components/button/button_widget.dart';
 import '/components/equipment_item/equipment_item_widget.dart';
 import '/components/review_item/review_item_widget.dart';
@@ -6,6 +5,7 @@ import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/models/review_dto.dart';
 import '/models/venue.dart';
 import 'dart:ui';
 import '/index.dart';
@@ -33,6 +33,7 @@ class CourtDetailsWidget extends StatefulWidget {
 
 class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
   late CourtDetailsModel _model;
+  late Future<List<ReviewDto>> _reviewsFuture;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -40,6 +41,8 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => CourtDetailsModel());
+    _reviewsFuture =
+        FFAppState().reviewRepository.getVenueReviews(widget.courtId ?? '');
   }
 
   @override
@@ -692,49 +695,31 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                     ),
 
                                     // ff_lite_listview_data:${court_reviews}
-                                    StreamBuilder<List<ReviewsRecord>>(
-                                      stream: queryReviewsRecord(),
+                                    FutureBuilder<List<ReviewDto>>(
+                                      future: _reviewsFuture,
                                       builder: (context, snapshot) {
-                                        // Customize what your widget looks like when it's loading.
                                         if (!snapshot.hasData) {
-                                          return Center(
-                                            child: SizedBox(
-                                              width: 50,
-                                              height: 50,
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                          );
+                                          return const SizedBox.shrink();
                                         }
-                                        List<ReviewsRecord>
-                                            listViewReviewsRecordList =
-                                            snapshot.data!;
-
-                                        return Builder(
-                                          builder: (context) {
-                                            final item =
-                                                listViewReviewsRecordList
-                                                    .toList();
-
-                                            return ListView.builder(
-                                              padding: EdgeInsets.zero,
-                                              primary: false,
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.vertical,
-                                              itemCount: item.length,
-                                              itemBuilder:
-                                                  (context, itemIndex) {
-                                                final itemItem =
-                                                    item[itemIndex];
-                                                return ReviewItemWidget(
-                                                  key: Key(
-                                                      'Key236_${itemIndex}_of_${item.length}'),
-                                                  initials: itemItem.initials,
-                                                  user: itemItem.userName,
-                                                  date: itemItem.date,
-                                                  comment: itemItem.comment,
-                                                );
-                                              },
+                                        final reviews = snapshot.data!;
+                                        if (reviews.isEmpty) {
+                                          return const SizedBox.shrink();
+                                        }
+                                        return ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          primary: false,
+                                          shrinkWrap: true,
+                                          scrollDirection: Axis.vertical,
+                                          itemCount: reviews.length,
+                                          itemBuilder: (context, itemIndex) {
+                                            final review = reviews[itemIndex];
+                                            return ReviewItemWidget(
+                                              key: Key(
+                                                  'Key236_${itemIndex}_of_${reviews.length}'),
+                                              initials: review.initials,
+                                              user: review.userName,
+                                              date: review.formattedDate,
+                                              comment: review.content,
                                             );
                                           },
                                         );

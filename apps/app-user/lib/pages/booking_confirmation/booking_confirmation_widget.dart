@@ -2,13 +2,10 @@ import '/components/booking_detail_row/booking_detail_row_widget.dart';
 import '/components/button/button_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/flutter_flow_widgets.dart';
-import 'dart:ui';
 import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import 'package:provider/provider.dart';
 import 'booking_confirmation_model.dart';
 export 'booking_confirmation_model.dart';
 
@@ -141,158 +138,121 @@ class _BookingConfirmationWidgetState extends State<BookingConfirmationWidget> {
               ),
               Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
-                child: Container(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).secondaryBackground,
-                        borderRadius: BorderRadius.circular(24.0),
-                        shape: BoxShape.rectangle,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: FlutterFlowTheme.of(context).primary,
-                              shape: BoxShape.rectangle,
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(24.0),
-                              child: Container(
+                child: Builder(
+                  builder: (context) {
+                    final booking = FFAppState().currentBooking;
+                    if (booking == null) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24.0),
+                        child: Center(
+                          child: Text(
+                            'No booking data available',
+                            style: FlutterFlowTheme.of(context).bodyMedium,
+                          ),
+                        ),
+                      );
+                    }
+                    // Format time: '10:00:00' → '10:00'
+                    String fmtTime(String t) {
+                      final parts = t.split(':');
+                      return '${parts[0]}:${parts[1]}';
+                    }
+                    // Format amount: 150000.0 → '150,000'
+                    String fmtAmt(double amt) {
+                      final n = amt.toInt();
+                      final s = n.toString();
+                      final buffer = StringBuffer();
+                      for (int i = 0; i < s.length; i++) {
+                        if (i > 0 && (s.length - i) % 3 == 0) buffer.write(',');
+                        buffer.write(s[i]);
+                      }
+                      return buffer.toString();
+                    }
+                    final timeDisplay = '${fmtTime(booking.startTime)} - ${fmtTime(booking.endTime)}';
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(24.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: FlutterFlowTheme.of(context).secondaryBackground,
+                          borderRadius: BorderRadius.circular(24.0),
+                          shape: BoxShape.rectangle,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: FlutterFlowTheme.of(context).primary,
+                                shape: BoxShape.rectangle,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(24.0),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Florida Court - Court 3',
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                font:
-                                                    GoogleFonts.plusJakartaSans(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleLarge
-                                                          .fontStyle,
-                                                ),
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .onPrimary,
-                                                letterSpacing: 0.0,
-                                                fontWeight: FontWeight.bold,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                                lineHeight: 1.3,
-                                              ),
+                                          booking.courtName,
+                                          style: FlutterFlowTheme.of(context).titleLarge.override(
+                                            font: GoogleFonts.plusJakartaSans(
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle: FlutterFlowTheme.of(context).titleLarge.fontStyle,
+                                            ),
+                                            color: FlutterFlowTheme.of(context).onPrimary,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.bold,
+                                            fontStyle: FlutterFlowTheme.of(context).titleLarge.fontStyle,
+                                            lineHeight: 1.3,
+                                          ),
                                         ),
                                         Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
                                           children: [
-                                            Icon(
-                                              Icons.location_on_rounded,
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .onPrimary80,
-                                              size: 14.0,
-                                            ),
+                                            Icon(Icons.location_on_rounded, color: FlutterFlowTheme.of(context).onPrimary80, size: 14.0),
                                             Text(
-                                              'Grand Central Badminton Hub',
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .override(
-                                                        font: GoogleFonts.inter(
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelSmall
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .labelSmall
-                                                                  .fontStyle,
-                                                        ),
-                                                        color:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .onPrimary80,
-                                                        letterSpacing: 0.0,
-                                                        fontWeight:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontWeight,
-                                                        fontStyle:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .labelSmall
-                                                                .fontStyle,
-                                                        lineHeight: 1.3,
-                                                      ),
+                                              booking.venueName,
+                                              style: FlutterFlowTheme.of(context).labelSmall.override(
+                                                font: GoogleFonts.inter(
+                                                  fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
+                                                  fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
+                                                ),
+                                                color: FlutterFlowTheme.of(context).onPrimary80,
+                                                letterSpacing: 0.0,
+                                                fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
+                                                fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
+                                                lineHeight: 1.3,
+                                              ),
                                             ),
-                                          ].divide(SizedBox(width: 4.0)),
+                                          ].divide(const SizedBox(width: 4.0)),
                                         ),
-                                      ].divide(SizedBox(height: 4.0)),
+                                      ].divide(const SizedBox(height: 4.0)),
                                     ),
                                     Container(
                                       decoration: BoxDecoration(
-                                        color: FlutterFlowTheme.of(context)
-                                            .onPrimary,
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        color: FlutterFlowTheme.of(context).onPrimary,
+                                        borderRadius: BorderRadius.circular(10.0),
                                         shape: BoxShape.rectangle,
                                       ),
                                       child: Padding(
-                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                            16.0, 8.0, 16.0, 8.0),
-                                        child: Container(
-                                          child: Text(
-                                            '\$40.00',
-                                            style: FlutterFlowTheme.of(context)
-                                                .labelLarge
-                                                .override(
-                                                  font: GoogleFonts.inter(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .labelLarge
-                                                            .fontStyle,
-                                                  ),
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primary,
-                                                  letterSpacing: 0.0,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .labelLarge
-                                                          .fontStyle,
-                                                  lineHeight: 1.3,
-                                                ),
+                                        padding: const EdgeInsetsDirectional.fromSTEB(16.0, 8.0, 16.0, 8.0),
+                                        child: Text(
+                                          '${fmtAmt(booking.totalAmount)} VND',
+                                          style: FlutterFlowTheme.of(context).labelLarge.override(
+                                            font: GoogleFonts.inter(
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle: FlutterFlowTheme.of(context).labelLarge.fontStyle,
+                                            ),
+                                            color: FlutterFlowTheme.of(context).primary,
+                                            letterSpacing: 0.0,
+                                            fontWeight: FontWeight.bold,
+                                            fontStyle: FlutterFlowTheme.of(context).labelLarge.fontStyle,
+                                            lineHeight: 1.3,
                                           ),
                                         ),
                                       ),
@@ -301,178 +261,96 @@ class _BookingConfirmationWidgetState extends State<BookingConfirmationWidget> {
                                 ),
                               ),
                             ),
-                          ),
-                          Container(
-                            child: Padding(
-                              padding: EdgeInsets.all(24.0),
-                              child: Container(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    wrapWithModel(
-                                      model: _model.bookingDetailRowModel1,
-                                      updateCallback: () => safeSetState(() {}),
-                                      child: BookingDetailRowWidget(
-                                        icon: Icon(
-                                          Icons.calendar_today_rounded,
-                                          color: FlutterFlowTheme.of(context)
-                                              .primary,
-                                          size: 22.0,
-                                        ),
-                                        label: 'Date',
-                                        value: 'Saturday, Oct 28, 2023',
-                                      ),
+                            Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  wrapWithModel(
+                                    model: _model.bookingDetailRowModel1,
+                                    updateCallback: () => safeSetState(() {}),
+                                    child: BookingDetailRowWidget(
+                                      icon: Icon(Icons.calendar_today_rounded, color: FlutterFlowTheme.of(context).primary, size: 22.0),
+                                      label: 'Date',
+                                      value: booking.bookingDate,
                                     ),
-                                    wrapWithModel(
-                                      model: _model.bookingDetailRowModel2,
-                                      updateCallback: () => safeSetState(() {}),
-                                      child: BookingDetailRowWidget(
-                                        icon: Icon(
-                                          Icons.schedule_rounded,
-                                          color: FlutterFlowTheme.of(context)
-                                              .primary,
-                                          size: 22.0,
-                                        ),
-                                        label: 'Time Slot',
-                                        value: '10:00 AM - 11:30 AM',
-                                      ),
+                                  ),
+                                  wrapWithModel(
+                                    model: _model.bookingDetailRowModel2,
+                                    updateCallback: () => safeSetState(() {}),
+                                    child: BookingDetailRowWidget(
+                                      icon: Icon(Icons.schedule_rounded, color: FlutterFlowTheme.of(context).primary, size: 22.0),
+                                      label: 'Time Slot',
+                                      value: timeDisplay,
                                     ),
-                                    wrapWithModel(
-                                      model: _model.bookingDetailRowModel3,
-                                      updateCallback: () => safeSetState(() {}),
-                                      child: BookingDetailRowWidget(
-                                        icon: Icon(
-                                          Icons.confirmation_number_rounded,
-                                          color: FlutterFlowTheme.of(context)
-                                              .primary,
-                                          size: 22.0,
-                                        ),
-                                        label: 'Booking ID',
-                                        value: 'CD-88294-TX',
-                                      ),
+                                  ),
+                                  wrapWithModel(
+                                    model: _model.bookingDetailRowModel3,
+                                    updateCallback: () => safeSetState(() {}),
+                                    child: BookingDetailRowWidget(
+                                      icon: Icon(Icons.confirmation_number_rounded, color: FlutterFlowTheme.of(context).primary, size: 22.0),
+                                      label: 'Booking ID',
+                                      value: booking.id,
                                     ),
-                                    Padding(
-                                      padding: EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 16.0, 0.0, 16.0),
-                                      child: Container(
-                                        child: Divider(
-                                          height: 16.0,
-                                          thickness: 1.0,
-                                          indent: 0.0,
-                                          endIndent: 0.0,
-                                          color: FlutterFlowTheme.of(context)
-                                              .alternate,
-                                        ),
-                                      ),
-                                    ),
-                                    Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Scan this QR at the venue check-in',
-                                          style: FlutterFlowTheme.of(context)
-                                              .labelMedium
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .labelMedium
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .labelMedium
-                                                          .fontStyle,
-                                                ),
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .secondaryText,
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelMedium
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelMedium
-                                                        .fontStyle,
-                                                lineHeight: 1.3,
-                                              ),
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryBackground,
-                                            borderRadius:
-                                                BorderRadius.circular(16.0),
-                                            shape: BoxShape.rectangle,
-                                            border: Border.all(
-                                              color:
-                                                  FlutterFlowTheme.of(context)
-                                                      .alternate,
-                                              width: 1.0,
-                                            ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.fromSTEB(0.0, 16.0, 0.0, 16.0),
+                                    child: Divider(height: 16.0, thickness: 1.0, color: FlutterFlowTheme.of(context).alternate),
+                                  ),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Scan this QR at the venue check-in',
+                                        style: FlutterFlowTheme.of(context).labelMedium.override(
+                                          font: GoogleFonts.inter(
+                                            fontWeight: FlutterFlowTheme.of(context).labelMedium.fontWeight,
+                                            fontStyle: FlutterFlowTheme.of(context).labelMedium.fontStyle,
                                           ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(24.0),
-                                            child: Container(
-                                              child: Container(
-                                                width: 0.0,
-                                                height: 0.0,
-                                              ),
-                                            ),
+                                          color: FlutterFlowTheme.of(context).secondaryText,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FlutterFlowTheme.of(context).labelMedium.fontWeight,
+                                          fontStyle: FlutterFlowTheme.of(context).labelMedium.fontStyle,
+                                          lineHeight: 1.3,
+                                        ),
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: FlutterFlowTheme.of(context).secondaryBackground,
+                                          borderRadius: BorderRadius.circular(16.0),
+                                          border: Border.all(color: FlutterFlowTheme.of(context).alternate, width: 1.0),
+                                        ),
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(24.0),
+                                          child: SizedBox(width: 0, height: 0),
+                                        ),
+                                      ),
+                                      Text(
+                                        booking.id,
+                                        style: FlutterFlowTheme.of(context).labelSmall.override(
+                                          font: GoogleFonts.inter(
+                                            fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
+                                            fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
                                           ),
+                                          color: FlutterFlowTheme.of(context).accent3,
+                                          letterSpacing: 0.0,
+                                          fontWeight: FlutterFlowTheme.of(context).labelSmall.fontWeight,
+                                          fontStyle: FlutterFlowTheme.of(context).labelSmall.fontStyle,
+                                          lineHeight: 1.3,
                                         ),
-                                        Text(
-                                          'CD-88294-TX',
-                                          style: FlutterFlowTheme.of(context)
-                                              .labelSmall
-                                              .override(
-                                                font: GoogleFonts.inter(
-                                                  fontWeight:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .labelSmall
-                                                          .fontWeight,
-                                                  fontStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .labelSmall
-                                                          .fontStyle,
-                                                ),
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .accent3,
-                                                letterSpacing: 0.0,
-                                                fontWeight:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelSmall
-                                                        .fontWeight,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .labelSmall
-                                                        .fontStyle,
-                                                lineHeight: 1.3,
-                                              ),
-                                        ),
-                                      ].divide(SizedBox(height: 16.0)),
-                                    ),
-                                  ].divide(SizedBox(height: 16.0)),
-                                ),
+                                      ),
+                                    ].divide(const SizedBox(height: 16.0)),
+                                  ),
+                                ].divide(const SizedBox(height: 16.0)),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
               Padding(

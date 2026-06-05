@@ -8,6 +8,8 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import 'dart:ui';
 import '/flutter_flow/custom_functions.dart' as functions;
 import '/index.dart';
+import '/models/booking.dart';
+import '/services/api_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -742,7 +744,67 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                 hoverColor: Colors.transparent,
                                 highlightColor: Colors.transparent,
                                 onTap: () async {
-                                  context.goNamed(QRPaymentWidget.routeName);
+                                  final slots = FFAppState()
+                                      .selectedSlots
+                                      .whereType<Map<String, dynamic>>()
+                                      .toList();
+                                  if (slots.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                            content:
+                                                Text('No slots selected')));
+                                    return;
+                                  }
+                                  final addons = FFAppState()
+                                      .cartAddons
+                                      .whereType<Map<String, dynamic>>()
+                                      .toList();
+                                  final today = FFAppState().currentBookingDate.isNotEmpty
+                                      ? FFAppState().currentBookingDate
+                                      : DateTime.now().toIso8601String().split('T').first;
+                                  final request = BookingCreateRequest(
+                                    courtId: slots.first['courtId'] as String,
+                                    venueId: FFAppState().currentVenueId,
+                                    bookingDate: today,
+                                    startTime:
+                                        slots.first['startTime'] as String,
+                                    endTime: slots.last['endTime'] as String,
+                                    type: 'HOURLY',
+                                    paymentMethod: 'VNPAY',
+                                    products: addons
+                                        .map((a) => BookingProductLine(
+                                              productId:
+                                                  a['productId'] as String,
+                                              quantity:
+                                                  (a['quantity'] as num)
+                                                      .toInt(),
+                                            ))
+                                        .toList(),
+                                  );
+                                  try {
+                                    final booking = await FFAppState()
+                                        .bookingRepository
+                                        .createBooking(request);
+                                    FFAppState().update(() {
+                                      FFAppState().currentBookingId = booking.id;
+                                      FFAppState().currentBooking = booking;
+                                    });
+                                    if (context.mounted) {
+                                      context.goNamed(
+                                          QRPaymentWidget.routeName);
+                                    }
+                                  } on ApiException catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(e.message)));
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Network error. Please try again.')));
+                                    }
+                                  }
                                 },
                                 child: wrapWithModel(
                                   model: _model.buttonModel,
