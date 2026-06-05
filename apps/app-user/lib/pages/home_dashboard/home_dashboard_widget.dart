@@ -1,4 +1,5 @@
 import '/backend/backend.dart';
+import '/models/venue.dart';
 import '/components/court_card/court_card_widget.dart';
 import '/components/promo_banner/promo_banner_widget.dart';
 import '/components/text_field/text_field_widget.dart';
@@ -744,65 +745,53 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                     ),
 
                     // ff_lite_listview_data:${filtered_courts}
-                    StreamBuilder<List<CourtsRecord>>(
-                      stream: queryCourtsRecord(),
+                    FutureBuilder<List<Venue>>(
+                      future: FFAppState()
+                          .venueRepository
+                          .getActiveVenues(),
                       builder: (context, snapshot) {
-                        // Customize what your widget looks like when it's loading.
                         if (!snapshot.hasData) {
-                          return Center(
-                            child: SizedBox(
-                              width: 50,
-                              height: 50,
-                              child: CircularProgressIndicator(),
-                            ),
+                          return const Center(
+                            child: CircularProgressIndicator(),
                           );
                         }
-                        List<CourtsRecord> listViewCourtsRecordList =
-                            snapshot.data!;
+                        final venues = snapshot.data!;
 
-                        return Builder(
-                          builder: (context) {
-                            final item = listViewCourtsRecordList.toList();
-
-                            return ListView.separated(
-                              padding: EdgeInsets.zero,
-                              primary: false,
-                              shrinkWrap: true,
-                              scrollDirection: Axis.vertical,
-                              itemCount: item.length,
-                              separatorBuilder: (_, __) =>
-                                  SizedBox(height: 8.0),
-                              itemBuilder: (context, itemIndex) {
-                                final itemItem = item[itemIndex];
-                                return InkWell(
-                                  splashColor: Colors.transparent,
-                                  focusColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  highlightColor: Colors.transparent,
-                                  onTap: () async {
-                                    // ff_lite_route_params:court_id:item.id
-
-                                    context.goNamed(
-                                      CourtDetailsWidget.routeName,
-                                      queryParameters: {
-                                        'courtId': serializeParam(
-                                          'item.id',
-                                          ParamType.String,
-                                        ),
-                                      }.withoutNulls,
-                                    );
-                                  },
-                                  child: CourtCardWidget(
-                                    key: Key(
-                                        'Key364_${itemIndex}_of_${item.length}'),
-                                    imgDesc: itemItem.imageUrl,
-                                    name: itemItem.name,
-                                    rating: itemItem.rating.toString(),
-                                    address: itemItem.address,
-                                    price: itemItem.pricePerHour.toString(),
-                                  ),
+                        return ListView.separated(
+                          padding: EdgeInsets.zero,
+                          primary: false,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          itemCount: venues.length,
+                          separatorBuilder: (_, __) =>
+                              SizedBox(height: 8.0),
+                          itemBuilder: (context, itemIndex) {
+                            final venue = venues[itemIndex];
+                            return InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                context.goNamed(
+                                  CourtDetailsWidget.routeName,
+                                  queryParameters: {
+                                    'courtId': serializeParam(
+                                      venue.id,
+                                      ParamType.String,
+                                    ),
+                                  }.withoutNulls,
                                 );
                               },
+                              child: CourtCardWidget(
+                                key: Key(
+                                    'Key364_${itemIndex}_of_${venues.length}'),
+                                imgDesc: venue.description ?? '',
+                                name: venue.name,
+                                rating: '',
+                                address: venue.address,
+                                price: '',
+                              ),
                             );
                           },
                         );

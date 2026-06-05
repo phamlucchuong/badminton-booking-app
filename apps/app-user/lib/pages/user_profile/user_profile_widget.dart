@@ -565,7 +565,18 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                           hoverColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           onTap: () async {
-                            context.goNamed(AuthenticationWidget.routeName);
+                            try {
+                              await FFAppState().authRepository.logout();
+                            } catch (_) {
+                              // Ignore server errors; clear session locally
+                              // and return to the auth screen regardless.
+                              await FFAppState().tokenStore.clear();
+                            }
+                            FFAppState().update(
+                                () => FFAppState().isLoggedIn = false);
+                            if (context.mounted) {
+                              context.goNamed(AuthenticationWidget.routeName);
+                            }
                           },
                           child: wrapWithModel(
                             model: _model.buttonModel2,
