@@ -21,6 +21,7 @@ import vn.chuongpl.badbook.features.user.User;
 import vn.chuongpl.badbook.features.user.UserRepository;
 import vn.chuongpl.badbook.features.venue.dto.request.VenueCreateRequest;
 import vn.chuongpl.badbook.features.venue.dto.request.VenueOperatingHourRequest;
+import vn.chuongpl.badbook.features.venue.dto.request.VenueUpdateRequest;
 import vn.chuongpl.badbook.features.venue.dto.response.CourtSlotResponse;
 import vn.chuongpl.badbook.features.venue.dto.response.SlotResponse;
 import vn.chuongpl.badbook.features.venue.dto.response.VenueAvailabilityResponse;
@@ -29,6 +30,7 @@ import vn.chuongpl.badbook.features.venue.dto.response.VenueResponse;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -66,6 +68,41 @@ public class VenueService {
                 .bankAccountName(request.getBankAccountName())
                 .status(VenueStatus.PENDING)
                 .build();
+        return venueMapper.toResponse(venueRepository.save(venue));
+    }
+
+    @Transactional
+    public VenueResponse updateVenue(String venueId, String ownerId, VenueUpdateRequest request) {
+        Venue venue = findVenue(venueId);
+        if (!venue.getOwner().getId().toString().equals(ownerId)) {
+            throw new AppException(ErrorCode.VENUE_NOT_OWNED_BY_USER);
+        }
+        venue.setName(request.getName());
+        venue.setAddress(request.getAddress());
+        if (request.getLatitude() != null) {
+            venue.setLatitude(BigDecimal.valueOf(request.getLatitude()));
+        }
+        if (request.getLongitude() != null) {
+            venue.setLongitude(BigDecimal.valueOf(request.getLongitude()));
+        }
+        if (request.getDescription() != null) {
+            venue.setDescription(request.getDescription());
+        }
+        if (request.getOpenTime() != null) {
+            venue.setOpenTime(request.getOpenTime());
+        }
+        if (request.getCloseTime() != null) {
+            venue.setCloseTime(request.getCloseTime());
+        }
+        if (request.getBankName() != null) {
+            venue.setBankName(request.getBankName());
+        }
+        if (request.getBankNumber() != null) {
+            venue.setBankNumber(request.getBankNumber());
+        }
+        if (request.getBankAccountName() != null) {
+            venue.setBankAccountName(request.getBankAccountName());
+        }
         return venueMapper.toResponse(venueRepository.save(venue));
     }
 

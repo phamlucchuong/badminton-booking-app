@@ -1,10 +1,141 @@
+import { Plus } from 'lucide-react'
+import { useState, type ChangeEvent } from 'react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import { FormField, SelectField } from '@/components/ui/form-field'
+import { Modal } from '@/components/ui/modal'
+import { useCourts, useCreateCourt, useSetCourtStatus } from '@/hooks/venue/use-courts'
+import { useMyVenue } from '@/hooks/venue/use-my-venue'
+import type { CourtResponse } from '@/types/api'
+
+const STATUS_BADGE: Record<string, string> = {
+  ACTIVE: 'bg-green-900/50 text-green-300',
+  MAINTENANCE: 'bg-amber-900/50 text-amber-300',
+  INACTIVE: 'bg-muted text-muted-foreground',
+}
+
 export function VenueCourtsPage() {
+  const { data: venue } = useMyVenue()
+  const venueId = venue?.id ?? ''
+  const { data: courts, isLoading } = useCourts(venueId)
+  const createCourt = useCreateCourt(venueId)
+  const setStatus = useSetCourtStatus(venueId)
+
+  const [showModal, setShowModal] = useState(false)
+  const [form, setForm] = useState({
+    name: '',
+    courtType: 'STANDARD',
+    pricePerHour: '',
+    description: '',
+  })
+
+  const set =
+    (key: keyof typeof form) =>
+    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+      setForm((current) => ({ ...current, [key]: event.target.value }))
+
+  const handleCreate = async () => {
+    await createCourt.mutateAsync({
+      name: form.name,
+      courtType: form.courtType,
+      pricePerHour: Number(form.pricePerHour),
+      description: form.description || undefined,
+    })
+    toast.success('Đã thêm sân mới')
+    setShowModal(false)
+    setForm({ name: '', courtType: 'STANDARD', pricePerHour: '', description: '' })
+  }
+
+  const handleStatusChange = (court: CourtResponse, status: string) => {
+    setStatus.mutate(
+      { courtId: court.id, status },
+      { onSuccess: () => toast.success(`Đã đổi trạng thái ${court.name} → ${status}`) },
+    )
+  }
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Quản lý sân</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Court management - coming soon
-      </p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Quản lý sân</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{courts?.length ?? 0} sân</p>
+        </div>
+        <Button onClick={() => setShowModal(true)}>
+          <Plus className="mr-1.5 size-4" />
+          Thêm sân
+        </Button>
+      </div>
+
+      {isLoading && <p className="text-sm text-muted-foreground">Đang tải...</p>}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {(courts ?? []).map((court) => (
+          <div key={court.id} className="space-y-3 rounded-xl border border-border bg-card p-4">
+            <div className="flex items-start justify-between">
+              <p className="font-semibold">{court.name}</p>
+              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[court.status]}`}>
+                {court.status}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {court.courtType} · <span className="font-medium text-[#0d7c5f]">{court.pricePerHour.toLocaleString('vi-VN')}đ/h</span>
+            </p>
+            {court.description && <p className="text-xs text-muted-foreground">{court.description}</p>}
+            <select
+              value={court.status}
+              onChange={(event) => handleStatusChange(court, event.target.value)}
+              className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs"
+            >
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="MAINTENANCE">MAINTENANCE</option>
+              <option value="INACTIVE">INACTIVE</option>
+            </select>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={() => setShowModal(true)}
+          className="flex min-h-[140px] items-center justify-center rounded-xl border-2 border-dashed border-border bg-card/50 text-muted-foreground transition-colors hover:border-[#0d7c5f] hover:text-[#0d7c5f]"
+        >
+          <div className="text-center">
+            <Plus className="mx-auto size-6" />
+            <p className="mt-1 text-xs">Thêm sân mới</p>
+          </div>
+        </button>
+      </div>
+
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title="Thêm sân mới"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              Hủy
+            </Button>
+            <Button onClick={() => void handleCreate()} disabled={createCourt.isPending || !form.name || !form.pricePerHour}>
+              {createCourt.isPending ? 'Đang lưu...' : 'Thêm sân'}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <FormField label="Tên sân *" value={form.name} onChange={set('name')} placeholder="Sân 1" />
+          <SelectField
+            label="Loại sân *"
+            value={form.courtType}
+            onChange={set('courtType')}
+            options={[
+              { value: 'STANDARD', label: 'STANDARD' },
+              { value: 'VIP', label: 'VIP' },
+              { value: 'OUTDOOR', label: 'OUTDOOR' },
+            ]}
+          />
+          <FormField label="Giá/giờ (VND) *" type="number" value={form.pricePerHour} onChange={set('pricePerHour')} placeholder="100000" />
+          <FormField label="Mô tả" value={form.description} onChange={set('description')} placeholder="Tùy chọn" />
+        </div>
+      </Modal>
     </div>
   )
 }
