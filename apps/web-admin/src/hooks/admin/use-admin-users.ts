@@ -17,12 +17,12 @@ function normalizePage<T>(page: PageResponse<T>): PageResponse<T> {
   }
 }
 
-export function useAdminUsers(page: number) {
+export function useAdminUsers(page: number, size: number = 10) {
   return useQuery({
-    queryKey: ['admin', 'users', page],
+    queryKey: ['admin', 'users', page, size],
     queryFn: () =>
       api
-        .get<ApiResponse<PageResponse<AdminUserResponse>>>(`/admin/users?page=${page}`)
+        .get<ApiResponse<PageResponse<AdminUserResponse>>>(`/admin/users?page=${page}&size=${size}`)
         .then((response) => normalizePage(response.data.data)),
   })
 }

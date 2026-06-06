@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
 import { Modal } from '@/components/ui/modal'
@@ -28,17 +29,18 @@ const STATUS_BADGE: Record<string, string> = {
 }
 
 export function AdminVenuesPage() {
+  const [page, setPage] = useState(1)
   const { data: pendingPage, isLoading: pendingLoading } = useAdminVenuesPending()
-  const { data: allPage, isLoading: allLoading } = useAdminVenuesAll()
+  const { data: allPage, isLoading: allLoading } = useAdminVenuesAll(page, 10)
   const approve = useApproveVenue()
   const reject = useRejectVenue()
   const suspend = useSuspendVenue()
   const [selected, setSelected] = useState<VenueResponse | null>(null)
 
   const pending = pendingPage?.content ?? pendingPage?.items ?? []
-  const all = allPage?.content ?? allPage?.items ?? []
-  const pendingIds = new Set(pending.map((venue) => venue.id))
-  const venues = [...pending, ...all.filter((venue) => !pendingIds.has(venue.id))]
+  const venues = allPage?.content ?? allPage?.items ?? []
+  const totalPages = allPage?.totalPages ?? 1
+  const totalElements = allPage?.totalElements ?? allPage?.total ?? 0
   const anyPending = approve.isPending || reject.isPending || suspend.isPending
 
   const closeModal = () => setSelected(null)
@@ -105,7 +107,7 @@ export function AdminVenuesPage() {
       <div>
         <h1 className="text-2xl font-bold">Quan ly venue</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {pending.length} cho duyet, {venues.length} tong
+          Trang {page} / {totalPages} (Tong so {totalElements} venue, {pending.length} cho duyet)
         </p>
       </div>
 
@@ -116,6 +118,28 @@ export function AdminVenuesPage() {
         keyExtractor={(venue) => venue.id}
         emptyMessage="Khong co venue nao"
       />
+
+      <div className="flex items-center justify-end gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          disabled={page <= 1}
+          onClick={() => setPage((current) => current - 1)}
+        >
+          <ChevronLeft className="size-4" />
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          {page} / {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="icon"
+          disabled={page >= totalPages}
+          onClick={() => setPage((current) => current + 1)}
+        >
+          <ChevronRight className="size-4" />
+        </Button>
+      </div>
 
       <Modal
         open={!!selected}
