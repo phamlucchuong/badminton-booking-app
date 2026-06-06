@@ -70,10 +70,12 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
   }
 
   String formatTimeSlots(BuildContext context, List<dynamic> selectedSlots) {
-    if (selectedSlots.isEmpty) return context.l10n('No slots', 'Chưa chọn ô giờ');
+    if (selectedSlots.isEmpty)
+      return context.l10n('No slots', 'Chưa chọn ô giờ');
     final sorted = List<Map<String, dynamic>>.from(
         selectedSlots.whereType<Map<String, dynamic>>());
-    sorted.sort((a, b) => (a['startTime'] as String).compareTo(b['startTime'] as String));
+    sorted.sort((a, b) =>
+        (a['startTime'] as String).compareTo(b['startTime'] as String));
     final start = sorted.first['startTime'] as String;
     final end = sorted.last['endTime'] as String;
     final startFormatted = start.substring(0, 5);
@@ -81,7 +83,8 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
     return '$startFormatted - $endFormatted';
   }
 
-  String formatSlotsSubtitle(BuildContext context, List<dynamic> selectedSlots) {
+  String formatSlotsSubtitle(
+      BuildContext context, List<dynamic> selectedSlots) {
     final count = selectedSlots.length;
     final durationMin = count * 60;
     return context.l10n(
@@ -112,7 +115,9 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
             }
             if (snapshot.hasError) {
               return Center(
-                child: Text(context.l10n('Error loading booking details: ', 'Lỗi tải thông tin chi tiết đặt sân: ') + snapshot.error.toString()),
+                child: Text(context.l10n('Error loading booking details: ',
+                        'Lỗi tải thông tin chi tiết đặt sân: ') +
+                    snapshot.error.toString()),
               );
             }
             final data = snapshot.data!;
@@ -135,16 +140,25 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
             final addonsPrice = functions.cartSubtotal(cartAddons);
             final totalPrice = slotsPrice + addonsPrice;
 
-            final slotsPriceFormatted = '${slotsPrice.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
-            final addonsPriceFormatted = '${addonsPrice.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
-            final totalPriceFormatted = '${totalPrice.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
+            final slotsPriceFormatted =
+                '${slotsPrice.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
+            final addonsPriceFormatted =
+                '${addonsPrice.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
+            final totalPriceFormatted =
+                '${totalPrice.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
 
-            final selectedCourtIds = selectedSlots.map((s) => s['courtId']).toSet();
-            final selectedCourtNames = courts.where((c) => selectedCourtIds.contains(c.id)).map((c) => c.name).join(', ');
+            final selectedCourtIds =
+                selectedSlots.map((s) => s['courtId']).toSet();
+            final selectedCourtNames = courts
+                .where((c) => selectedCourtIds.contains(c.id))
+                .map((c) => c.name)
+                .join(', ');
 
-            final bookingDateStr = formatBookingDate(context, FFAppState().currentBookingDate);
+            final bookingDateStr =
+                formatBookingDate(context, FFAppState().currentBookingDate);
             final timeSlotsStr = formatTimeSlots(context, selectedSlots);
-            final slotsSubtitleStr = formatSlotsSubtitle(context, selectedSlots);
+            final slotsSubtitleStr =
+                formatSlotsSubtitle(context, selectedSlots);
 
             return SafeArea(
               child: Column(
@@ -162,8 +176,8 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Padding(
-                          padding:
-                              EdgeInsetsDirectional.fromSTEB(24.0, 16.0, 24.0, 16.0),
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              24.0, 16.0, 24.0, 16.0),
                           child: Container(
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
@@ -176,7 +190,8 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                   fillColor: Colors.transparent,
                                   icon: Icon(
                                     Icons.arrow_back_rounded,
-                                    color: FlutterFlowTheme.of(context).primaryText,
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
                                     size: 24.0,
                                   ),
                                   onPressed: () async {
@@ -184,15 +199,17 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                   },
                                 ),
                                 Text(
-                                  context.l10n('Review Order', 'Xác nhận đơn hàng'),
+                                  context.l10n(
+                                      'Review Order', 'Xác nhận đơn hàng'),
                                   style: FlutterFlowTheme.of(context)
                                       .titleMedium
                                       .override(
                                         font: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w600,
-                                          fontStyle: FlutterFlowTheme.of(context)
-                                              .titleMedium
-                                              .fontStyle,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleMedium
+                                                  .fontStyle,
                                         ),
                                         letterSpacing: 0.0,
                                         fontWeight: FontWeight.w600,
@@ -243,7 +260,8 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                       borderRadius: BorderRadius.circular(16.0),
                                       shape: BoxShape.rectangle,
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context).alternate,
+                                        color: FlutterFlowTheme.of(context)
+                                            .alternate,
                                         width: 1.0,
                                       ),
                                     ),
@@ -268,94 +286,100 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                                   width: 44.0,
                                                   height: 44.0,
                                                   decoration: BoxDecoration(
-                                                    color:
-                                                        FlutterFlowTheme.of(context)
-                                                            .primary10,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primary10,
                                                     borderRadius:
-                                                        BorderRadius.circular(10.0),
+                                                        BorderRadius.circular(
+                                                            10.0),
                                                     shape: BoxShape.rectangle,
                                                   ),
                                                   alignment:
-                                                      AlignmentDirectional(0.0, 0.0),
+                                                      AlignmentDirectional(
+                                                          0.0, 0.0),
                                                   child: Icon(
                                                     Icons.sports_tennis_rounded,
-                                                    color:
-                                                        FlutterFlowTheme.of(context)
-                                                            .primary,
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .primary,
                                                     size: 24.0,
                                                   ),
                                                 ),
                                                 Column(
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   mainAxisAlignment:
                                                       MainAxisAlignment.start,
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      selectedCourtNames.isNotEmpty
+                                                      selectedCourtNames
+                                                              .isNotEmpty
                                                           ? selectedCourtNames
-                                                          : context.l10n('Court Detail', 'Chi tiết sân'),
-                                                      style:
-                                                          FlutterFlowTheme.of(context)
-                                                              .titleMedium
-                                                              .override(
-                                                                font: GoogleFonts
-                                                                    .plusJakartaSans(
-                                                                  fontWeight:
-                                                                      FontWeight.w600,
-                                                                  fontStyle:
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .titleMedium
-                                                                          .fontStyle,
-                                                                ),
-                                                                letterSpacing: 0.0,
-                                                                fontWeight:
-                                                                    FontWeight.w600,
-                                                                fontStyle:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleMedium
-                                                                        .fontStyle,
-                                                                lineHeight: 1.4,
-                                                              ),
-                                                    ),
-                                                    Text(
-                                                      venue.name,
-                                                      style: FlutterFlowTheme.of(
-                                                              context)
-                                                          .bodySmall
+                                                          : context.l10n(
+                                                              'Court Detail',
+                                                              'Chi tiết sân'),
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .titleMedium
                                                           .override(
-                                                            font: GoogleFonts.inter(
+                                                            font: GoogleFonts
+                                                                .plusJakartaSans(
                                                               fontWeight:
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodySmall
-                                                                      .fontWeight,
+                                                                  FontWeight
+                                                                      .w600,
                                                               fontStyle:
                                                                   FlutterFlowTheme.of(
                                                                           context)
-                                                                      .bodySmall
+                                                                      .titleMedium
                                                                       .fontStyle,
                                                             ),
-                                                            color:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .secondaryText,
                                                             letterSpacing: 0.0,
                                                             fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodySmall
-                                                                    .fontWeight,
+                                                                FontWeight.w600,
                                                             fontStyle:
                                                                 FlutterFlowTheme.of(
                                                                         context)
+                                                                    .titleMedium
+                                                                    .fontStyle,
+                                                            lineHeight: 1.4,
+                                                          ),
+                                                    ),
+                                                    Text(
+                                                      venue.name,
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodySmall
+                                                              .override(
+                                                                font:
+                                                                    GoogleFonts
+                                                                        .inter(
+                                                                  fontWeight: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodySmall
+                                                                      .fontWeight,
+                                                                  fontStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodySmall
+                                                                      .fontStyle,
+                                                                ),
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .secondaryText,
+                                                                letterSpacing:
+                                                                    0.0,
+                                                                fontWeight: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodySmall
+                                                                    .fontWeight,
+                                                                fontStyle: FlutterFlowTheme.of(
+                                                                        context)
                                                                     .bodySmall
                                                                     .fontStyle,
-                                                            lineHeight: 1.5,
-                                                          ),
+                                                                lineHeight: 1.5,
+                                                              ),
                                                     ),
                                                   ],
                                                 ),
@@ -366,15 +390,17 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                               thickness: 1.0,
                                               indent: 0.0,
                                               endIndent: 0.0,
-                                              color: FlutterFlowTheme.of(context)
-                                                  .alternate,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .alternate,
                                             ),
                                             wrapWithModel(
                                               model: _model.summaryItemModel1,
                                               updateCallback: () =>
                                                   safeSetState(() {}),
                                               child: SummaryItemWidget(
-                                                label: context.l10n('Date', 'Ngày'),
+                                                label: context.l10n(
+                                                    'Date', 'Ngày'),
                                                 subtitle: '',
                                                 hasSubtitle: false,
                                                 value: bookingDateStr,
@@ -385,7 +411,8 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                               updateCallback: () =>
                                                   safeSetState(() {}),
                                               child: SummaryItemWidget(
-                                                label: context.l10n('Time Slots', 'Khung giờ'),
+                                                label: context.l10n(
+                                                    'Time Slots', 'Khung giờ'),
                                                 subtitle: slotsSubtitleStr,
                                                 hasSubtitle: true,
                                                 value: timeSlotsStr,
@@ -396,7 +423,8 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                               updateCallback: () =>
                                                   safeSetState(() {}),
                                               child: SummaryItemWidget(
-                                                label: context.l10n('Court Fee', 'Tiền sân'),
+                                                label: context.l10n(
+                                                    'Court Fee', 'Tiền sân'),
                                                 subtitle: '',
                                                 hasSubtitle: false,
                                                 value: slotsPriceFormatted,
@@ -410,59 +438,71 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                   Column(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
                                     children: [
                                       Row(
                                         mainAxisSize: MainAxisSize.max,
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           Text(
-                                            context.l10n('Rental & Add-ons', 'Dịch vụ & Tiện ích'),
+                                            context.l10n('Rental & Add-ons',
+                                                'Dịch vụ & Tiện ích'),
                                             style: FlutterFlowTheme.of(context)
                                                 .titleSmall
                                                 .override(
-                                                  font: GoogleFonts.plusJakartaSans(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
                                                     fontWeight: FontWeight.w600,
                                                     fontStyle:
-                                                        FlutterFlowTheme.of(context)
+                                                        FlutterFlowTheme.of(
+                                                                context)
                                                             .titleSmall
                                                             .fontStyle,
                                                   ),
                                                   letterSpacing: 0.0,
                                                   fontWeight: FontWeight.w600,
                                                   fontStyle:
-                                                      FlutterFlowTheme.of(context)
+                                                      FlutterFlowTheme.of(
+                                                              context)
                                                           .titleSmall
                                                           .fontStyle,
                                                   lineHeight: 1.4,
                                                 ),
                                           ),
                                           Text(
-                                            context.l10n('Add more', 'Thêm dịch vụ'),
+                                            context.l10n(
+                                                'Add more', 'Thêm dịch vụ'),
                                             style: FlutterFlowTheme.of(context)
                                                 .labelLarge
                                                 .override(
                                                   font: GoogleFonts.inter(
                                                     fontWeight:
-                                                        FlutterFlowTheme.of(context)
+                                                        FlutterFlowTheme.of(
+                                                                context)
                                                             .labelLarge
                                                             .fontWeight,
                                                     fontStyle:
-                                                        FlutterFlowTheme.of(context)
+                                                        FlutterFlowTheme.of(
+                                                                context)
                                                             .labelLarge
                                                             .fontStyle,
                                                   ),
-                                                  color: FlutterFlowTheme.of(context)
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
                                                       .primary,
                                                   letterSpacing: 0.0,
                                                   fontWeight:
-                                                      FlutterFlowTheme.of(context)
+                                                      FlutterFlowTheme.of(
+                                                              context)
                                                           .labelLarge
                                                           .fontWeight,
                                                   fontStyle:
-                                                      FlutterFlowTheme.of(context)
+                                                      FlutterFlowTheme.of(
+                                                              context)
                                                           .labelLarge
                                                           .fontStyle,
                                                   lineHeight: 1.3,
@@ -474,7 +514,8 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                         decoration: BoxDecoration(
                                           color: FlutterFlowTheme.of(context)
                                               .secondaryBackground,
-                                          borderRadius: BorderRadius.circular(16.0),
+                                          borderRadius:
+                                              BorderRadius.circular(16.0),
                                           shape: BoxShape.rectangle,
                                           border: Border.all(
                                             color: FlutterFlowTheme.of(context)
@@ -487,39 +528,76 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                           child: cartAddons.isEmpty
                                               ? Center(
                                                   child: Padding(
-                                                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 8.0),
                                                     child: Text(
-                                                      context.l10n('No rental & add-ons selected', 'Chưa chọn dịch vụ & tiện ích'),
-                                                      style: FlutterFlowTheme.of(context)
-                                                          .bodyMedium
-                                                          .override(
-                                                            font: GoogleFonts.inter(),
-                                                            color: FlutterFlowTheme.of(context)
-                                                                .secondaryText,
-                                                          ),
+                                                      context.l10n(
+                                                          'No rental & add-ons selected',
+                                                          'Chưa chọn dịch vụ & tiện ích'),
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMedium
+                                                              .override(
+                                                                font: GoogleFonts
+                                                                    .inter(),
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .secondaryText,
+                                                              ),
                                                     ),
                                                   ),
                                                 )
                                               : Column(
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   crossAxisAlignment:
-                                                      CrossAxisAlignment.stretch,
-                                                  children: cartAddons.map((item) {
-                                                    if (item is! Map) return Container();
-                                                    final name = item['name']?.toString() ?? '';
-                                                    final priceVal = double.tryParse(item['price']?.toString() ?? '0') ?? 0.0;
-                                                    final priceFormatted = '${priceVal.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ / unit';
-                                                    final qty = item['quantity']?.toString() ?? '0';
-                                                    final img = item['imageId']?.toString() ?? '';
-                                                    return AddonRowWidget(
-                                                      key: ValueKey(item['productId']),
-                                                      imgDesc: img.startsWith('http') ? img : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500',
-                                                      name: name,
-                                                      price: priceFormatted,
-                                                      id: item['productId']?.toString() ?? '',
-                                                      qty: qty,
-                                                    );
-                                                  }).toList().divide(SizedBox(height: 16.0)),
+                                                      CrossAxisAlignment
+                                                          .stretch,
+                                                  children: cartAddons
+                                                      .map((item) {
+                                                        if (item is! Map)
+                                                          return Container();
+                                                        final name = item[
+                                                                    'name']
+                                                                ?.toString() ??
+                                                            '';
+                                                        final priceVal = double
+                                                                .tryParse(item[
+                                                                            'price']
+                                                                        ?.toString() ??
+                                                                    '0') ??
+                                                            0.0;
+                                                        final priceFormatted =
+                                                            '${priceVal.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ / unit';
+                                                        final qty = item[
+                                                                    'quantity']
+                                                                ?.toString() ??
+                                                            '0';
+                                                        final img = item[
+                                                                    'imageId']
+                                                                ?.toString() ??
+                                                            '';
+                                                        return AddonRowWidget(
+                                                          key: ValueKey(item[
+                                                              'productId']),
+                                                          imgDesc: img
+                                                                  .startsWith(
+                                                                      'http')
+                                                              ? img
+                                                              : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500',
+                                                          name: name,
+                                                          price: priceFormatted,
+                                                          id: item['productId']
+                                                                  ?.toString() ??
+                                                              '',
+                                                          qty: qty,
+                                                        );
+                                                      })
+                                                      .toList()
+                                                      .divide(SizedBox(
+                                                          height: 16.0)),
                                                 ),
                                         ),
                                       ),
@@ -528,10 +606,12 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                   Column(
                                     mainAxisSize: MainAxisSize.min,
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
                                     children: [
                                       Text(
-                                        context.l10n('Payment Summary', 'Tóm tắt thanh toán'),
+                                        context.l10n('Payment Summary',
+                                            'Tóm tắt thanh toán'),
                                         style: FlutterFlowTheme.of(context)
                                             .titleSmall
                                             .override(
@@ -544,9 +624,10 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                               ),
                                               letterSpacing: 0.0,
                                               fontWeight: FontWeight.w600,
-                                              fontStyle: FlutterFlowTheme.of(context)
-                                                  .titleSmall
-                                                  .fontStyle,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontStyle,
                                               lineHeight: 1.4,
                                             ),
                                       ),
@@ -554,7 +635,8 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                         decoration: BoxDecoration(
                                           color: FlutterFlowTheme.of(context)
                                               .secondaryBackground,
-                                          borderRadius: BorderRadius.circular(16.0),
+                                          borderRadius:
+                                              BorderRadius.circular(16.0),
                                           shape: BoxShape.rectangle,
                                           border: Border.all(
                                             color: FlutterFlowTheme.of(context)
@@ -573,30 +655,35 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                                   CrossAxisAlignment.center,
                                               children: [
                                                 wrapWithModel(
-                                                  model: _model.summaryItemModel4,
+                                                  model:
+                                                      _model.summaryItemModel4,
                                                   updateCallback: () =>
                                                       safeSetState(() {}),
                                                   child: SummaryItemWidget(
-                                                    label: context.l10n('Subtotal', 'Tạm tính'),
+                                                    label: context.l10n(
+                                                        'Subtotal', 'Tạm tính'),
                                                     subtitle: '',
                                                     hasSubtitle: false,
                                                     value: addonsPriceFormatted,
                                                   ),
                                                 ),
                                                 wrapWithModel(
-                                                  model: _model.summaryItemModel5,
+                                                  model:
+                                                      _model.summaryItemModel5,
                                                   updateCallback: () =>
                                                       safeSetState(() {}),
                                                   child: SummaryItemWidget(
-                                                    label: context.l10n('Service Fee (5%)', 'Phí dịch vụ (5%)'),
+                                                    label: context.l10n(
+                                                        'Service Fee (5%)',
+                                                        'Phí dịch vụ (5%)'),
                                                     subtitle: '',
                                                     hasSubtitle: false,
                                                     value: '0đ',
                                                   ),
                                                 ),
                                                 Padding(
-                                                  padding:
-                                                      EdgeInsetsDirectional.fromSTEB(
+                                                  padding: EdgeInsetsDirectional
+                                                      .fromSTEB(
                                                           0.0, 16.0, 0.0, 16.0),
                                                   child: Container(
                                                     child: Divider(
@@ -605,72 +692,80 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                                       indent: 0.0,
                                                       endIndent: 0.0,
                                                       color:
-                                                          FlutterFlowTheme.of(context)
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .alternate,
                                                     ),
                                                   ),
                                                 ),
                                                 Row(
-                                                  mainAxisSize: MainAxisSize.max,
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment.spaceBetween,
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.center,
                                                   children: [
                                                     Text(
-                                                      context.l10n('Total Amount', 'Tổng số tiền'),
-                                                      style:
-                                                          FlutterFlowTheme.of(context)
-                                                              .titleMedium
-                                                              .override(
-                                                                font: GoogleFonts
-                                                                    .plusJakartaSans(
-                                                                  fontWeight:
-                                                                      FontWeight.bold,
-                                                                  fontStyle:
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .titleMedium
-                                                                          .fontStyle,
-                                                                ),
-                                                                letterSpacing: 0.0,
-                                                                fontWeight:
-                                                                    FontWeight.bold,
-                                                                fontStyle:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleMedium
-                                                                        .fontStyle,
-                                                                lineHeight: 1.4,
-                                                              ),
+                                                      context.l10n(
+                                                          'Total Amount',
+                                                          'Tổng số tiền'),
+                                                      style: FlutterFlowTheme
+                                                              .of(context)
+                                                          .titleMedium
+                                                          .override(
+                                                            font: GoogleFonts
+                                                                .plusJakartaSans(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontStyle:
+                                                                  FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .titleMedium
+                                                                      .fontStyle,
+                                                            ),
+                                                            letterSpacing: 0.0,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleMedium
+                                                                    .fontStyle,
+                                                            lineHeight: 1.4,
+                                                          ),
                                                     ),
                                                     Text(
                                                       totalPriceFormatted,
                                                       style:
-                                                          FlutterFlowTheme.of(context)
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .titleMedium
                                                               .override(
                                                                 font: GoogleFonts
                                                                     .plusJakartaSans(
                                                                   fontWeight:
-                                                                      FontWeight.bold,
-                                                                  fontStyle:
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .titleMedium
-                                                                          .fontStyle,
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .titleMedium
+                                                                      .fontStyle,
                                                                 ),
-                                                                color: FlutterFlowTheme
-                                                                        .of(context)
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
                                                                     .primary,
-                                                                letterSpacing: 0.0,
+                                                                letterSpacing:
+                                                                    0.0,
                                                                 fontWeight:
-                                                                    FontWeight.bold,
-                                                                fontStyle:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .titleMedium
-                                                                        .fontStyle,
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontStyle: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .titleMedium
+                                                                    .fontStyle,
                                                                 lineHeight: 1.4,
                                                               ),
                                                     ),
@@ -685,11 +780,13 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                   ),
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: FlutterFlowTheme.of(context).info10,
+                                      color:
+                                          FlutterFlowTheme.of(context).info10,
                                       borderRadius: BorderRadius.circular(10.0),
                                       shape: BoxShape.rectangle,
                                       border: Border.all(
-                                        color: FlutterFlowTheme.of(context).info20,
+                                        color:
+                                            FlutterFlowTheme.of(context).info20,
                                         width: 1.0,
                                       ),
                                     ),
@@ -698,14 +795,16 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                       child: Container(
                                         child: Row(
                                           mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
                                             Icon(
                                               Icons.info_outline_rounded,
                                               color:
-                                                  FlutterFlowTheme.of(context).info,
+                                                  FlutterFlowTheme.of(context)
+                                                      .info,
                                               size: 20.0,
                                             ),
                                             Expanded(
@@ -714,7 +813,8 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                                 context.l10n(
                                                     'Cancellations made 24h before the slot are eligible for a 50% refund to wallet.',
                                                     'Hủy sân trước 24 giờ sẽ được hoàn lại 50% vào ví của bạn.'),
-                                                style: FlutterFlowTheme.of(context)
+                                                style: FlutterFlowTheme.of(
+                                                        context)
                                                     .bodySmall
                                                     .override(
                                                       font: GoogleFonts.inter(
@@ -730,15 +830,18 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                                                 .fontStyle,
                                                       ),
                                                       color:
-                                                          FlutterFlowTheme.of(context)
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .info,
                                                       letterSpacing: 0.0,
                                                       fontWeight:
-                                                          FlutterFlowTheme.of(context)
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .bodySmall
                                                               .fontWeight,
                                                       fontStyle:
-                                                          FlutterFlowTheme.of(context)
+                                                          FlutterFlowTheme.of(
+                                                                  context)
                                                               .bodySmall
                                                               .fontStyle,
                                                       lineHeight: 1.5,
@@ -784,31 +887,38 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                               children: [
                                 Row(
                                   mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          context.l10n('Total to pay', 'Tổng thanh toán'),
+                                          context.l10n('Total to pay',
+                                              'Tổng thanh toán'),
                                           style: FlutterFlowTheme.of(context)
                                               .labelSmall
                                               .override(
                                                 font: GoogleFonts.inter(
                                                   fontWeight:
-                                                      FlutterFlowTheme.of(context)
+                                                      FlutterFlowTheme.of(
+                                                              context)
                                                           .labelSmall
                                                           .fontWeight,
                                                   fontStyle:
-                                                      FlutterFlowTheme.of(context)
+                                                      FlutterFlowTheme.of(
+                                                              context)
                                                           .labelSmall
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context)
-                                                    .secondaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .secondaryText,
                                                 letterSpacing: 0.0,
                                                 fontWeight:
                                                     FlutterFlowTheme.of(context)
@@ -826,15 +936,18 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.bold,
                                                   fontStyle:
-                                                      FlutterFlowTheme.of(context)
+                                                      FlutterFlowTheme.of(
+                                                              context)
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
-                                                color: FlutterFlowTheme.of(context)
-                                                    .primaryText,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
                                                 letterSpacing: 0.0,
                                                 fontWeight: FontWeight.bold,
                                                 fontStyle:
@@ -857,35 +970,48 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                             .whereType<Map<String, dynamic>>()
                                             .toList();
                                         if (slots.isEmpty) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                  content:
-                                                      Text(context.l10n('No slots selected', 'Chưa chọn khung giờ nào'))));
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(context.l10n(
+                                                      'No slots selected',
+                                                      'Chưa chọn khung giờ nào'))));
                                           return;
                                         }
-                                        final sortedSlots = List<Map<String, dynamic>>.from(slots);
-                                        sortedSlots.sort((a, b) => (a['startTime'] as String).compareTo(b['startTime'] as String));
+                                        final sortedSlots =
+                                            List<Map<String, dynamic>>.from(
+                                                slots);
+                                        sortedSlots.sort((a, b) =>
+                                            (a['startTime'] as String)
+                                                .compareTo(
+                                                    b['startTime'] as String));
 
                                         final addons = FFAppState()
                                             .cartAddons
                                             .whereType<Map<String, dynamic>>()
                                             .toList();
-                                        final today = FFAppState().currentBookingDate.isNotEmpty
+                                        final today = FFAppState()
+                                                .currentBookingDate
+                                                .isNotEmpty
                                             ? FFAppState().currentBookingDate
-                                            : DateTime.now().toIso8601String().split('T').first;
+                                            : DateTime.now()
+                                                .toIso8601String()
+                                                .split('T')
+                                                .first;
                                         final request = BookingCreateRequest(
-                                          courtId: sortedSlots.first['courtId'] as String,
+                                          courtId: sortedSlots.first['courtId']
+                                              as String,
                                           venueId: FFAppState().currentVenueId,
                                           bookingDate: today,
-                                          startTime:
-                                              sortedSlots.first['startTime'] as String,
-                                          endTime: sortedSlots.last['endTime'] as String,
+                                          startTime: sortedSlots
+                                              .first['startTime'] as String,
+                                          endTime: sortedSlots.last['endTime']
+                                              as String,
                                           type: 'HOURLY',
-                                          paymentMethod: 'VNPAY',
+                                          paymentMethod: 'CASH',
                                           products: addons
                                               .map((a) => BookingProductLine(
-                                                    productId:
-                                                        a['productId'] as String,
+                                                    productId: a['productId']
+                                                        as String,
                                                     quantity:
                                                         (a['quantity'] as num)
                                                             .toInt(),
@@ -897,8 +1023,10 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                               .bookingRepository
                                               .createBooking(request);
                                           FFAppState().update(() {
-                                            FFAppState().currentBookingId = booking.id;
-                                            FFAppState().currentBooking = booking;
+                                            FFAppState().currentBookingId =
+                                                booking.id;
+                                            FFAppState().currentBooking =
+                                                booking;
                                           });
                                           if (context.mounted) {
                                             context.goNamed(
@@ -912,16 +1040,22 @@ class _ReviewOrderWidgetState extends State<ReviewOrderWidget> {
                                           }
                                         } catch (e) {
                                           if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text(context.l10n('Network error. Please try again.', 'Lỗi kết nối. Vui lòng thử lại.'))));
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(context.l10n(
+                                                        'Network error. Please try again.',
+                                                        'Lỗi kết nối. Vui lòng thử lại.'))));
                                           }
                                         }
                                       },
                                       child: wrapWithModel(
                                         model: _model.buttonModel,
-                                        updateCallback: () => safeSetState(() {}),
+                                        updateCallback: () =>
+                                            safeSetState(() {}),
                                         child: ButtonWidget(
-                                          content: context.l10n('Proceed to Payment', 'Tiếp tục thanh toán'),
+                                          content: context.l10n(
+                                              'Proceed to Payment',
+                                              'Tiếp tục thanh toán'),
                                           icon: Icon(
                                             Icons.arrow_forward_rounded,
                                             color: FlutterFlowTheme.of(context)

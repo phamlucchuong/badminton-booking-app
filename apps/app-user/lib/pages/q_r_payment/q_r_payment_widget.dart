@@ -11,7 +11,6 @@ import '/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import 'q_r_payment_model.dart';
 
@@ -29,18 +28,12 @@ class QRPaymentWidget extends StatefulWidget {
 
 class _QRPaymentWidgetState extends State<QRPaymentWidget> {
   late QRPaymentModel _model;
-  late Future<String> _payUrlFuture;
-
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     _model = createModel(context, () => QRPaymentModel());
-
-    _payUrlFuture = FFAppState().paymentRepository.createVnpayUrl(
-          FFAppState().currentBookingId,
-        );
   }
 
   @override
@@ -70,13 +63,24 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
     context.watch<FFAppState>();
 
     final booking = FFAppState().currentBooking;
-    final amount = booking?.totalAmount ?? functions.bookingTotalPrice(FFAppState().cartAddons.toList(), FFAppState().selectedSlots.toList());
-    final amountFormatted = '${amount.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
+    final amount = booking?.totalAmount ??
+        functions.bookingTotalPrice(FFAppState().cartAddons.toList(),
+            FFAppState().selectedSlots.toList());
+    final amountFormatted =
+        '${amount.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
 
     final courtVal = booking?.courtName ?? context.l10n('Court', 'Sân');
-    final dateVal = booking != null ? formatBookingDate(context, booking.bookingDate) : context.l10n('Date', 'Ngày');
-    final timeVal = booking != null ? '${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}' : context.l10n('Time', 'Giờ');
-    final refVal = booking?.id != null ? (booking!.id.length > 8 ? booking.id.substring(0, 8).toUpperCase() : booking.id.toUpperCase()) : context.l10n('Reference', 'Mã tham chiếu');
+    final dateVal = booking != null
+        ? formatBookingDate(context, booking.bookingDate)
+        : context.l10n('Date', 'Ngày');
+    final timeVal = booking != null
+        ? '${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}'
+        : context.l10n('Time', 'Giờ');
+    final refVal = booking?.id != null
+        ? (booking!.id.length > 8
+            ? booking.id.substring(0, 8).toUpperCase()
+            : booking.id.toUpperCase())
+        : context.l10n('Reference', 'Mã tham chiếu');
 
     return GestureDetector(
       onTap: () {
@@ -102,8 +106,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(24.0, 16.0, 24.0, 16.0),
+                      padding: EdgeInsetsDirectional.fromSTEB(
+                          24.0, 16.0, 24.0, 16.0),
                       child: Container(
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
@@ -115,12 +119,12 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                               buttonSize: 40.0,
                               fillColor: Colors.transparent,
                               icon: Icon(
-                                    Icons.arrow_back_rounded,
+                                Icons.arrow_back_rounded,
                                 color: FlutterFlowTheme.of(context).primaryText,
                                 size: 24.0,
                               ),
                               onPressed: () async {
-                                context.pop();
+                                context.goNamed(HomeDashboardWidget.routeName);
                               },
                             ),
                             Text(
@@ -136,8 +140,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                           .titleMedium
                                           .fontStyle,
                                     ),
-                                    color:
-                                        FlutterFlowTheme.of(context).primaryText,
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
                                     letterSpacing: 0.0,
                                     fontWeight: FlutterFlowTheme.of(context)
                                         .titleMedium
@@ -154,7 +158,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                               fillColor: Colors.transparent,
                               icon: Icon(
                                 Icons.help_outline_rounded,
-                                color: FlutterFlowTheme.of(context).secondaryText,
+                                color:
+                                    FlutterFlowTheme.of(context).secondaryText,
                                 size: 24.0,
                               ),
                               onPressed: () {
@@ -207,7 +212,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                       child: StepIndicatorWidget(
                                         active: false,
                                         number: '1',
-                                        label: context.l10n('Review', 'Xác nhận'),
+                                        label:
+                                            context.l10n('Review', 'Xác nhận'),
                                       ),
                                     ),
                                     Expanded(
@@ -233,7 +239,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                       child: StepIndicatorWidget(
                                         active: true,
                                         number: '2',
-                                        label: context.l10n('Payment', 'Thanh toán'),
+                                        label: context.l10n(
+                                            'Payment', 'Thanh toán'),
                                       ),
                                     ),
                                     Expanded(
@@ -259,7 +266,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                       child: StepIndicatorWidget(
                                         active: false,
                                         number: '3',
-                                        label: context.l10n('Success', 'Hoàn tất'),
+                                        label:
+                                            context.l10n('Success', 'Hoàn tất'),
                                       ),
                                     ),
                                   ],
@@ -272,7 +280,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                   borderRadius: BorderRadius.circular(24.0),
                                   shape: BoxShape.rectangle,
                                   border: Border.all(
-                                    color: FlutterFlowTheme.of(context).alternate,
+                                    color:
+                                        FlutterFlowTheme.of(context).alternate,
                                     width: 1.0,
                                   ),
                                 ),
@@ -281,19 +290,23 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                   child: Container(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                          context.l10n('Scan to Pay Deposit', 'Quét mã để đặt cọc'),
+                                          context.l10n('Payment Information',
+                                              'Thông tin thanh toán'),
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
                                               .override(
-                                                font: GoogleFonts.plusJakartaSans(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
                                                   fontWeight: FontWeight.bold,
                                                   fontStyle:
-                                                      FlutterFlowTheme.of(context)
+                                                      FlutterFlowTheme.of(
+                                                              context)
                                                           .titleLarge
                                                           .fontStyle,
                                                 ),
@@ -309,29 +322,6 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                                 lineHeight: 1.3,
                                               ),
                                         ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: FlutterFlowTheme.of(context)
-                                                .onPrimary,
-                                            borderRadius:
-                                                BorderRadius.circular(16.0),
-                                            shape: BoxShape.rectangle,
-                                            border: Border.all(
-                                              color: FlutterFlowTheme.of(context)
-                                                  .alternate,
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.all(24.0),
-                                            child: Container(
-                                              child: Container(
-                                                width: 0.0,
-                                                height: 0.0,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
                                         Column(
                                           mainAxisSize: MainAxisSize.min,
                                           mainAxisAlignment:
@@ -341,11 +331,13 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                           children: [
                                             Text(
                                               'VIETCOMBANK',
-                                              style: FlutterFlowTheme.of(context)
+                                              style: FlutterFlowTheme.of(
+                                                      context)
                                                   .labelLarge
                                                   .override(
                                                     font: GoogleFonts.inter(
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontStyle:
                                                           FlutterFlowTheme.of(
                                                                   context)
@@ -367,12 +359,14 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                             ),
                                             Text(
                                               '1029 3847 5661',
-                                              style: FlutterFlowTheme.of(context)
+                                              style: FlutterFlowTheme.of(
+                                                      context)
                                                   .headlineSmall
                                                   .override(
                                                     font: GoogleFonts
                                                         .plusJakartaSans(
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontStyle:
                                                           FlutterFlowTheme.of(
                                                                   context)
@@ -394,37 +388,39 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                             ),
                                             Text(
                                               'COURTDASH SERVICES JSC',
-                                              style: FlutterFlowTheme.of(context)
-                                                  .bodySmall
-                                                  .override(
-                                                    font: GoogleFonts.inter(
-                                                      fontWeight:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodySmall
-                                                              .fontWeight,
-                                                      fontStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodySmall
-                                                              .fontStyle,
-                                                    ),
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryText,
-                                                    letterSpacing: 0.0,
-                                                    fontWeight:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodySmall
-                                                            .fontWeight,
-                                                    fontStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .bodySmall
-                                                            .fontStyle,
-                                                    lineHeight: 1.5,
-                                                  ),
+                                              style:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodySmall
+                                                      .override(
+                                                        font: GoogleFonts.inter(
+                                                          fontWeight:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodySmall
+                                                                  .fontWeight,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodySmall
+                                                                  .fontStyle,
+                                                        ),
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryText,
+                                                        letterSpacing: 0.0,
+                                                        fontWeight:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodySmall
+                                                                .fontWeight,
+                                                        fontStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodySmall
+                                                                .fontStyle,
+                                                        lineHeight: 1.5,
+                                                      ),
                                             ),
                                           ].divide(SizedBox(height: 4.0)),
                                         ),
@@ -449,12 +445,15 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                                     CrossAxisAlignment.center,
                                                 children: [
                                                   Text(
-                                                    context.l10n('Total Amount:', 'Tổng số tiền:'),
+                                                    context.l10n(
+                                                        'Total Amount:',
+                                                        'Tổng số tiền:'),
                                                     style: FlutterFlowTheme.of(
                                                             context)
                                                         .bodyMedium
                                                         .override(
-                                                          font: GoogleFonts.inter(
+                                                          font:
+                                                              GoogleFonts.inter(
                                                             fontWeight:
                                                                 FlutterFlowTheme.of(
                                                                         context)
@@ -538,7 +537,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                   child: Container(
                                     child: Row(
                                       mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
@@ -558,7 +558,9 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                context.l10n('Payment Instructions', 'Hướng dẫn thanh toán'),
+                                                context.l10n(
+                                                    'Payment Instructions',
+                                                    'Hướng dẫn thanh toán'),
                                                 style: FlutterFlowTheme.of(
                                                         context)
                                                     .labelLarge
@@ -572,11 +574,13 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                                                 .labelLarge
                                                                 .fontStyle,
                                                       ),
-                                                      color: FlutterFlowTheme.of(
-                                                              context)
-                                                          .info,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .info,
                                                       letterSpacing: 0.0,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       fontStyle:
                                                           FlutterFlowTheme.of(
                                                                   context)
@@ -587,42 +591,42 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                               ),
                                               Text(
                                                 context.l10n(
-                                                  '1. Open your banking app\n2. Scan the QR code above\n3. Ensure the amount and reference match\n4. Tap \'Confirm\' after transfer is successful',
-                                                  '1. Mở ứng dụng ngân hàng của bạn\n2. Quét mã QR ở trên\n3. Đảm bảo số tiền và nội dung chuyển khoản khớp\n4. Nhấp \'Xác nhận\' sau khi chuyển khoản thành công',
+                                                  'Your booking has already been created. Use the bank information above if you want to pay now, or complete payment later with the venue.',
+                                                  'Đặt sân của bạn đã được tạo. Bạn có thể dùng thông tin ngân hàng ở trên để thanh toán ngay hoặc thanh toán sau trực tiếp với sân.',
                                                 ),
-                                                style:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodySmall
-                                                        .override(
-                                                          font: GoogleFonts.inter(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodySmall
-                                                                    .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodySmall
-                                                                    .fontStyle,
-                                                          ),
-                                                          color:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .info,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodySmall
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodySmall
-                                                                  .fontStyle,
-                                                          lineHeight: 1.5,
-                                                        ),
+                                                style: FlutterFlowTheme.of(
+                                                        context)
+                                                    .bodySmall
+                                                    .override(
+                                                      font: GoogleFonts.inter(
+                                                        fontWeight:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodySmall
+                                                                .fontWeight,
+                                                        fontStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodySmall
+                                                                .fontStyle,
+                                                      ),
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .info,
+                                                      letterSpacing: 0.0,
+                                                      fontWeight:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodySmall
+                                                              .fontWeight,
+                                                      fontStyle:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodySmall
+                                                              .fontStyle,
+                                                      lineHeight: 1.5,
+                                                    ),
                                               ),
                                             ].divide(SizedBox(height: 4.0)),
                                           ),
@@ -638,7 +642,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
-                                    context.l10n('Booking Summary', 'Tóm tắt đặt sân'),
+                                    context.l10n(
+                                        'Booking Summary', 'Tóm tắt đặt sân'),
                                     style: FlutterFlowTheme.of(context)
                                         .titleSmall
                                         .override(
@@ -655,12 +660,14 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                           color: FlutterFlowTheme.of(context)
                                               .primaryText,
                                           letterSpacing: 0.0,
-                                          fontWeight: FlutterFlowTheme.of(context)
-                                              .titleSmall
-                                              .fontWeight,
-                                          fontStyle: FlutterFlowTheme.of(context)
-                                              .titleSmall
-                                              .fontStyle,
+                                          fontWeight:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleSmall
+                                                  .fontWeight,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleSmall
+                                                  .fontStyle,
                                           lineHeight: 1.4,
                                         ),
                                   ),
@@ -687,58 +694,61 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                               CrossAxisAlignment.center,
                                           children: [
                                             wrapWithModel(
-                                              model:
-                                                  _model.paymentDetailItemModel1,
+                                              model: _model
+                                                  .paymentDetailItemModel1,
                                               updateCallback: () =>
                                                   safeSetState(() {}),
                                               child: PaymentDetailItemWidget(
-                                                label: context.l10n('Court', 'Sân'),
+                                                label: context.l10n(
+                                                    'Court', 'Sân'),
                                                 value: courtVal,
                                               ),
                                             ),
                                             wrapWithModel(
-                                              model:
-                                                  _model.paymentDetailItemModel2,
+                                              model: _model
+                                                  .paymentDetailItemModel2,
                                               updateCallback: () =>
                                                   safeSetState(() {}),
                                               child: PaymentDetailItemWidget(
-                                                label: context.l10n('Date', 'Ngày'),
+                                                label: context.l10n(
+                                                    'Date', 'Ngày'),
                                                 value: dateVal,
                                               ),
                                             ),
                                             wrapWithModel(
-                                              model:
-                                                  _model.paymentDetailItemModel3,
+                                              model: _model
+                                                  .paymentDetailItemModel3,
                                               updateCallback: () =>
                                                   safeSetState(() {}),
                                               child: PaymentDetailItemWidget(
-                                                label: context.l10n('Time', 'Giờ'),
+                                                label:
+                                                    context.l10n('Time', 'Giờ'),
                                                 value: timeVal,
                                               ),
                                             ),
                                             Padding(
-                                              padding:
-                                                  EdgeInsetsDirectional.fromSTEB(
-                                                      0.0, 8.0, 0.0, 8.0),
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(0.0, 8.0, 0.0, 8.0),
                                               child: Container(
                                                 child: Divider(
                                                   height: 16.0,
                                                   thickness: 1.0,
                                                   indent: 0.0,
                                                   endIndent: 0.0,
-                                                  color:
-                                                      FlutterFlowTheme.of(context)
-                                                          .alternate,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .alternate,
                                                 ),
                                               ),
                                             ),
                                             wrapWithModel(
-                                              model:
-                                                  _model.paymentDetailItemModel4,
+                                              model: _model
+                                                  .paymentDetailItemModel4,
                                               updateCallback: () =>
                                                   safeSetState(() {}),
                                               child: PaymentDetailItemWidget(
-                                                label: context.l10n('Reference', 'Mã tham chiếu'),
+                                                label: context.l10n('Reference',
+                                                    'Mã tham chiếu'),
                                                 value: refVal,
                                               ),
                                             ),
@@ -790,25 +800,6 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                               hoverColor: Colors.transparent,
                               highlightColor: Colors.transparent,
                               onTap: () async {
-                                try {
-                                  final url = await _payUrlFuture;
-                                  if (url.isNotEmpty) {
-                                    try {
-                                      await launchUrl(Uri.parse(url),
-                                          mode: LaunchMode.externalApplication);
-                                    } catch (_) {
-                                      // URL launch failure is non-fatal
-                                    }
-                                  }
-                                } on Exception catch (e) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                context.l10n('Could not load payment URL: ', 'Không thể tải URL thanh toán: ') + e.toString())));
-                                  }
-                                  return;
-                                }
                                 if (context.mounted) {
                                   context.goNamed(
                                       BookingConfirmationWidget.routeName);
@@ -818,7 +809,8 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                                 model: _model.buttonModel1,
                                 updateCallback: () => safeSetState(() {}),
                                 child: ButtonWidget(
-                                  content: context.l10n('Confirm Payment Completed', 'Xác nhận đã chuyển khoản'),
+                                  content: context.l10n(
+                                      'Finish Booking', 'Hoàn tất đặt sân'),
                                   iconPresent: false,
                                   iconEndPresent: false,
                                   variant: 'primary',
@@ -835,13 +827,14 @@ class _QRPaymentWidgetState extends State<QRPaymentWidget> {
                               hoverColor: Colors.transparent,
                               highlightColor: Colors.transparent,
                               onTap: () async {
-                                context.pop();
+                                context.goNamed(HomeDashboardWidget.routeName);
                               },
                               child: wrapWithModel(
                                 model: _model.buttonModel2,
                                 updateCallback: () => safeSetState(() {}),
                                 child: ButtonWidget(
-                                  content: context.l10n('Cancel Transaction', 'Hủy giao dịch'),
+                                  content: context.l10n(
+                                      'Back to Home', 'Về trang chủ'),
                                   iconPresent: false,
                                   iconEndPresent: false,
                                   variant: 'ghost',
