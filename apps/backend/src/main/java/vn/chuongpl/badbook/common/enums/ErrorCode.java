@@ -21,6 +21,8 @@ public enum ErrorCode {
     OTP_INVALID(2004, "Mã OTP không hợp lệ hoặc đã hết hạn"),
     INVALID_PASSWORD(2005, "Mật khẩu hiện tại không đúng"),
     INVALID_TOKEN(2006, "Token không hợp lệ hoặc đã hết hạn"),
+    GOOGLE_TOKEN_INVALID(2007, "Google ID token không hợp lệ"),
+    GOOGLE_TOKEN_AUDIENCE_MISMATCH(2008, "Google token audience không khớp"),
 
     // Role / Permission
     ROLE_NOT_FOUND(3001, "Role không tồn tại"),
