@@ -35,3 +35,13 @@ export function useSetCourtStatus(venueId: string) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['venue', 'courts', venueId] }),
   })
 }
+
+export function useUpdateCourt(venueId: string) {
+  return useMutation({
+    mutationFn: ({ courtId, request }: { courtId: string; request: CourtCreateRequest }) =>
+      api
+        .put<ApiResponse<CourtResponse>>(`/venues/${venueId}/courts/${courtId}`, request)
+        .then((response) => response.data.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['venue', 'courts', venueId] }),
+  })
+}

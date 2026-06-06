@@ -87,8 +87,8 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public PageResponse<UserResponse> getAllUser(Integer page) {
-        int limit = 2;
+    public PageResponse<UserResponse> getAllUser(Integer page, Integer size) {
+        int limit = size != null && size > 0 ? size : 10;
         int pageCurrent = page != null && page > 0 ? page - 1 : 0;
         Pageable pageable = PageRequest.of(pageCurrent, limit, Sort.by(Sort.Direction.DESC, "name"));
         List<String> roles = List.of(Role.USER.name(),

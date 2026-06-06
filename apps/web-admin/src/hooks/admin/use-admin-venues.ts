@@ -27,12 +27,12 @@ export function useAdminVenuesPending() {
   })
 }
 
-export function useAdminVenuesAll() {
+export function useAdminVenuesAll(page: number = 1, size: number = 10) {
   return useQuery({
-    queryKey: KEYS.all,
+    queryKey: [...KEYS.all, page, size] as const,
     queryFn: () =>
       api
-        .get<ApiResponse<PageResponse<VenueResponse>>>('/venues?page=1&size=100')
+        .get<ApiResponse<PageResponse<VenueResponse>>>(`/venues?page=${page}&size=${size}`)
         .then((response) => normalizePage(response.data.data)),
   })
 }

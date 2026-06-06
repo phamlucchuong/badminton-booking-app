@@ -57,9 +57,10 @@ public class AdminController {
 
     @GetMapping("/users")
     public ApiResponse<PageResponse<UserResponse>> getUsers(
-            @RequestParam(defaultValue = "1") Integer page) {
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
         return ApiResponse.<PageResponse<UserResponse>>builder()
-                .data(userService.getAllUser(page)).build();
+                .data(userService.getAllUser(page, size)).build();
     }
 
     @PostMapping("/users")

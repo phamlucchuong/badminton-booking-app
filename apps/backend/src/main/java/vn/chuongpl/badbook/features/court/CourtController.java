@@ -41,6 +41,16 @@ public class CourtController {
                 .data(courtService.getCourtById(courtId)).build();
     }
 
+    @PutMapping("/{courtId}")
+    @PreAuthorize("hasRole('VENUE_MANAGER')")
+    public ApiResponse<CourtResponse> updateCourt(@AuthenticationPrincipal Jwt jwt,
+                                                  @PathVariable String venueId,
+                                                  @PathVariable String courtId,
+                                                  @RequestBody CourtCreateRequest request) {
+        return ApiResponse.<CourtResponse>builder()
+                .data(courtService.updateCourt(jwt.getSubject(), venueId, courtId, request)).build();
+    }
+
     @PutMapping("/{courtId}/status")
     @PreAuthorize("hasRole('VENUE_MANAGER')")
     public ApiResponse<CourtResponse> setStatus(@AuthenticationPrincipal Jwt jwt,

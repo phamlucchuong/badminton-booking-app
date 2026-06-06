@@ -49,12 +49,26 @@ public class CourtService {
 
     public List<CourtResponse> getCourtsByVenue(String venueId) {
         Venue venue = findVenue(venueId);
-        return courtRepository.findByVenueAndStatus(venue, CourtStatus.ACTIVE)
+        return courtRepository.findByVenue(venue)
                 .stream().map(courtMapper::toResponse).toList();
     }
 
     public CourtResponse getCourtById(String courtId) {
         return courtMapper.toResponse(findCourt(courtId));
+    }
+
+    @Transactional
+    public CourtResponse updateCourt(String userId, String venueId, String courtId, CourtCreateRequest request) {
+        User user = findUser(userId);
+        Venue venue = findVenue(venueId);
+        assertOwner(venue, user);
+        Court court = courtRepository.findByIdAndVenue(UUID.fromString(courtId), venue)
+                .orElseThrow(() -> new AppException(ErrorCode.COURT_NOT_IN_VENUE));
+        court.setName(request.getName());
+        court.setCourtType(request.getCourtType());
+        court.setPricePerHour(request.getPricePerHour());
+        court.setDescription(request.getDescription());
+        return courtMapper.toResponse(courtRepository.save(court));
     }
 
     @Transactional
