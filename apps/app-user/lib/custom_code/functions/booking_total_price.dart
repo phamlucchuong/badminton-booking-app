@@ -14,6 +14,18 @@ double bookingTotalPrice(
   List<dynamic> cartAddons,
   List<dynamic> selectedSlots,
 ) {
-  final slotsPrice = selectedSlots.length * 20.0;
+  double slotsPrice = 0.0;
+  for (final slot in selectedSlots) {
+    if (slot is Map) {
+      final priceVal = slot['price'];
+      if (priceVal != null) {
+        slotsPrice += double.tryParse(priceVal.toString()) ?? 20.0;
+      } else {
+        slotsPrice += 20.0;
+      }
+    } else {
+      slotsPrice += 20.0;
+    }
+  }
   return slotsPrice + cartSubtotal(cartAddons);
 }

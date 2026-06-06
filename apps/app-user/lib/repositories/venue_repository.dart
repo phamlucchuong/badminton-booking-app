@@ -1,6 +1,7 @@
 import '../services/api_client.dart';
 import '../models/venue.dart';
 import '../models/court.dart';
+import '../models/product.dart';
 
 /// Venue browse, detail, courts, and search backed by `/api/venues`,
 /// `/api/search`, and `/api/venues/{id}/courts`.
@@ -40,6 +41,13 @@ class VenueRepository {
     final data = await _api.get('/api/venues/$venueId/courts');
     return (data as List)
         .map((e) => Court.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<List<Product>> getProducts(String venueId) async {
+    final data = await _api.get('/api/venues/$venueId/products');
+    return (data as List)
+        .map((e) => Product.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 }

@@ -76,7 +76,7 @@ class FFAppState extends ChangeNotifier {
     _language = value;
   }
 
-  List<dynamic> _cartAddons = [jsonDecode('[]')];
+  List<dynamic> _cartAddons = [];
   List<dynamic> get cartAddons => _cartAddons;
   set cartAddons(List<dynamic> value) {
     _cartAddons = value;
@@ -105,7 +105,7 @@ class FFAppState extends ChangeNotifier {
     cartAddons.insert(index, value);
   }
 
-  List<dynamic> _selectedSlots = [jsonDecode('[]')];
+  List<dynamic> _selectedSlots = [];
   List<dynamic> get selectedSlots => _selectedSlots;
   set selectedSlots(List<dynamic> value) {
     _selectedSlots = value;

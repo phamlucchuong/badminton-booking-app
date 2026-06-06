@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'splash_onboarding_model.dart';
 export 'splash_onboarding_model.dart';
+import 'package:app_user/main.dart';
 
 class SplashOnboardingWidget extends StatefulWidget {
   const SplashOnboardingWidget({super.key});
@@ -186,23 +187,27 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                                           ),
                                         ),
                                       ),
-                                      FlutterFlowIconButton(
-                                        borderRadius: 10.0,
-                                        buttonSize: 40.0,
-                                        fillColor: FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
-                                        icon: Icon(
-                                          Icons.help,
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryText,
-                                          size: 24.0,
-                                        ),
-                                        onPressed: () async {
-                                          FFAppState().darkMode =
-                                              !FFAppState().darkMode;
-                                          FFAppState().update(() {});
-                                        },
-                                      ),
+                                       FlutterFlowIconButton(
+                                         borderRadius: 10.0,
+                                         buttonSize: 40.0,
+                                         fillColor: FlutterFlowTheme.of(context)
+                                             .secondaryBackground,
+                                         icon: Icon(
+                                           FFAppState().darkMode
+                                               ? Icons.wb_sunny_rounded
+                                               : Icons.nights_stay_rounded,
+                                           color: FlutterFlowTheme.of(context)
+                                               .secondaryText,
+                                           size: 24.0,
+                                         ),
+                                         onPressed: () async {
+                                           final newMode = !FFAppState().darkMode;
+                                           FFAppState().darkMode = newMode;
+                                           FFAppState().update(() {});
+                                           MyApp.of(context).setThemeMode(
+                                               newMode ? ThemeMode.dark : ThemeMode.light);
+                                         },
+                                       ),
                                     ].divide(SizedBox(width: 16.0)),
                                   ),
                                 ),
@@ -287,9 +292,10 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                                         updateCallback: () => safeSetState(() {}),
                                         child: OnboardingSlideWidget(
                                           imageDesc: 'assets/images/onboarding_1.png',
-                                          title: 'Find Your Perfect Court',
-                                          description:
+                                          title: context.l10n('Find Your Perfect Court', 'Tìm sân chơi hoàn hảo'),
+                                          description: context.l10n(
                                               'Browse and book top-rated badminton courts in your city with just a few taps.',
+                                              'Tìm kiếm và đặt các sân cầu lông được đánh giá cao trong thành phố của bạn chỉ với vài cú chạm.'),
                                         ),
                                       ),
                                       wrapWithModel(
@@ -297,9 +303,10 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                                         updateCallback: () => safeSetState(() {}),
                                         child: OnboardingSlideWidget(
                                           imageDesc: 'assets/images/onboarding_2.png',
-                                          title: 'Easy Booking',
-                                          description:
+                                          title: context.l10n('Easy Booking', 'Đặt sân dễ dàng'),
+                                          description: context.l10n(
                                               'Check availability in real-time and secure your slot instantly without any hassle.',
+                                              'Kiểm tra tình trạng sân theo thời gian thực và đặt chỗ ngay lập tức không gặp rắc rối.'),
                                         ),
                                       ),
                                       wrapWithModel(
@@ -307,9 +314,10 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                                         updateCallback: () => safeSetState(() {}),
                                         child: OnboardingSlideWidget(
                                           imageDesc: 'assets/images/onboarding_3.png',
-                                          title: 'Play & Connect',
-                                          description:
+                                          title: context.l10n('Play & Connect', 'Chơi & Kết nối'),
+                                          description: context.l10n(
                                               'Join local communities, find playing partners, and level up your game.',
+                                              'Tham gia cộng đồng địa phương, tìm bạn chơi và nâng cao trình độ của bạn.'),
                                         ),
                                       ),
                                     ],
@@ -361,7 +369,7 @@ class _SplashOnboardingWidgetState extends State<SplashOnboardingWidget> {
                                     model: _model.buttonModel1,
                                     updateCallback: () => safeSetState(() {}),
                                     child: ButtonWidget(
-                                      content: 'Start',
+                                      content: context.l10n('Start', 'Bắt đầu'),
                                       iconPresent: false,
                                       iconEndPresent: false,
                                       variant: 'primary',

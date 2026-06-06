@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'user_profile_model.dart';
 export 'user_profile_model.dart';
+import 'package:app_user/main.dart';
 
 class UserProfileWidget extends StatefulWidget {
   const UserProfileWidget({super.key});
@@ -27,6 +28,69 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
   late UserProfileModel _model;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  String _userName = 'John Doe';
+  String _userEmail = 'john.doe@example.com';
+  String _userPhone = '+84 987 654 321';
+  String _userAddress = 'Ho Chi Minh City';
+
+  String _getInitials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts[0].isEmpty) return '?';
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  void _showEditDialog(
+      String title, String currentValue, Function(String) onSave) {
+    final controller = TextEditingController(text: currentValue);
+    final localizedField = () {
+      switch (title) {
+        case 'Name': return context.l10n('Name', 'Họ tên');
+        case 'Phone Number': return context.l10n('Phone Number', 'Số điện thoại');
+        case 'Email Address': return context.l10n('Email Address', 'Địa chỉ email');
+        case 'Address': return context.l10n('Address', 'Địa chỉ');
+        case 'Password': return context.l10n('Password', 'Mật khẩu');
+        default: return title;
+      }
+    }();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(context.l10n('Edit $title', 'Chỉnh sửa $localizedField'),
+              style: FlutterFlowTheme.of(context).titleMedium),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: context.l10n('Enter new $title', 'Nhập $localizedField mới'),
+              focusedBorder: UnderlineInputBorder(
+                borderSide:
+                    BorderSide(color: FlutterFlowTheme.of(context).primary),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.l10n('Cancel', 'Hủy'),
+                  style: TextStyle(
+                      color: FlutterFlowTheme.of(context).secondaryText)),
+            ),
+            TextButton(
+              onPressed: () {
+                onSave(controller.text);
+                Navigator.pop(context);
+              },
+              child: Text(context.l10n('Save', 'Lưu'),
+                  style:
+                      TextStyle(color: FlutterFlowTheme.of(context).primary)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -53,9 +117,11 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-        body: SingleChildScrollView(
-          primary: false,
-          child: Column(
+        body: SafeArea(
+          top: true,
+          child: SingleChildScrollView(
+            primary: false,
+            child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -98,7 +164,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                   },
                                 ),
                                 Text(
-                                  'My Account',
+                                  context.l10n('My Account', 'Tài khoản của tôi'),
                                   style: FlutterFlowTheme.of(context)
                                       .titleMedium
                                       .override(
@@ -182,15 +248,19 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                   buttonSize: 40.0,
                                   fillColor: Colors.transparent,
                                   icon: Icon(
-                                    Icons.help,
+                                    FFAppState().darkMode
+                                        ? Icons.wb_sunny_rounded
+                                        : Icons.nights_stay_rounded,
                                     color: FlutterFlowTheme.of(context)
                                         .primaryText,
                                     size: 24.0,
                                   ),
                                   onPressed: () async {
-                                    FFAppState().darkMode =
-                                        !FFAppState().darkMode;
+                                    final newMode = !FFAppState().darkMode;
+                                    FFAppState().darkMode = newMode;
                                     FFAppState().update(() {});
+                                    MyApp.of(context).setThemeMode(
+                                        newMode ? ThemeMode.dark : ThemeMode.light);
                                   },
                                 ),
                               ].divide(SizedBox(width: 8.0)),
@@ -239,7 +309,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                   ),
                                   alignment: AlignmentDirectional(0.0, 0.0),
                                   child: Text(
-                                    'JD',
+                                    _getInitials(_userName),
                                     textAlign: TextAlign.center,
                                     maxLines: 1,
                                     style: FlutterFlowTheme.of(context)
@@ -268,27 +338,36 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                 ),
                                 Align(
                                   alignment: AlignmentDirectional(1.0, 1.0),
-                                  child: Container(
-                                    width: 32.0,
-                                    height: 32.0,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          FlutterFlowTheme.of(context).tertiary,
-                                      borderRadius:
-                                          BorderRadius.circular(9999.0),
-                                      shape: BoxShape.rectangle,
-                                      border: Border.all(
+                                  child: InkWell(
+                                    onTap: () {
+                                      _showEditDialog('Name', _userName, (val) {
+                                        safeSetState(() {
+                                          _userName = val;
+                                        });
+                                      });
+                                    },
+                                    child: Container(
+                                      width: 32.0,
+                                      height: 32.0,
+                                      decoration: BoxDecoration(
                                         color: FlutterFlowTheme.of(context)
-                                            .secondaryBackground,
-                                        width: 2.0,
+                                            .tertiary,
+                                        borderRadius:
+                                            BorderRadius.circular(9999.0),
+                                        shape: BoxShape.rectangle,
+                                        border: Border.all(
+                                          color: FlutterFlowTheme.of(context)
+                                              .secondaryBackground,
+                                          width: 2.0,
+                                        ),
                                       ),
-                                    ),
-                                    alignment: AlignmentDirectional(0.0, 0.0),
-                                    child: Icon(
-                                      Icons.edit_rounded,
-                                      color:
-                                          FlutterFlowTheme.of(context).onAccent,
-                                      size: 16.0,
+                                      alignment: AlignmentDirectional(0.0, 0.0),
+                                      child: Icon(
+                                        Icons.edit_rounded,
+                                        color: FlutterFlowTheme.of(context)
+                                            .onAccent,
+                                        size: 16.0,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -300,7 +379,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  'John Doe',
+                                  _userName,
                                   style: FlutterFlowTheme.of(context)
                                       .headlineMedium
                                       .override(
@@ -322,7 +401,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                                       ),
                                 ),
                                 Text(
-                                  'john.doe@example.com',
+                                  _userEmail,
                                   style: FlutterFlowTheme.of(context)
                                       .bodyMedium
                                       .override(
@@ -353,18 +432,27 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                             Container(
                               height: 8.0,
                             ),
-                            wrapWithModel(
-                              model: _model.buttonModel1,
-                              updateCallback: () => safeSetState(() {}),
-                              child: ButtonWidget(
-                                content: 'Edit Profile',
-                                iconPresent: false,
-                                iconEndPresent: false,
-                                variant: 'outline',
-                                size: 'small',
-                                fullWidth: false,
-                                loading: false,
-                                disabled: false,
+                            InkWell(
+                              onTap: () {
+                                _showEditDialog('Name', _userName, (val) {
+                                  safeSetState(() {
+                                    _userName = val;
+                                  });
+                                });
+                              },
+                              child: wrapWithModel(
+                                model: _model.buttonModel1,
+                                updateCallback: () => safeSetState(() {}),
+                                child: ButtonWidget(
+                                  content: context.l10n('Edit Profile', 'Sửa hồ sơ'),
+                                  iconPresent: false,
+                                  iconEndPresent: false,
+                                  variant: 'outline',
+                                  size: 'small',
+                                  fullWidth: false,
+                                  loading: false,
+                                  disabled: false,
+                                ),
                               ),
                             ),
                           ].divide(SizedBox(height: 16.0)),
@@ -385,7 +473,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 model: _model.sectionHeaderModel1,
                 updateCallback: () => safeSetState(() {}),
                 child: SectionHeaderWidget(
-                  title: 'PERSONAL INFORMATION',
+                  title: context.l10n('PERSONAL INFORMATION', 'THÔNG TIN CÁ NHÂN'),
                 ),
               ),
               Column(
@@ -393,52 +481,79 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  wrapWithModel(
-                    model: _model.profileMenuItemModel1,
-                    updateCallback: () => safeSetState(() {}),
-                    child: ProfileMenuItemWidget(
-                      bgColor: FlutterFlowTheme.of(context).info10,
-                      icon: Icon(
-                        Icons.phone_android_rounded,
-                        color: FlutterFlowTheme.of(context).info,
-                        size: 22.0,
+                  InkWell(
+                    onTap: () {
+                      _showEditDialog('Phone Number', _userPhone, (val) {
+                        safeSetState(() {
+                          _userPhone = val;
+                        });
+                      });
+                    },
+                    child: wrapWithModel(
+                      model: _model.profileMenuItemModel1,
+                      updateCallback: () => safeSetState(() {}),
+                      child: ProfileMenuItemWidget(
+                        bgColor: FlutterFlowTheme.of(context).info10,
+                        icon: Icon(
+                          Icons.phone_android_rounded,
+                          color: FlutterFlowTheme.of(context).info,
+                          size: 22.0,
+                        ),
+                        iconColor: FlutterFlowTheme.of(context).info,
+                        title: context.l10n('Phone Number', 'Số điện thoại'),
+                        subtitle: _userPhone,
+                        hasSubtitle: true,
                       ),
-                      iconColor: FlutterFlowTheme.of(context).info,
-                      title: 'Phone Number',
-                      subtitle: '+84 987 654 321',
-                      hasSubtitle: true,
                     ),
                   ),
-                  wrapWithModel(
-                    model: _model.profileMenuItemModel2,
-                    updateCallback: () => safeSetState(() {}),
-                    child: ProfileMenuItemWidget(
-                      bgColor: FlutterFlowTheme.of(context).success10,
-                      icon: Icon(
-                        Icons.mail_outline_rounded,
-                        color: FlutterFlowTheme.of(context).success,
-                        size: 22.0,
+                  InkWell(
+                    onTap: () {
+                      _showEditDialog('Email Address', _userEmail, (val) {
+                        safeSetState(() {
+                          _userEmail = val;
+                        });
+                      });
+                    },
+                    child: wrapWithModel(
+                      model: _model.profileMenuItemModel2,
+                      updateCallback: () => safeSetState(() {}),
+                      child: ProfileMenuItemWidget(
+                        bgColor: FlutterFlowTheme.of(context).success10,
+                        icon: Icon(
+                          Icons.mail_outline_rounded,
+                          color: FlutterFlowTheme.of(context).success,
+                          size: 22.0,
+                        ),
+                        iconColor: FlutterFlowTheme.of(context).success,
+                        title: context.l10n('Email Address', 'Địa chỉ email'),
+                        subtitle: _userEmail,
+                        hasSubtitle: true,
                       ),
-                      iconColor: FlutterFlowTheme.of(context).success,
-                      title: 'Email Address',
-                      subtitle: 'john.doe@example.com',
-                      hasSubtitle: true,
                     ),
                   ),
-                  wrapWithModel(
-                    model: _model.profileMenuItemModel3,
-                    updateCallback: () => safeSetState(() {}),
-                    child: ProfileMenuItemWidget(
-                      bgColor: FlutterFlowTheme.of(context).warning10,
-                      icon: Icon(
-                        Icons.location_on_outlined,
-                        color: FlutterFlowTheme.of(context).warning,
-                        size: 22.0,
+                  InkWell(
+                    onTap: () {
+                      _showEditDialog('Address', _userAddress, (val) {
+                        safeSetState(() {
+                          _userAddress = val;
+                        });
+                      });
+                    },
+                    child: wrapWithModel(
+                      model: _model.profileMenuItemModel3,
+                      updateCallback: () => safeSetState(() {}),
+                      child: ProfileMenuItemWidget(
+                        bgColor: FlutterFlowTheme.of(context).warning10,
+                        icon: Icon(
+                          Icons.location_on_outlined,
+                          color: FlutterFlowTheme.of(context).warning,
+                          size: 22.0,
+                        ),
+                        iconColor: FlutterFlowTheme.of(context).warning,
+                        title: context.l10n('My Addresses', 'Địa chỉ của tôi'),
+                        subtitle: _userAddress == 'Ho Chi Minh City' ? context.l10n('Ho Chi Minh City', 'Thành phố Hồ Chí Minh') : _userAddress,
+                        hasSubtitle: true,
                       ),
-                      iconColor: FlutterFlowTheme.of(context).warning,
-                      title: 'My Addresses',
-                      subtitle: 'Add or edit your locations',
-                      hasSubtitle: true,
                     ),
                   ),
                 ],
@@ -447,7 +562,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 model: _model.sectionHeaderModel2,
                 updateCallback: () => safeSetState(() {}),
                 child: SectionHeaderWidget(
-                  title: 'SECURITY & PREFERENCES',
+                  title: context.l10n('SECURITY & PREFERENCES', 'BẢO MẬT & TÙY CHỌN'),
                 ),
               ),
               Column(
@@ -455,52 +570,110 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  wrapWithModel(
-                    model: _model.profileMenuItemModel4,
-                    updateCallback: () => safeSetState(() {}),
-                    child: ProfileMenuItemWidget(
-                      bgColor: FlutterFlowTheme.of(context).primary10,
-                      icon: Icon(
-                        Icons.lock_outline_rounded,
-                        color: FlutterFlowTheme.of(context).primary,
-                        size: 22.0,
+                  InkWell(
+                    onTap: () {
+                      _showEditDialog('Password', '', (val) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(context.l10n('Password updated successfully!', 'Cập nhật mật khẩu thành công!')),
+                          ),
+                        );
+                      });
+                    },
+                    child: wrapWithModel(
+                      model: _model.profileMenuItemModel4,
+                      updateCallback: () => safeSetState(() {}),
+                      child: ProfileMenuItemWidget(
+                        bgColor: FlutterFlowTheme.of(context).primary10,
+                        icon: Icon(
+                          Icons.lock_outline_rounded,
+                          color: FlutterFlowTheme.of(context).primary,
+                          size: 22.0,
+                        ),
+                        iconColor: FlutterFlowTheme.of(context).primary,
+                        title: context.l10n('Change Password', 'Đổi mật khẩu'),
+                        subtitle: '',
+                        hasSubtitle: false,
                       ),
-                      iconColor: FlutterFlowTheme.of(context).primary,
-                      title: 'Change Password',
-                      subtitle: '',
-                      hasSubtitle: false,
                     ),
                   ),
-                  wrapWithModel(
-                    model: _model.profileMenuItemModel5,
-                    updateCallback: () => safeSetState(() {}),
-                    child: ProfileMenuItemWidget(
-                      bgColor: FlutterFlowTheme.of(context).primary10,
-                      icon: Icon(
-                        Icons.notifications_none_rounded,
-                        color: FlutterFlowTheme.of(context).primary,
-                        size: 22.0,
+                  InkWell(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(context.l10n('Notifications settings updated!', 'Cập nhật cài đặt thông báo thành công!')),
+                        ),
+                      );
+                    },
+                    child: wrapWithModel(
+                      model: _model.profileMenuItemModel5,
+                      updateCallback: () => safeSetState(() {}),
+                      child: ProfileMenuItemWidget(
+                        bgColor: FlutterFlowTheme.of(context).primary10,
+                        icon: Icon(
+                          Icons.notifications_none_rounded,
+                          color: FlutterFlowTheme.of(context).primary,
+                          size: 22.0,
+                        ),
+                        iconColor: FlutterFlowTheme.of(context).primary,
+                        title: context.l10n('Push Notifications', 'Thông báo đẩy'),
+                        subtitle: '',
+                        hasSubtitle: false,
                       ),
-                      iconColor: FlutterFlowTheme.of(context).primary,
-                      title: 'Push Notifications',
-                      subtitle: '',
-                      hasSubtitle: false,
                     ),
                   ),
-                  wrapWithModel(
-                    model: _model.profileMenuItemModel6,
-                    updateCallback: () => safeSetState(() {}),
-                    child: ProfileMenuItemWidget(
-                      bgColor: FlutterFlowTheme.of(context).success10,
-                      icon: Icon(
-                        Icons.verified_user_outlined,
-                        color: FlutterFlowTheme.of(context).success,
-                        size: 22.0,
+                  InkWell(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(context.l10n('Privacy settings updated!', 'Cập nhật cài đặt riêng tư thành công!')),
+                        ),
+                      );
+                    },
+                    child: wrapWithModel(
+                      model: _model.profileMenuItemModel6,
+                      updateCallback: () => safeSetState(() {}),
+                      child: ProfileMenuItemWidget(
+                        bgColor: FlutterFlowTheme.of(context).success10,
+                        icon: Icon(
+                          Icons.verified_user_outlined,
+                          color: FlutterFlowTheme.of(context).success,
+                          size: 22.0,
+                        ),
+                        iconColor: FlutterFlowTheme.of(context).success,
+                        title: context.l10n('Privacy Settings', 'Cài đặt riêng tư'),
+                        subtitle: '',
+                        hasSubtitle: false,
                       ),
-                      iconColor: FlutterFlowTheme.of(context).success,
-                      title: 'Privacy Settings',
-                      subtitle: '',
-                      hasSubtitle: false,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () async {
+                      final newMode = !FFAppState().darkMode;
+                      FFAppState().darkMode = newMode;
+                      FFAppState().update(() {});
+                      MyApp.of(context).setThemeMode(
+                          newMode ? ThemeMode.dark : ThemeMode.light);
+                    },
+                    child: wrapWithModel(
+                      model: _model.profileMenuItemModel9,
+                      updateCallback: () => safeSetState(() {}),
+                      child: ProfileMenuItemWidget(
+                        bgColor: FlutterFlowTheme.of(context).warning10,
+                        icon: Icon(
+                          FFAppState().darkMode
+                              ? Icons.wb_sunny_rounded
+                              : Icons.nights_stay_rounded,
+                          color: FlutterFlowTheme.of(context).warning,
+                          size: 22.0,
+                        ),
+                        iconColor: FlutterFlowTheme.of(context).warning,
+                        title: context.l10n('Dark Mode', 'Chế độ tối'),
+                        subtitle: FFAppState().darkMode
+                            ? context.l10n('On', 'Bật')
+                            : context.l10n('Off', 'Tắt'),
+                        hasSubtitle: true,
+                      ),
                     ),
                   ),
                 ],
@@ -509,7 +682,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 model: _model.sectionHeaderModel3,
                 updateCallback: () => safeSetState(() {}),
                 child: SectionHeaderWidget(
-                  title: 'SUPPORT',
+                  title: context.l10n('SUPPORT', 'HỖ TRỢ'),
                 ),
               ),
               Column(
@@ -528,7 +701,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         size: 22.0,
                       ),
                       iconColor: FlutterFlowTheme.of(context).secondaryText,
-                      title: 'Help Center',
+                      title: context.l10n('Help Center', 'Trung tâm trợ giúp'),
                       subtitle: '',
                       hasSubtitle: false,
                     ),
@@ -544,7 +717,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         size: 22.0,
                       ),
                       iconColor: FlutterFlowTheme.of(context).secondaryText,
-                      title: 'Terms & Conditions',
+                      title: context.l10n('Terms & Conditions', 'Điều khoản & Điều kiện'),
                       subtitle: '',
                       hasSubtitle: false,
                     ),
@@ -565,13 +738,9 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                           hoverColor: Colors.transparent,
                           highlightColor: Colors.transparent,
                           onTap: () async {
-                            try {
-                              await FFAppState().authRepository.logout();
-                            } catch (_) {
-                              // Ignore server errors; clear session locally
-                              // and return to the auth screen regardless.
-                              await FFAppState().tokenStore.clear();
-                            }
+                            // Clear token store locally first to ensure instant logout
+                            FFAppState().authRepository.logout().catchError((_) {});
+                            await FFAppState().tokenStore.clear();
                             FFAppState().update(
                                 () => FFAppState().isLoggedIn = false);
                             if (context.mounted) {
@@ -582,7 +751,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                             model: _model.buttonModel2,
                             updateCallback: () => safeSetState(() {}),
                             child: ButtonWidget(
-                              content: 'Log Out',
+                              content: context.l10n('Log Out', 'Đăng xuất'),
                               icon: Icon(
                                 Icons.logout_rounded,
                                 color: FlutterFlowTheme.of(context).onError,
@@ -639,6 +808,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
           ),
         ),
       ),
+    ),
     );
   }
 }

@@ -9,6 +9,7 @@ class Venue {
   final String? status;
   final String? openTime;
   final String? closeTime;
+  final String? bannerIds;
 
   Venue({
     required this.id,
@@ -20,6 +21,7 @@ class Venue {
     this.status,
     this.openTime,
     this.closeTime,
+    this.bannerIds,
   });
 
   factory Venue.fromJson(Map<String, dynamic> json) => Venue(
@@ -32,5 +34,6 @@ class Venue {
         status: json['status'] as String?,
         openTime: json['openTime'] as String?,
         closeTime: json['closeTime'] as String?,
+        bannerIds: json['bannerIds'] as String?,
       );
 }

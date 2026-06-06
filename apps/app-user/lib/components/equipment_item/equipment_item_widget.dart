@@ -156,22 +156,58 @@ class _EquipmentItemWidgetState extends State<EquipmentItemWidget> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).primary,
-                          borderRadius: BorderRadius.circular(9999.0),
-                          shape: BoxShape.rectangle,
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(4.0),
-                          child: Container(
-                            child: Container(
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Icon(
-                                Icons.add_rounded,
-                                color: FlutterFlowTheme.of(context).onPrimary,
-                                size: 16.0,
+                      InkWell(
+                        onTap: () {
+                          final cartList = List<Map<String, dynamic>>.from(
+                            FFAppState().cartAddons.map((e) => Map<String, dynamic>.from(e as Map)),
+                          );
+                          final existingIndex = cartList.indexWhere(
+                            (element) => element['productId'] == widget.item,
+                          );
+
+                          if (existingIndex != -1) {
+                            final currentQty = cartList[existingIndex]['quantity'] as int? ?? 0;
+                            cartList[existingIndex]['quantity'] = currentQty + 1;
+                          } else {
+                            final numericPriceStr = widget.price.replaceAll(RegExp(r'[^0-9]'), '');
+                            final priceVal = double.tryParse(numericPriceStr) ?? 0.0;
+                            cartList.add({
+                              'productId': widget.item,
+                              'name': widget.name,
+                              'price': priceVal,
+                              'quantity': 1,
+                              'imageId': widget.imgDesc,
+                            });
+                          }
+
+                          FFAppState().update(() {
+                            FFAppState().cartAddons = cartList;
+                          });
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                context.l10n(
+                                  'Added ${widget.name} to cart',
+                                  'Đã thêm ${widget.name} vào giỏ hàng',
+                                ),
                               ),
+                              duration: const Duration(seconds: 1),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: FlutterFlowTheme.of(context).primary,
+                            borderRadius: BorderRadius.circular(9999.0),
+                            shape: BoxShape.rectangle,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Icon(
+                              Icons.add_rounded,
+                              color: FlutterFlowTheme.of(context).onPrimary,
+                              size: 16.0,
                             ),
                           ),
                         ),

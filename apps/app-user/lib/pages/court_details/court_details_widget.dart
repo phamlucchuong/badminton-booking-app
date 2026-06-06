@@ -7,6 +7,8 @@ import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import '/models/review_dto.dart';
 import '/models/venue.dart';
+import '/models/court.dart';
+import '/models/product.dart';
 import 'dart:ui';
 import '/index.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -34,6 +36,8 @@ class CourtDetailsWidget extends StatefulWidget {
 class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
   late CourtDetailsModel _model;
   late Future<List<ReviewDto>> _reviewsFuture;
+  late Future<List<Court>> _courtsFuture;
+  late Future<List<Product>> _productsFuture;
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -43,6 +47,10 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
     _model = createModel(context, () => CourtDetailsModel());
     _reviewsFuture =
         FFAppState().reviewRepository.getVenueReviews(widget.courtId ?? '');
+    _courtsFuture =
+        FFAppState().venueRepository.getCourts(widget.courtId ?? '');
+    _productsFuture =
+        FFAppState().venueRepository.getProducts(widget.courtId ?? '');
   }
 
   @override
@@ -104,8 +112,12 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                       fadeInDuration: Duration(milliseconds: 0),
                                       fadeOutDuration:
                                           Duration(milliseconds: 0),
-                                      imageUrl:
-                                          'https://dimg.dreamflow.cloud/v1/image/modern%20indoor%20badminton%20court%20with%20blue%20floor%20and%20bright%20lights',
+                                      imageUrl: (courtDetailsVenue.bannerIds !=
+                                                  null &&
+                                              courtDetailsVenue
+                                                  .bannerIds!.isNotEmpty)
+                                          ? courtDetailsVenue.bannerIds!
+                                          : 'https://dimg.dreamflow.cloud/v1/image/modern%20indoor%20badminton%20court%20with%20blue%20floor%20and%20bright%20lights',
                                       height: 300.0,
                                       fit: BoxFit.cover,
                                       alignment: Alignment(0.0, 0.0),
@@ -255,43 +267,47 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                                         .secondaryText,
                                                     size: 16.0,
                                                   ),
-                                                  Text(
-                                                    courtDetailsVenue.address != ''
-                                                        ? courtDetailsVenue.address
-                                                        : 'District 7, Ho Chi Minh City',
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
-                                                        .bodyMedium
-                                                        .override(
-                                                          font:
-                                                              GoogleFonts.inter(
-                                                            fontWeight:
-                                                                FlutterFlowTheme.of(
+                                                  Expanded(
+                                                    child: Text(
+                                                      courtDetailsVenue
+                                                                  .address !=
+                                                              ''
+                                                          ? courtDetailsVenue
+                                                              .address
+                                                          : 'District 7, Ho Chi Minh City',
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMedium
+                                                              .override(
+                                                                font:
+                                                                    GoogleFonts
+                                                                        .inter(
+                                                                  fontWeight: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontWeight,
+                                                                  fontStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontStyle,
+                                                                ),
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .secondaryText,
+                                                                letterSpacing:
+                                                                    0.0,
+                                                                fontWeight: FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMedium
                                                                     .fontWeight,
-                                                            fontStyle:
-                                                                FlutterFlowTheme.of(
+                                                                fontStyle: FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyMedium
                                                                     .fontStyle,
-                                                          ),
-                                                          color: FlutterFlowTheme
-                                                                  .of(context)
-                                                              .secondaryText,
-                                                          letterSpacing: 0.0,
-                                                          fontWeight:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontWeight,
-                                                          fontStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMedium
-                                                                  .fontStyle,
-                                                          lineHeight: 1.5,
-                                                        ),
+                                                                lineHeight: 1.5,
+                                                              ),
+                                                    ),
                                                   ),
                                                 ].divide(SizedBox(width: 4.0)),
                                               ),
@@ -311,10 +327,27 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                                 EdgeInsetsDirectional.fromSTEB(
                                                     16.0, 8.0, 16.0, 8.0),
                                             child: Container(
-                                              child: Text(
-                                                '\$--/hr',
-                                                style:
-                                                    FlutterFlowTheme.of(context)
+                                              child: FutureBuilder<List<Court>>(
+                                                future: _courtsFuture,
+                                                builder: (context, snapshot) {
+                                                  String displayPrice = '--/hr';
+                                                  if (snapshot.hasData &&
+                                                      snapshot
+                                                          .data!.isNotEmpty) {
+                                                    final courts =
+                                                        snapshot.data!;
+                                                    final minPrice = courts
+                                                        .map((c) =>
+                                                            c.pricePerHour)
+                                                        .reduce((a, b) =>
+                                                            a < b ? a : b);
+                                                    displayPrice =
+                                                        '${minPrice.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ/hr';
+                                                  }
+                                                  return Text(
+                                                    displayPrice,
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
                                                         .titleMedium
                                                         .override(
                                                           font: GoogleFonts
@@ -340,6 +373,8 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                                                   .fontStyle,
                                                           lineHeight: 1.4,
                                                         ),
+                                                  );
+                                                },
                                               ),
                                             ),
                                           ),
@@ -399,7 +434,8 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                           ].divide(SizedBox(width: 4.0)),
                                         ),
                                         Text(
-                                          '(124 Reviews)',
+                                          context.l10n('(124 Reviews)',
+                                              '(124 đánh giá)'),
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
@@ -439,7 +475,8 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                           ),
                                         ),
                                         Text(
-                                          '1.2 km away',
+                                          context.l10n(
+                                              '1.2 km away', 'Cách đây 1.2 km'),
                                           style: FlutterFlowTheme.of(context)
                                               .bodyMedium
                                               .override(
@@ -473,7 +510,7 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                       ].divide(SizedBox(width: 16.0)),
                                     ),
                                     Text(
-                                      'Description',
+                                      context.l10n('Description', 'Mô tả'),
                                       style: FlutterFlowTheme.of(context)
                                           .titleMedium
                                           .override(
@@ -494,9 +531,13 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                           ),
                                     ),
                                     Text(
-                                      (courtDetailsVenue.description != null && courtDetailsVenue.description != '')
+                                      (courtDetailsVenue.description != null &&
+                                              courtDetailsVenue.description !=
+                                                  '')
                                           ? courtDetailsVenue.description ?? ''
-                                          : 'Professional grade badminton court featuring high-quality Yonex mats, excellent LED lighting, and climate control. Perfect for both casual games and competitive training sessions. Amenities include changing rooms, showers, and a pro-shop.',
+                                          : context.l10n(
+                                              'Professional grade badminton court featuring high-quality Yonex mats, excellent LED lighting, and climate control. Perfect for both casual games and competitive training sessions. Amenities include changing rooms, showers, and a pro-shop.',
+                                              'Sân cầu lông tiêu chuẩn chuyên nghiệp sử dụng thảm Yonex chất lượng cao, hệ thống chiếu sáng LED tuyệt vời và điều hòa nhiệt độ. Hoàn hảo cho cả các trận đấu giao lưu và các buổi tập luyện thi đấu. Tiện ích bao gồm phòng thay đồ, phòng tắm và cửa hàng dụng cụ.'),
                                       style: FlutterFlowTheme.of(context)
                                           .bodyMedium
                                           .override(
@@ -527,99 +568,122 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                   ].divide(SizedBox(height: 16.0)),
                                 ),
                               ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    child: Container(
-                                      width: 0.0,
-                                      height: 0.0,
+                              Padding(
+                                padding: EdgeInsets.all(24.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      child: Container(
+                                        width: 0.0,
+                                        height: 0.0,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    'Equipment & Rentals',
-                                    style: FlutterFlowTheme.of(context)
-                                        .titleMedium
-                                        .override(
-                                          font: GoogleFonts.plusJakartaSans(
-                                            fontWeight: FontWeight.bold,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleMedium
-                                                    .fontStyle,
-                                          ),
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.bold,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .titleMedium
-                                                  .fontStyle,
-                                          lineHeight: 1.4,
-                                        ),
-                                  ),
-                                  SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
+                                    Row(
+                                      mainAxisSize: MainAxisSize.max,
                                       mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        wrapWithModel(
-                                          model: _model.equipmentItemModel1,
-                                          updateCallback: () =>
-                                              safeSetState(() {}),
-                                          child: EquipmentItemWidget(
-                                            item: '',
-                                            imgDesc:
-                                                'https://dimg.dreamflow.cloud/v1/image/professional%20badminton%20racket',
-                                            name: 'Yonex Racket',
-                                            price: '\$5.00',
+                                        Text(
+                                          context.l10n('Equipment & Rentals',
+                                              'Dụng cụ & Cho thuê'),
+                                          style: FlutterFlowTheme.of(context)
+                                              .titleMedium
+                                              .override(
+                                                font:
+                                                    GoogleFonts.plusJakartaSans(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleMedium
+                                                          .fontStyle,
+                                                ),
+                                                letterSpacing: 0.0,
+                                                fontWeight: FontWeight.bold,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleMedium
+                                                        .fontStyle,
+                                                lineHeight: 1.4,
+                                              ),
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            context.pushNamed(
+                                              AllProductsWidget.routeName,
+                                              queryParameters: {
+                                                'courtId': serializeParam(
+                                                  widget.courtId,
+                                                  ParamType.String,
+                                                ),
+                                              }.withoutNulls,
+                                            );
+                                          },
+                                          child: Text(
+                                            context.l10n(
+                                                'See All', 'Xem tất cả'),
+                                            style: FlutterFlowTheme.of(context)
+                                                .bodyMedium
+                                                .override(
+                                                  font: GoogleFonts.inter(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .bodyMedium
+                                                            .fontStyle,
+                                                  ),
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  letterSpacing: 0.0,
+                                                ),
                                           ),
                                         ),
-                                        wrapWithModel(
-                                          model: _model.equipmentItemModel2,
-                                          updateCallback: () =>
-                                              safeSetState(() {}),
-                                          child: EquipmentItemWidget(
-                                            item: '',
-                                            imgDesc:
-                                                'https://dimg.dreamflow.cloud/v1/image/badminton%20shuttlecocks',
-                                            name: 'Shuttlecocks (3pcs)',
-                                            price: '\$3.50',
-                                          ),
-                                        ),
-                                        wrapWithModel(
-                                          model: _model.equipmentItemModel3,
-                                          updateCallback: () =>
-                                              safeSetState(() {}),
-                                          child: EquipmentItemWidget(
-                                            item: '',
-                                            imgDesc:
-                                                'https://dimg.dreamflow.cloud/v1/image/badminton%20racket%20grip',
-                                            name: 'Grip Tape',
-                                            price: '\$2.00',
-                                          ),
-                                        ),
-                                        wrapWithModel(
-                                          model: _model.equipmentItemModel4,
-                                          updateCallback: () =>
-                                              safeSetState(() {}),
-                                          child: EquipmentItemWidget(
-                                            item: '',
-                                            imgDesc:
-                                                'https://dimg.dreamflow.cloud/v1/image/bottled%20water',
-                                            name: 'Mineral Water',
-                                            price: '\$1.00',
-                                          ),
-                                        ),
-                                      ].divide(SizedBox(width: 0.0)),
+                                      ],
                                     ),
-                                  ),
-                                ].divide(SizedBox(height: 16.0)),
+                                    FutureBuilder<List<Product>>(
+                                      future: _productsFuture,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                        }
+                                        if (!snapshot.hasData ||
+                                            snapshot.data!.isEmpty) {
+                                          return Container();
+                                        }
+                                        final products = snapshot.data!;
+                                        return SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: products.map((product) {
+                                              final formattedPrice =
+                                                  '${product.price.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
+                                              return EquipmentItemWidget(
+                                                key: ValueKey(product.id),
+                                                item: product.id,
+                                                imgDesc: product.imageId,
+                                                name: product.name,
+                                                price: formattedPrice,
+                                              );
+                                            }).toList(),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ].divide(SizedBox(height: 16.0)),
+                                ),
                               ),
                               Padding(
                                 padding: EdgeInsets.all(24.0),
@@ -637,7 +701,8 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                          'User Reviews',
+                                          context.l10n('User Reviews',
+                                              'Đánh giá từ người dùng'),
                                           style: FlutterFlowTheme.of(context)
                                               .titleMedium
                                               .override(
@@ -660,7 +725,7 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                               ),
                                         ),
                                         Text(
-                                          'See All',
+                                          context.l10n('See All', 'Xem tất cả'),
                                           style: FlutterFlowTheme.of(context)
                                               .labelLarge
                                               .override(
@@ -773,7 +838,8 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Starting from',
+                                        context.l10n(
+                                            'Starting from', 'Giá chỉ từ'),
                                         style: FlutterFlowTheme.of(context)
                                             .labelSmall
                                             .override(
@@ -802,29 +868,48 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                               lineHeight: 1.3,
                                             ),
                                       ),
-                                      Text(
-                                        '\$--',
-                                        style: FlutterFlowTheme.of(context)
-                                            .titleLarge
-                                            .override(
-                                              font: GoogleFonts.plusJakartaSans(
-                                                fontWeight: FontWeight.bold,
-                                                fontStyle:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLarge
-                                                        .fontStyle,
-                                              ),
-                                              color:
-                                                  FlutterFlowTheme.of(context)
+                                      FutureBuilder<List<Court>>(
+                                        future: _courtsFuture,
+                                        builder: (context, snapshot) {
+                                          String displayPrice = '--';
+                                          if (snapshot.hasData &&
+                                              snapshot.data!.isNotEmpty) {
+                                            final courts = snapshot.data!;
+                                            final minPrice = courts
+                                                .map((c) => c.pricePerHour)
+                                                .reduce(
+                                                    (a, b) => a < b ? a : b);
+                                            displayPrice =
+                                                '${minPrice.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ';
+                                          }
+                                          return Text(
+                                            displayPrice,
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  font: GoogleFonts
+                                                      .plusJakartaSans(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
                                                       .primaryText,
-                                              letterSpacing: 0.0,
-                                              fontWeight: FontWeight.bold,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleLarge
-                                                      .fontStyle,
-                                              lineHeight: 1.3,
-                                            ),
+                                                  letterSpacing: 0.0,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontStyle,
+                                                  lineHeight: 1.3,
+                                                ),
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),
@@ -838,11 +923,11 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                       onTap: () async {
                                         // ff_lite_route_params:court_id:route.court_id
 
-                                        context.goNamed(
+                                        context.pushNamed(
                                           TimeSlotMatrixWidget.routeName,
                                           queryParameters: {
                                             'courtId': serializeParam(
-                                              'route.court_id',
+                                              widget.courtId,
                                               ParamType.String,
                                             ),
                                           }.withoutNulls,
@@ -853,7 +938,9 @@ class _CourtDetailsWidgetState extends State<CourtDetailsWidget> {
                                         updateCallback: () =>
                                             safeSetState(() {}),
                                         child: ButtonWidget(
-                                          content: 'Check Availability',
+                                          content: context.l10n(
+                                              'Check Availability',
+                                              'Kiểm tra lịch sân'),
                                           iconPresent: false,
                                           iconEndPresent: false,
                                           variant: 'primary',

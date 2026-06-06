@@ -89,7 +89,7 @@ class _AddonRowWidgetState extends State<AddonRowWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget!.name,
+                widget.qty.isNotEmpty ? '${widget.name} (x${widget.qty})' : widget.name,
                 style: FlutterFlowTheme.of(context).bodyMedium.override(
                       font: GoogleFonts.inter(
                         fontWeight: FontWeight.w500,
@@ -127,6 +127,34 @@ class _AddonRowWidgetState extends State<AddonRowWidget> {
               ),
             ].divide(SizedBox(height: 4.0)),
           ),
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.delete_outline_rounded,
+            color: FlutterFlowTheme.of(context).error,
+            size: 20.0,
+          ),
+          onPressed: () {
+            final cartList = List<Map<String, dynamic>>.from(
+              FFAppState().cartAddons.map((e) => Map<String, dynamic>.from(e as Map)),
+            );
+            final existingIndex = cartList.indexWhere(
+              (element) => element['productId'] == widget.id,
+            );
+
+            if (existingIndex != -1) {
+              final currentQty = cartList[existingIndex]['quantity'] as int? ?? 0;
+              if (currentQty > 1) {
+                cartList[existingIndex]['quantity'] = currentQty - 1;
+              } else {
+                cartList.removeAt(existingIndex);
+              }
+            }
+
+            FFAppState().update(() {
+              FFAppState().cartAddons = cartList;
+            });
+          },
         ),
       ].divide(SizedBox(width: 16.0)),
     );

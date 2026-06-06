@@ -37,6 +37,10 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
   // Whether we are on the OTP step (after successful register+sendOtp)
   bool _isOtpStep = false;
 
+  // Password visibility states
+  bool _passwordVisible = false;
+  bool _confirmPasswordVisible = false;
+
   @override
   void initState() {
     super.initState();
@@ -128,8 +132,8 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                   ),
                             ),
                             Text(
-                              'Book your winning shot',
-                              style: FlutterFlowTheme.of(context)
+                               context.l10n('Book your winning shot', 'Đặt sân dễ dàng, thỏa đam mê'),
+                               style: FlutterFlowTheme.of(context)
                                   .bodyMedium
                                   .override(
                                     font: GoogleFonts.inter(
@@ -211,23 +215,23 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         ? Padding(
                                             padding: const EdgeInsets.only(bottom: 12.0),
                                             child: _buildInputField(
-                                              context: context,
-                                              controller: _nameController,
-                                              label: 'Full Name',
-                                              hint: 'Enter your name',
-                                              obscure: false,
-                                            ),
+                                               context: context,
+                                               controller: _nameController,
+                                               label: context.l10n('Full Name', 'Họ và tên'),
+                                               hint: context.l10n('Enter your name', 'Nhập họ và tên của bạn'),
+                                               obscure: false,
+                                             ),
                                           )
                                         : const SizedBox.shrink(),
                                   ),
 
                                   // Email Field (Always)
                                   _buildInputField(
-                                    context: context,
-                                    controller: _emailController,
-                                    label: 'Email',
-                                    hint: 'Enter your email',
-                                    obscure: false,
+                                     context: context,
+                                     controller: _emailController,
+                                     label: context.l10n('Email', 'Email'),
+                                     hint: context.l10n('Enter your email', 'Nhập email của bạn'),
+                                     obscure: false,
                                     keyboardType: TextInputType.emailAddress,
                                     onChanged: (v) {
                                       _model.email = v;
@@ -243,24 +247,31 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         ? Padding(
                                             padding: const EdgeInsets.only(bottom: 12.0),
                                             child: _buildInputField(
-                                              context: context,
-                                              controller: _phoneController,
-                                              label: 'Phone',
-                                              hint: 'Enter your phone number',
-                                              obscure: false,
-                                              keyboardType: TextInputType.phone,
+                                               context: context,
+                                               controller: _phoneController,
+                                               label: context.l10n('Phone', 'Số điện thoại'),
+                                               hint: context.l10n('Enter your phone number', 'Nhập số điện thoại của bạn'),
+                                               obscure: false,
+                                               keyboardType: TextInputType.phone,
                                             ),
                                           )
                                         : const SizedBox.shrink(),
                                   ),
 
-                                  // Password Field (Always)
+                                   // Password Field (Always)
                                   _buildInputField(
-                                    context: context,
-                                    controller: _passwordController,
-                                    label: 'Password',
-                                    hint: 'Enter your password',
-                                    obscure: true,
+                                     context: context,
+                                     controller: _passwordController,
+                                     label: context.l10n('Password', 'Mật khẩu'),
+                                     hint: context.l10n('Enter your password', 'Nhập mật khẩu của bạn'),
+                                     obscure: true,
+                                    isPassword: true,
+                                    passwordVisible: _passwordVisible,
+                                    onToggleVisibility: () {
+                                      setState(() {
+                                        _passwordVisible = !_passwordVisible;
+                                      });
+                                    },
                                     onChanged: (v) {
                                       _model.password = v;
                                     },
@@ -278,10 +289,10 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                               child: InkWell(
                                                 onTap: () async {
                                                   ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text('Forgot password functionality coming soon!'),
-                                                    ),
-                                                  );
+                                                     SnackBar(
+                                                       content: Text(context.l10n('Forgot password functionality coming soon!', 'Tính năng quên mật khẩu sắp ra mắt!')),
+                                                     ),
+                                                   );
                                                 },
                                                 child: Padding(
                                                   padding: const EdgeInsets.symmetric(
@@ -289,8 +300,8 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                                     vertical: 4.0,
                                                   ),
                                                   child: Text(
-                                                    'Forgot Password?',
-                                                    style: FlutterFlowTheme.of(context)
+                                                     context.l10n('Forgot Password?', 'Quên mật khẩu?'),
+                                                     style: FlutterFlowTheme.of(context)
                                                         .bodySmall
                                                         .override(
                                                           font: GoogleFonts.inter(),
@@ -313,11 +324,18 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         ? Padding(
                                             padding: const EdgeInsets.only(top: 12.0),
                                             child: _buildInputField(
-                                              context: context,
-                                              controller: _confirmPasswordController,
-                                              label: 'Confirm Password',
-                                              hint: 'Re-confirm your password',
-                                              obscure: true,
+                                               context: context,
+                                               controller: _confirmPasswordController,
+                                               label: context.l10n('Confirm Password', 'Xác nhận mật khẩu'),
+                                               hint: context.l10n('Re-confirm your password', 'Nhập lại mật khẩu để xác nhận'),
+                                               obscure: true,
+                                              isPassword: true,
+                                              passwordVisible: _confirmPasswordVisible,
+                                              onToggleVisibility: () {
+                                                setState(() {
+                                                  _confirmPasswordVisible = !_confirmPasswordVisible;
+                                                });
+                                              },
                                             ),
                                           )
                                         : const SizedBox.shrink(),
@@ -340,11 +358,11 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         // Confirm password check
                                         if (_passwordController.text != _confirmPasswordController.text) {
                                           debugPrint('[Auth] Validation failed: password mismatch');
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(
-                                              content: Text('Passwords do not match.'),
-                                            ),
-                                          );
+                                           ScaffoldMessenger.of(context).showSnackBar(
+                                             SnackBar(
+                                               content: Text(context.l10n('Passwords do not match.', 'Mật khẩu không khớp.')),
+                                             ),
+                                           );
                                           return;
                                         }
                                         // ── Sign-up flow ─────────────────
@@ -441,9 +459,9 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                           model: _model.buttonModel1,
                                           updateCallback: () => safeSetState(() {}),
                                           child: ButtonWidget(
-                                            content: (_model.isSignup ?? false)
-                                                ? 'Create Account'
-                                                : 'Log In',
+                                             content: (_model.isSignup ?? false)
+                                                 ? context.l10n('Create Account', 'Đăng ký')
+                                                 : context.l10n('Log In', 'Đăng nhập'),
                                             iconPresent: false,
                                             iconEndPresent: false,
                                             variant: 'primary',
@@ -463,11 +481,11 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text(
-                                        (_model.isSignup ?? false)
-                                            ? "Already have an account? "
-                                            : "Don't have an account? ",
-                                        style: FlutterFlowTheme.of(context)
+                                       Text(
+                                         (_model.isSignup ?? false)
+                                             ? context.l10n('Already have an account? ', 'Đã có tài khoản? ')
+                                             : context.l10n("Don't have an account? ", 'Chưa có tài khoản? '),
+                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
                                               font: GoogleFonts.inter(),
@@ -488,9 +506,9 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                           ),
                                           child: Text(
                                             (_model.isSignup ?? false)
-                                                ? "Log In"
-                                                : "Sign Up",
-                                            style: FlutterFlowTheme.of(context)
+                                                 ? context.l10n('Log In', 'Đăng nhập')
+                                                 : context.l10n('Sign Up', 'Đăng ký'),
+                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
                                                   font: GoogleFonts.inter(
@@ -603,8 +621,8 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Verify Email',
-                                        style: FlutterFlowTheme.of(context)
+                                         context.l10n('Verify Email', 'Xác minh Email'),
+                                         style: FlutterFlowTheme.of(context)
                                             .titleLarge
                                             .override(
                                               font: GoogleFonts.plusJakartaSans(
@@ -624,8 +642,8 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                             ),
                                       ),
                                       Text(
-                                        'We sent a 4-digit code to your email.',
-                                        style: FlutterFlowTheme.of(context)
+                                         context.l10n('We sent a 4-digit code to your email.', 'Chúng tôi đã gửi mã xác minh 4 chữ số đến email của bạn.'),
+                                         style: FlutterFlowTheme.of(context)
                                             .bodyMedium
                                             .override(
                                               font: GoogleFonts.inter(
@@ -741,8 +759,9 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                       debugPrint('[Auth] Verify OTP clicked. Code: "${_model.otpCode}"');
                                       if ((_model.otpCode ?? '').length < 4) {
                                         debugPrint('[Auth] OTP validation failed: length < 4');
-                                        _model.error =
-                                            'Please enter the full verification code';
+                                         _model.error = context.l10n(
+                                             'Please enter the full verification code',
+                                             'Vui lòng nhập đầy đủ mã xác minh');
                                         safeSetState(() {});
                                         return;
                                       }
@@ -806,7 +825,7 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                       model: _model.buttonModel2,
                                       updateCallback: () => safeSetState(() {}),
                                       child: ButtonWidget(
-                                        content: 'Verify & Continue',
+                                         content: context.l10n('Verify & Continue', 'Xác minh & Tiếp tục'),
                                         iconPresent: false,
                                         iconEndPresent: false,
                                         variant: 'primary',
@@ -823,9 +842,9 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      Text(
-                                        'Didn\'t receive code?',
-                                        style: FlutterFlowTheme.of(context)
+                                       Text(
+                                         context.l10n('Didn\'t receive code?', 'Không nhận được mã?'),
+                                         style: FlutterFlowTheme.of(context)
                                             .bodySmall
                                             .override(
                                               font: GoogleFonts.inter(
@@ -865,13 +884,14 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                                 .authRepository
                                                 .sendOtp(_model.email ?? '');
                                             if (context.mounted) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      'Verification code resent.'),
-                                                ),
-                                              );
+                                               ScaffoldMessenger.of(context)
+                                                 .showSnackBar(
+                                                   SnackBar(
+                                                     content: Text(context.l10n(
+                                                         'Verification code resent.',
+                                                         'Mã xác minh đã được gửi lại.')),
+                                                   ),
+                                                 );
                                             }
                                           } on ApiException catch (e) {
                                             if (context.mounted) {
@@ -889,7 +909,7 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                                           updateCallback: () =>
                                               safeSetState(() {}),
                                           child: ButtonWidget(
-                                            content: 'Resend',
+                                             content: context.l10n('Resend', 'Gửi lại'),
                                             iconPresent: false,
                                             iconEndPresent: false,
                                             variant: 'ghost',
@@ -927,6 +947,9 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
     required bool obscure,
     TextInputType keyboardType = TextInputType.text,
     void Function(String)? onChanged,
+    bool isPassword = false,
+    bool passwordVisible = false,
+    VoidCallback? onToggleVisibility,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -952,7 +975,7 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
         SizedBox(height: 6.0),
         TextField(
           controller: controller,
-          obscureText: obscure,
+          obscureText: isPassword ? !passwordVisible : obscure,
           keyboardType: keyboardType,
           onChanged: onChanged,
           decoration: InputDecoration(
@@ -988,6 +1011,18 @@ class _AuthenticationWidgetState extends State<AuthenticationWidget> {
                 width: 2.0,
               ),
             ),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      passwordVisible
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: FlutterFlowTheme.of(context).secondaryText,
+                      size: 20.0,
+                    ),
+                    onPressed: onToggleVisibility,
+                  )
+                : null,
             filled: true,
             fillColor: FlutterFlowTheme.of(context).primaryBackground,
             contentPadding:
