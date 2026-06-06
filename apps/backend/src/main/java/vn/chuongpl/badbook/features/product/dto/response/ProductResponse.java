@@ -18,5 +18,6 @@ public class ProductResponse {
     BigDecimal price;
     String unit;
     int stock;
+    String imageId;
     boolean active;
 }

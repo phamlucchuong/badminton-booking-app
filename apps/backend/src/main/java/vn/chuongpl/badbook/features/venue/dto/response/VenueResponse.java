@@ -24,5 +24,6 @@ public class VenueResponse {
     LocalTime openTime;
     LocalTime closeTime;
     BigDecimal platformFeeRate;
+    String bannerIds;
     LocalDateTime createdAt;
 }

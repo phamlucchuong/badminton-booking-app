@@ -8,8 +8,9 @@ import re
 import sys
 import time
 import unicodedata
+from html import unescape
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
 
@@ -125,6 +126,65 @@ VENUE_IMAGE_SOURCES = [
     },
 ]
 
+PRODUCT_IMAGE_SOURCES = [
+    {
+        'product_name': 'Thuê vợt Yonex Astrox 01 Clear',
+        'placeholder': '__PRODUCT_IMAGE_ASTROX_01_CLEAR__',
+        'source_page': 'https://www.yonex.com/astrox-01-clear',
+    },
+    {
+        'product_name': 'Thuê vợt Yonex Nanoflare Nextage',
+        'placeholder': '__PRODUCT_IMAGE_NANOFLARE_NEXTAGE__',
+        'source_page': 'https://www.yonex.com/badminton/racquets/nanoflare/nf-nt',
+    },
+    {
+        'product_name': 'Ống cầu Yonex Mavis 300',
+        'placeholder': '__PRODUCT_IMAGE_MAVIS_300__',
+        'source_page': 'https://us.yonex.com/products/mavis-300',
+    },
+    {
+        'product_name': 'Ống cầu Yonex Aerosensa 30',
+        'placeholder': '__PRODUCT_IMAGE_AEROSENSA_30__',
+        'source_page': 'https://us.yonex.com/products/aerosensa-30',
+    },
+    {
+        'product_name': 'Cuốn cán Yonex Wet Super Grap',
+        'placeholder': '__PRODUCT_IMAGE_WET_SUPER_GRAP__',
+        'source_page': 'https://www.yonex.com/ac102',
+    },
+    {
+        'product_name': 'Nước suối Aquafina 500ml',
+        'placeholder': '__PRODUCT_IMAGE_AQUAFINA__',
+        'source_page': 'https://www.pepsicoproductfacts.com/Home/Product?gtin=00012000001598',
+    },
+    {
+        'product_name': 'Nước điện giải Gatorade Water',
+        'placeholder': '__PRODUCT_IMAGE_GATORADE_WATER__',
+        'source_page': 'https://www.pepsicoproductfacts.com/Home/product?gtin=00052000060959',
+    },
+    {
+        'product_name': 'Nước thể thao Propel Lemon',
+        'placeholder': '__PRODUCT_IMAGE_PROPEL_LEMON__',
+        'source_page': 'https://www.pepsicoproductfacts.com/Home/product?gtin=00052000001679',
+    },
+]
+
+META_IMAGE_PATTERNS = [
+    re.compile(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', re.IGNORECASE),
+    re.compile(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']', re.IGNORECASE),
+    re.compile(r'<meta[^>]+name=["\']twitter:image["\'][^>]+content=["\']([^"\']+)["\']', re.IGNORECASE),
+    re.compile(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+name=["\']twitter:image["\']', re.IGNORECASE),
+]
+
+IMG_URL_PATTERNS = [
+    re.compile(r'["\'](https?:\\?/\\?/[^"\']*content/image/products/[^"\']+)["\']', re.IGNORECASE),
+    re.compile(r'["\'](/content/image/products/[^"\']+)["\']', re.IGNORECASE),
+    re.compile(r'<img[^>]+(?:src|data-src|data-image)=["\']([^"\']+)["\']', re.IGNORECASE),
+    re.compile(r'["\'](https?:\\?/\\?/[^"\']+\.(?:png|jpe?g|webp))(?:\?[^"\']*)?["\']', re.IGNORECASE),
+]
+
+BAD_IMAGE_TOKENS = ['logo', 'icon', 'sprite', 'placeholder', 'blank.gif', 'search.svg', 'essentialaccessibility']
+
 
 def parse_env(path: Path) -> dict[str, str]:
     values: dict[str, str] = {}
@@ -143,7 +203,7 @@ def slugify(value: str) -> str:
     normalized = unicodedata.normalize('NFD', value)
     ascii_only = normalized.encode('ascii', 'ignore').decode('ascii')
     slug = re.sub(r'[^a-zA-Z0-9]+', '-', ascii_only.lower()).strip('-')
-    return slug or 'venue'
+    return slug or 'asset'
 
 
 def infer_extension(source_url: str, content_type: str | None) -> str:
@@ -158,12 +218,77 @@ def infer_extension(source_url: str, content_type: str | None) -> str:
     return '.jpg'
 
 
-def download_image(session: requests.Session, venue_name: str, source_url: str) -> Path:
+def normalize_candidate_url(base_url: str, candidate: str) -> str:
+    normalized = unescape(candidate).replace('\\/', '/').strip()
+    if normalized.startswith('//'):
+        normalized = f'https:{normalized}'
+    return urljoin(base_url, normalized)
+
+
+def is_viable_image_url(candidate: str) -> bool:
+    lowered = candidate.lower()
+    if not lowered or lowered.startswith('data:'):
+        return False
+    return not any(token in lowered for token in BAD_IMAGE_TOKENS)
+
+
+def request_with_retry(session: requests.Session, method: str, url: str, **kwargs) -> requests.Response:
+    last_error: requests.RequestException | None = None
+    for attempt in range(3):
+        try:
+            response = session.request(method, url, **kwargs)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as exc:
+            last_error = exc
+            if attempt == 2:
+                raise
+            time.sleep(1.5 * (attempt + 1))
+    assert last_error is not None
+    raise last_error
+
+
+def resolve_image_url(session: requests.Session, source_page: str, explicit_source_image_url: str | None = None) -> str:
+    if explicit_source_image_url:
+        return explicit_source_image_url
+
+    response = request_with_retry(
+        session,
+        'GET',
+        source_page,
+        timeout=TIMEOUT,
+        headers={'User-Agent': USER_AGENT},
+    )
+    html = response.text
+
+    for pattern in META_IMAGE_PATTERNS:
+        match = pattern.search(html)
+        if match:
+            candidate = normalize_candidate_url(source_page, match.group(1))
+            if is_viable_image_url(candidate):
+                return candidate
+
+    for pattern in IMG_URL_PATTERNS:
+        for match in pattern.finditer(html):
+            candidate = normalize_candidate_url(source_page, match.group(1))
+            if is_viable_image_url(candidate):
+                return candidate
+
+    raise RuntimeError(f'Could not resolve an image from {source_page}')
+
+
+def download_image(session: requests.Session, label: str, source_url: str) -> Path:
     DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    response = session.get(source_url, timeout=TIMEOUT, headers={'User-Agent': USER_AGENT}, stream=True)
-    response.raise_for_status()
+    response = request_with_retry(
+        session,
+        'GET',
+        source_url,
+        timeout=TIMEOUT,
+        headers={'User-Agent': USER_AGENT},
+        stream=True,
+    )
     ext = infer_extension(source_url, response.headers.get('Content-Type'))
-    target = DOWNLOAD_DIR / f"{slugify(venue_name)}{ext}"
+    target = DOWNLOAD_DIR / f"{slugify(label)}{ext}"
     with target.open('wb') as handle:
         for chunk in response.iter_content(chunk_size=1024 * 128):
             if chunk:
@@ -176,9 +301,8 @@ def cloudinary_signature(params: dict[str, str], api_secret: str) -> str:
     return hashlib.sha1(f'{payload}{api_secret}'.encode('utf-8')).hexdigest()
 
 
-def upload_to_cloudinary(session: requests.Session, image_path: Path, venue_name: str, env: dict[str, str]) -> dict[str, str]:
+def upload_to_cloudinary(session: requests.Session, image_path: Path, public_id: str, env: dict[str, str]) -> dict[str, str]:
     timestamp = str(int(time.time()))
-    public_id = slugify(venue_name)
     sign_params = {
         'folder': CLOUDINARY_FOLDER,
         'overwrite': 'true',
@@ -190,7 +314,9 @@ def upload_to_cloudinary(session: requests.Session, image_path: Path, venue_name
     signature = cloudinary_signature(sign_params, env['CLOUDINARY_API_SECRET'])
     upload_url = f"https://api.cloudinary.com/v1_1/{env['CLOUDINARY_CLOUD_NAME']}/image/upload"
     with image_path.open('rb') as image_file:
-        response = session.post(
+        response = request_with_retry(
+            session,
+            'POST',
             upload_url,
             timeout=TIMEOUT,
             data={
@@ -205,11 +331,10 @@ def upload_to_cloudinary(session: requests.Session, image_path: Path, venue_name
             },
             files={'file': (image_path.name, image_file)},
         )
-    response.raise_for_status()
     payload = response.json()
     secure_url = payload.get('secure_url')
     if not secure_url:
-        raise RuntimeError(f'Cloudinary upload for {venue_name} did not return secure_url: {payload}')
+        raise RuntimeError(f'Cloudinary upload for {public_id} did not return secure_url: {payload}')
     return {
         'public_id': payload['public_id'],
         'secure_url': secure_url,
@@ -267,16 +392,48 @@ def update_seed_sql(image_manifest: list[dict[str, str]]) -> None:
     seed_text = SEED_SQL.read_text(encoding='utf-8')
     prefix, blocks = load_seed_blocks(seed_text)
     ordered_blocks = []
+    venue_entries = [entry for entry in image_manifest if entry['asset_type'] == 'venue']
     for block in blocks:
         match = re.search(r"INSERT INTO venues \(.*?\) VALUES\n  \('[^']+', '[^']+', '([^']+)'", block, re.S)
         venue_name = match.group(1)
-        manifest_entry = next((entry for entry in image_manifest if entry['venue_name'] == venue_name), None)
+        manifest_entry = next((entry for entry in venue_entries if entry['venue_name'] == venue_name), None)
         if manifest_entry is None:
             ordered_blocks.append(block)
             continue
         ordered_blocks.append(update_block(block, venue_name, manifest_entry['cloudinary_secure_url']))
 
-    SEED_SQL.write_text(prefix + ''.join(ordered_blocks), encoding='utf-8')
+    updated_seed = prefix + ''.join(ordered_blocks)
+    for entry in image_manifest:
+        placeholder = entry.get('placeholder')
+        if placeholder:
+            updated_seed = updated_seed.replace(placeholder, entry['cloudinary_secure_url'])
+
+    SEED_SQL.write_text(updated_seed, encoding='utf-8')
+
+
+def upload_asset(session: requests.Session, item: dict[str, str], env: dict[str, str], asset_type: str) -> dict[str, str]:
+    display_name = item['venue_name'] if asset_type == 'venue' else item['product_name']
+    source_image_url = resolve_image_url(session, item['source_page'], item.get('source_image_url'))
+    image_path = download_image(session, display_name, source_image_url)
+    public_id = slugify(display_name) if asset_type == 'venue' else f"product-{slugify(display_name)}"
+    cloudinary_result = upload_to_cloudinary(session, image_path, public_id, env)
+    manifest_entry = {
+        'asset_type': asset_type,
+        'display_name': display_name,
+        'source_page': item['source_page'],
+        'source_image_url': source_image_url,
+        'downloaded_file': str(image_path),
+        'cloudinary_public_id': cloudinary_result['public_id'],
+        'cloudinary_secure_url': cloudinary_result['secure_url'],
+        'cloudinary_asset_id': cloudinary_result['asset_id'],
+        'cloudinary_version': cloudinary_result['version'],
+    }
+    if asset_type == 'venue':
+        manifest_entry['venue_name'] = item['venue_name']
+    else:
+        manifest_entry['product_name'] = item['product_name']
+        manifest_entry['placeholder'] = item['placeholder']
+    return manifest_entry
 
 
 def main() -> int:
@@ -291,24 +448,19 @@ def main() -> int:
     session = requests.Session()
     session.headers.update({'User-Agent': USER_AGENT})
 
+    products_only = '--products-only' in sys.argv
+
     manifest: list[dict[str, str]] = []
-    for item in VENUE_IMAGE_SOURCES:
-        venue_name = item['venue_name']
-        image_path = download_image(session, venue_name, item['source_image_url'])
-        cloudinary_result = upload_to_cloudinary(session, image_path, venue_name, env)
-        manifest.append(
-            {
-                'venue_name': venue_name,
-                'source_page': item['source_page'],
-                'source_image_url': item['source_image_url'],
-                'downloaded_file': str(image_path),
-                'cloudinary_public_id': cloudinary_result['public_id'],
-                'cloudinary_secure_url': cloudinary_result['secure_url'],
-                'cloudinary_asset_id': cloudinary_result['asset_id'],
-                'cloudinary_version': cloudinary_result['version'],
-            }
-        )
-        print(f"Uploaded {venue_name}: {cloudinary_result['secure_url']}")
+    if not products_only:
+        for item in VENUE_IMAGE_SOURCES:
+            manifest_entry = upload_asset(session, item, env, 'venue')
+            manifest.append(manifest_entry)
+            print(f"Uploaded venue {manifest_entry['display_name']}: {manifest_entry['cloudinary_secure_url']}")
+
+    for item in PRODUCT_IMAGE_SOURCES:
+        manifest_entry = upload_asset(session, item, env, 'product')
+        manifest.append(manifest_entry)
+        print(f"Uploaded product {manifest_entry['display_name']}: {manifest_entry['cloudinary_secure_url']}")
 
     MANIFEST_JSON.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     update_seed_sql(manifest)
@@ -318,8 +470,4 @@ def main() -> int:
 
 
 if __name__ == '__main__':
-    try:
-        raise SystemExit(main())
-    except Exception as exc:  # pragma: no cover - operational script
-        print(f'ERROR: {exc}', file=sys.stderr)
-        raise SystemExit(1)
+    raise SystemExit(main())
