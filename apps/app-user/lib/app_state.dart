@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'flutter_flow/flutter_flow_util.dart';
-import 'dart:convert';
 import 'services/api_client.dart';
 import 'services/token_store.dart';
 import 'repositories/auth_repository.dart';
@@ -24,17 +22,25 @@ class FFAppState extends ChangeNotifier {
     _instance = FFAppState._internal();
   }
 
-  Future initializePersistedState() async {}
+  Future initializePersistedState() async {
+    final prefs = await SharedPreferences.getInstance();
+    _hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+  }
+
+  Future<void> markOnboardingSeen() async {
+    _hasSeenOnboarding = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_onboarding', true);
+    notifyListeners();
+  }
 
   void update(VoidCallback callback) {
     callback();
     notifyListeners();
   }
 
-  // --- Backend services (added during backend integration) ---
   final TokenStore tokenStore = TokenStore();
-  late final ApiClient apiClient =
-      ApiClient(tokenProvider: tokenStore.read);
+  late final ApiClient apiClient = ApiClient(tokenProvider: tokenStore.read);
   late final AuthRepository authRepository =
       AuthRepository(apiClient, tokenStore);
   late final VenueRepository venueRepository = VenueRepository(apiClient);
@@ -46,7 +52,9 @@ class FFAppState extends ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
   set isLoggedIn(bool value) => _isLoggedIn = value;
 
-  // Transient booking-flow state — set in time_slot_matrix, consumed in review_order / payment.
+  bool _hasSeenOnboarding = false;
+  bool get hasSeenOnboarding => _hasSeenOnboarding;
+
   String currentVenueId = '';
   String currentBookingId = '';
   String currentBookingDate = '';

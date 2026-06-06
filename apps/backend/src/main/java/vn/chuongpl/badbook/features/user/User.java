@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Generated;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,8 +15,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,7 +44,8 @@ public class User {
     String phone;
     @Column(name = "image_id")
     String imageId;
-
+    @Column(name = "google_id")
+    String googleId;
 
     @Column(name = "created_at", updatable = false, columnDefinition = "timestamp default current_timestamp")
     @Generated(org.hibernate.annotations.GenerationTime.INSERT)
@@ -60,12 +58,4 @@ public class User {
     @ManyToMany
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_name"))
     Set<Role> roles;
-
-//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-//    Restaurant restaurant;
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    Set<Order> orders;
-
 }
-

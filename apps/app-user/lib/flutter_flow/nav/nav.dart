@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
+import '/app_state.dart';
 import '/main.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/lat_lng.dart';
@@ -35,85 +36,97 @@ class AppStateNotifier extends ChangeNotifier {
   }
 }
 
-GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
-      initialLocation: '/',
-      debugLogDiagnostics: true,
-      refreshListenable: appStateNotifier,
-      navigatorKey: appNavigatorKey,
-      errorBuilder: (context, state) => SplashOnboardingWidget(),
-      routes: [
-        FFRoute(
-          name: '_initialize',
-          path: '/',
-          builder: (context, _) => SplashOnboardingWidget(),
-        ),
-        FFRoute(
-          name: AuthenticationWidget.routeName,
-          path: AuthenticationWidget.routePath,
-          builder: (context, params) => AuthenticationWidget(),
-        ),
-        FFRoute(
-          name: BookingConfirmationWidget.routeName,
-          path: BookingConfirmationWidget.routePath,
-          builder: (context, params) => BookingConfirmationWidget(),
-        ),
-        FFRoute(
-          name: CourtDetailsWidget.routeName,
-          path: CourtDetailsWidget.routePath,
-          builder: (context, params) => CourtDetailsWidget(
-            courtId: params.getParam(
-              'courtId',
-              ParamType.String,
-            ),
+GoRouter createRouter(AppStateNotifier appStateNotifier) {
+  final appState = FFAppState();
+  final String initialLocation;
+  if (!appState.hasSeenOnboarding) {
+    initialLocation = SplashOnboardingWidget.routePath;
+  } else if (appState.isLoggedIn) {
+    initialLocation = HomeDashboardWidget.routePath;
+  } else {
+    initialLocation = AuthenticationWidget.routePath;
+  }
+
+  return GoRouter(
+    initialLocation: initialLocation,
+    debugLogDiagnostics: true,
+    refreshListenable: appStateNotifier,
+    navigatorKey: appNavigatorKey,
+    errorBuilder: (context, state) => SplashOnboardingWidget(),
+    routes: [
+      FFRoute(
+        name: '_initialize',
+        path: '/',
+        builder: (context, _) => SplashOnboardingWidget(),
+      ),
+      FFRoute(
+        name: AuthenticationWidget.routeName,
+        path: AuthenticationWidget.routePath,
+        builder: (context, params) => AuthenticationWidget(),
+      ),
+      FFRoute(
+        name: BookingConfirmationWidget.routeName,
+        path: BookingConfirmationWidget.routePath,
+        builder: (context, params) => BookingConfirmationWidget(),
+      ),
+      FFRoute(
+        name: CourtDetailsWidget.routeName,
+        path: CourtDetailsWidget.routePath,
+        builder: (context, params) => CourtDetailsWidget(
+          courtId: params.getParam(
+            'courtId',
+            ParamType.String,
           ),
         ),
-        FFRoute(
-          name: AllProductsWidget.routeName,
-          path: AllProductsWidget.routePath,
-          builder: (context, params) => AllProductsWidget(
-            courtId: params.getParam(
-              'courtId',
-              ParamType.String,
-            ),
+      ),
+      FFRoute(
+        name: AllProductsWidget.routeName,
+        path: AllProductsWidget.routePath,
+        builder: (context, params) => AllProductsWidget(
+          courtId: params.getParam(
+            'courtId',
+            ParamType.String,
           ),
         ),
-        FFRoute(
-          name: HomeDashboardWidget.routeName,
-          path: HomeDashboardWidget.routePath,
-          builder: (context, params) => HomeDashboardWidget(),
-        ),
-        FFRoute(
-          name: QRPaymentWidget.routeName,
-          path: QRPaymentWidget.routePath,
-          builder: (context, params) => QRPaymentWidget(),
-        ),
-        FFRoute(
-          name: ReviewOrderWidget.routeName,
-          path: ReviewOrderWidget.routePath,
-          builder: (context, params) => ReviewOrderWidget(),
-        ),
-        FFRoute(
-          name: SplashOnboardingWidget.routeName,
-          path: SplashOnboardingWidget.routePath,
-          builder: (context, params) => SplashOnboardingWidget(),
-        ),
-        FFRoute(
-          name: TimeSlotMatrixWidget.routeName,
-          path: TimeSlotMatrixWidget.routePath,
-          builder: (context, params) => TimeSlotMatrixWidget(
-            courtId: params.getParam(
-              'courtId',
-              ParamType.String,
-            ),
+      ),
+      FFRoute(
+        name: HomeDashboardWidget.routeName,
+        path: HomeDashboardWidget.routePath,
+        builder: (context, params) => HomeDashboardWidget(),
+      ),
+      FFRoute(
+        name: QRPaymentWidget.routeName,
+        path: QRPaymentWidget.routePath,
+        builder: (context, params) => QRPaymentWidget(),
+      ),
+      FFRoute(
+        name: ReviewOrderWidget.routeName,
+        path: ReviewOrderWidget.routePath,
+        builder: (context, params) => ReviewOrderWidget(),
+      ),
+      FFRoute(
+        name: SplashOnboardingWidget.routeName,
+        path: SplashOnboardingWidget.routePath,
+        builder: (context, params) => SplashOnboardingWidget(),
+      ),
+      FFRoute(
+        name: TimeSlotMatrixWidget.routeName,
+        path: TimeSlotMatrixWidget.routePath,
+        builder: (context, params) => TimeSlotMatrixWidget(
+          courtId: params.getParam(
+            'courtId',
+            ParamType.String,
           ),
         ),
-        FFRoute(
-          name: UserProfileWidget.routeName,
-          path: UserProfileWidget.routePath,
-          builder: (context, params) => UserProfileWidget(),
-        )
-      ].map((r) => r.toRoute(appStateNotifier)).toList(),
-    );
+      ),
+      FFRoute(
+        name: UserProfileWidget.routeName,
+        path: UserProfileWidget.routePath,
+        builder: (context, params) => UserProfileWidget(),
+      )
+    ].map((r) => r.toRoute(appStateNotifier)).toList(),
+  );
+}
 
 extension NavParamExtensions on Map<String, String?> {
   Map<String, String> get withoutNulls => Map.fromEntries(
@@ -125,8 +138,6 @@ extension NavParamExtensions on Map<String, String?> {
 
 extension NavigationExtensions on BuildContext {
   void safePop() {
-    // If there is only one route on the stack, navigate to the initial
-    // page instead of popping.
     if (canPop()) {
       pop();
     } else {
@@ -155,8 +166,6 @@ class FFParameters {
 
   Map<String, dynamic> futureParamValues = {};
 
-  // Parameters are empty if the params map is empty or if the only parameter
-  // present is the special extra parameter reserved for the transition info.
   bool get isEmpty =>
       state.allParams.isEmpty ||
       (state.allParams.length == 1 &&
@@ -191,11 +200,9 @@ class FFParameters {
       return null;
     }
     final param = state.allParams[paramName];
-    // Got parameter from `extras`, so just directly return it.
     if (param is! String) {
       return param;
     }
-    // Return serialized value.
     return deserializeParam<T>(
       param,
       type,
