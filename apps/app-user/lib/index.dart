@@ -1,4 +1,5 @@
 // Export pages
+export '/pages/all_products/all_products_widget.dart' show AllProductsWidget;
 export '/pages/authentication/authentication_widget.dart'
     show AuthenticationWidget;
 export '/pages/booking_confirmation/booking_confirmation_widget.dart'

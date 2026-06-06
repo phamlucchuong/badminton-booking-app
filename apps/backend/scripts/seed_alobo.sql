@@ -12,7 +12,7 @@ ON CONFLICT (name) DO NOTHING;
 -- Email: demo.user@badbook.local
 -- Password: Admin@123456
 INSERT INTO users (id, name, email, password, phone, image_id, created_at, is_deleted) VALUES
-  ('00000000-0000-0000-0000-000000000001', 'Demo User', 'user@badbook.com', '$2a$10$.Kg4C4UFpowiqgkHbCYhPuh3hKZkgFApkQ7H4kJKGpmIKSYLndJI6', '0900000001', NULL, CURRENT_TIMESTAMP, FALSE)
+  ('00000000-0000-0000-0000-000000000001', 'Demo User', 'user@gmail.com', '$2a$10$.Kg4C4UFpowiqgkHbCYhPuh3hKZkgFApkQ7H4kJKGpmIKSYLndJI6', '0900000001', NULL, CURRENT_TIMESTAMP, FALSE)
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   email = EXCLUDED.email,
@@ -939,3 +939,331 @@ INSERT INTO courts (id, venue_id, name, court_type, price_per_hour, image_ids, s
 INSERT INTO courts (id, venue_id, name, court_type, price_per_hour, image_ids, status, description) VALUES ('00000000-0000-0000-0000-000000102005', '00000000-0000-0000-0000-000000000220', 'Sân 5', 'STANDARD', 90000.00, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780675029/badbook/alobo-seed/san-cau-long-minh-nhat.jpg', 'ACTIVE', 'Sân cầu lông Minh Nhật - sân số 5') ON CONFLICT (id) DO UPDATE SET venue_id = EXCLUDED.venue_id, name = EXCLUDED.name, court_type = EXCLUDED.court_type, price_per_hour = EXCLUDED.price_per_hour, image_ids = EXCLUDED.image_ids, status = EXCLUDED.status, description = EXCLUDED.description;
 INSERT INTO courts (id, venue_id, name, court_type, price_per_hour, image_ids, status, description) VALUES ('00000000-0000-0000-0000-000000102006', '00000000-0000-0000-0000-000000000220', 'Sân 6', 'STANDARD', 90000.00, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780675029/badbook/alobo-seed/san-cau-long-minh-nhat.jpg', 'ACTIVE', 'Sân cầu lông Minh Nhật - sân số 6') ON CONFLICT (id) DO UPDATE SET venue_id = EXCLUDED.venue_id, name = EXCLUDED.name, court_type = EXCLUDED.court_type, price_per_hour = EXCLUDED.price_per_hour, image_ids = EXCLUDED.image_ids, status = EXCLUDED.status, description = EXCLUDED.description;
 
+-- Demo review users, venue products, completed bookings, and venue reviews.
+-- Product image placeholders below are resolved by apps/backend/scripts/upload_alobo_images.py before seeding.
+INSERT INTO users (id, name, email, password, phone, image_id, created_at, is_deleted) VALUES
+  ('00000000-0000-0000-0000-000000000301', 'Nguyễn Hoàng Anh', 'seed.reviewer.01@badbook.local', '$2a$10$.Kg4C4UFpowiqgkHbCYhPuh3hKZkgFApkQ7H4kJKGpmIKSYLndJI6', '0900000301', NULL, CURRENT_TIMESTAMP, FALSE),
+  ('00000000-0000-0000-0000-000000000302', 'Trần Minh Khang', 'seed.reviewer.02@badbook.local', '$2a$10$.Kg4C4UFpowiqgkHbCYhPuh3hKZkgFApkQ7H4kJKGpmIKSYLndJI6', '0900000302', NULL, CURRENT_TIMESTAMP, FALSE),
+  ('00000000-0000-0000-0000-000000000303', 'Lê Gia Hân', 'seed.reviewer.03@badbook.local', '$2a$10$.Kg4C4UFpowiqgkHbCYhPuh3hKZkgFApkQ7H4kJKGpmIKSYLndJI6', '0900000303', NULL, CURRENT_TIMESTAMP, FALSE),
+  ('00000000-0000-0000-0000-000000000304', 'Phạm Quốc Việt', 'seed.reviewer.04@badbook.local', '$2a$10$.Kg4C4UFpowiqgkHbCYhPuh3hKZkgFApkQ7H4kJKGpmIKSYLndJI6', '0900000304', NULL, CURRENT_TIMESTAMP, FALSE),
+  ('00000000-0000-0000-0000-000000000305', 'Đỗ Thuỳ Linh', 'seed.reviewer.05@badbook.local', '$2a$10$.Kg4C4UFpowiqgkHbCYhPuh3hKZkgFApkQ7H4kJKGpmIKSYLndJI6', '0900000305', NULL, CURRENT_TIMESTAMP, FALSE)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  email = EXCLUDED.email,
+  password = EXCLUDED.password,
+  phone = EXCLUDED.phone,
+  is_deleted = FALSE;
+
+INSERT INTO user_roles (user_id, role_name) VALUES
+  ('00000000-0000-0000-0000-000000000301', 'USER'),
+  ('00000000-0000-0000-0000-000000000302', 'USER'),
+  ('00000000-0000-0000-0000-000000000303', 'USER'),
+  ('00000000-0000-0000-0000-000000000304', 'USER'),
+  ('00000000-0000-0000-0000-000000000305', 'USER')
+ON CONFLICT DO NOTHING;
+
+WITH seed_venues AS (
+  SELECT v.id AS venue_id, ROW_NUMBER() OVER (ORDER BY v.id)::int AS venue_seq
+  FROM venues v
+  WHERE v.license_id LIKE 'ALOBO-SEED-%'
+),
+product_templates (template_seq, name, description, category, price, unit, stock, image_url) AS (
+  VALUES
+    (1, 'Thuê vợt Yonex Astrox 01 Clear', 'Vợt trợ lực, dễ điều khiển cho khách thuê theo buổi và người mới chơi.', 'RACKET_RENTAL', 50000.00, 'vợt/buổi', 12, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780716757/badbook/alobo-seed/product-thue-vot-yonex-astrox-01-clear.png'),
+    (2, 'Thuê vợt Yonex Nanoflare Nextage', 'Vợt thiên tốc độ phù hợp khách đánh đôi, đã quấn cán và bảo dưỡng định kỳ.', 'RACKET_RENTAL', 70000.00, 'vợt/buổi', 8, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780716760/badbook/alobo-seed/product-thue-vot-yonex-nanoflare-nextage.png'),
+    (3, 'Ống cầu Yonex Mavis 300', 'Ống cầu nylon bền, phù hợp tập luyện và đánh phong trào hằng ngày.', 'SHUTTLECOCK', 165000.00, 'ống', 30, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780716765/badbook/alobo-seed/product-ong-cau-yonex-mavis-300.jpg'),
+    (4, 'Ống cầu Yonex Aerosensa 30', 'Cầu lông lông vũ dành cho trận chất lượng cao và kèo đấu cuối tuần.', 'SHUTTLECOCK', 520000.00, 'ống', 12, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780716771/badbook/alobo-seed/product-ong-cau-yonex-aerosensa-30.png'),
+    (5, 'Cuốn cán Yonex Wet Super Grap', 'Cuốn cán bám tay, thấm mồ hôi tốt cho người chơi cường độ cao.', 'EQUIPMENT', 35000.00, 'cuốn', 40, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780716774/badbook/alobo-seed/product-cuon-can-yonex-wet-super-grap.png'),
+    (6, 'Nước suối Aquafina 500ml', 'Nước uống đóng chai phục vụ nhanh tại quầy lễ tân và khu nghỉ.', 'BEVERAGE', 10000.00, 'chai', 96, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780716777/badbook/alobo-seed/product-nuoc-suoi-aquafina-500ml.png'),
+    (7, 'Nước điện giải Gatorade Water', 'Nước điện giải nhẹ, hợp người chơi cần bù khoáng sau buổi tối.', 'BEVERAGE', 25000.00, 'chai', 60, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780716780/badbook/alobo-seed/product-nuoc-ien-giai-gatorade-water.png'),
+    (8, 'Nước thể thao Propel Lemon', 'Đồ uống vị chanh, phù hợp khách đặt sân dài giờ hoặc thi đấu mini.', 'BEVERAGE', 22000.00, 'chai', 48, 'https://res.cloudinary.com/dmlz8xuq1/image/upload/v1780716784/badbook/alobo-seed/product-nuoc-the-thao-propel-lemon.png')
+)
+INSERT INTO products (id, venue_id, name, description, category, price, unit, stock, image_id, is_active)
+SELECT
+  format('00000000-0000-0000-%s-%s', lpad((3100 + sv.venue_seq)::text, 4, '0'), lpad(pt.template_seq::text, 12, '0'))::uuid,
+  sv.venue_id,
+  pt.name,
+  pt.description,
+  pt.category,
+  pt.price,
+  pt.unit,
+  pt.stock,
+  pt.image_url,
+  TRUE
+FROM seed_venues sv
+CROSS JOIN product_templates pt
+ON CONFLICT (id) DO UPDATE SET
+  venue_id = EXCLUDED.venue_id,
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  category = EXCLUDED.category,
+  price = EXCLUDED.price,
+  unit = EXCLUDED.unit,
+  stock = EXCLUDED.stock,
+  image_id = EXCLUDED.image_id,
+  is_active = EXCLUDED.is_active;
+
+WITH seed_venues AS (
+  SELECT
+    v.id AS venue_id,
+    v.platform_fee_rate,
+    ROW_NUMBER() OVER (ORDER BY v.id)::int AS venue_seq,
+    COUNT(c.id)::int AS court_count
+  FROM venues v
+  LEFT JOIN courts c ON c.venue_id = v.id
+  WHERE v.license_id LIKE 'ALOBO-SEED-%'
+  GROUP BY v.id, v.platform_fee_rate
+),
+seed_courts AS (
+  SELECT
+    c.id AS court_id,
+    c.venue_id,
+    c.price_per_hour,
+    ROW_NUMBER() OVER (PARTITION BY c.venue_id ORDER BY c.name, c.id)::int AS court_seq
+  FROM courts c
+  JOIN seed_venues sv ON sv.venue_id = c.venue_id
+),
+review_templates (template_seq, reviewer_id, rating, content, reply_text, add_on_product_seq, add_on_quantity, start_time, notes) AS (
+  VALUES
+    (1, '00000000-0000-0000-0000-000000000301'::uuid, 5, 'Sân sáng, sạch và nhân viên hỗ trợ nhận sân rất nhanh. Đội mình sẽ quay lại.', 'Cảm ơn anh/chị, bên em luôn giữ sàn và ánh sáng ổn định mỗi ngày.', 3, 1, '18:00'::time, 'Đặt sân sau giờ làm'),
+    (2, '00000000-0000-0000-0000-000000000302'::uuid, 5, 'Chỗ để xe rộng, quầy nước đủ đồ và giờ cao điểm vẫn phục vụ ổn.', NULL, 6, 2, '19:00'::time, 'Nhóm 4 người đánh đôi'),
+    (3, '00000000-0000-0000-0000-000000000303'::uuid, 4, 'Mặt sân ổn, điều hoà và quạt chạy tốt. Nếu nhà vệ sinh sạch hơn nữa thì trọn vẹn.', 'Bên em đã tăng lịch vệ sinh cuối ca tối, mong lần tới chị thấy thuận tiện hơn.', 7, 1, '20:00'::time, 'Đặt sân tối muộn'),
+    (4, '00000000-0000-0000-0000-000000000304'::uuid, 4, 'Giá sân hợp lý, cầu và phụ kiện bán ngay tại quầy nên khá tiện.', NULL, 5, 1, '17:30'::time, 'Mang theo 1 khách mới'),
+    (5, '00000000-0000-0000-0000-000000000305'::uuid, 5, 'Không gian thoáng, phù hợp cả đánh phong trào lẫn đặt cố định theo tuần.', 'Cảm ơn chị đã phản hồi tích cực, bên em luôn sẵn sàng giữ lịch cố định cho đội.', NULL, NULL, '21:00'::time, 'Kèo cố định cuối tuần')
+),
+booking_source AS (
+  SELECT
+    sv.venue_seq,
+    rt.template_seq,
+    format('00000000-0000-0000-%s-%s', lpad((4100 + sv.venue_seq)::text, 4, '0'), lpad(rt.template_seq::text, 12, '0'))::uuid AS booking_id,
+    rt.reviewer_id AS user_id,
+    sc.court_id,
+    sv.venue_id,
+    CURRENT_DATE - (sv.venue_seq + rt.template_seq + 10) AS booking_date,
+    rt.start_time,
+    (rt.start_time + INTERVAL '2 hours')::time AS end_time,
+    (sc.price_per_hour * 2) AS court_total,
+    COALESCE(p.id, NULL) AS add_on_product_id,
+    p.name AS add_on_product_name,
+    COALESCE(rt.add_on_quantity, 0) AS add_on_quantity,
+    COALESCE(p.price, 0::numeric) AS add_on_unit_price,
+    COALESCE(p.price * rt.add_on_quantity, 0::numeric) AS add_on_total,
+    (sc.price_per_hour * 2) + COALESCE(p.price * rt.add_on_quantity, 0::numeric) AS total_amount,
+    sv.platform_fee_rate,
+    rt.rating,
+    rt.content,
+    rt.reply_text,
+    rt.notes,
+    (CURRENT_TIMESTAMP - ((sv.venue_seq + rt.template_seq + 5) || ' days')::interval) AS created_at,
+    (CURRENT_TIMESTAMP - ((sv.venue_seq + rt.template_seq + 4) || ' days')::interval) AS updated_at
+  FROM seed_venues sv
+  JOIN review_templates rt ON TRUE
+  JOIN seed_courts sc
+    ON sc.venue_id = sv.venue_id
+   AND sc.court_seq = ((rt.template_seq - 1) % sv.court_count) + 1
+  LEFT JOIN products p
+    ON p.id = CASE
+      WHEN rt.add_on_product_seq IS NULL THEN NULL
+      ELSE format('00000000-0000-0000-%s-%s', lpad((3100 + sv.venue_seq)::text, 4, '0'), lpad(rt.add_on_product_seq::text, 12, '0'))::uuid
+    END
+)
+INSERT INTO bookings (id, user_id, court_id, venue_id, booking_date, start_time, end_time, type, status, total_amount, notes, cancel_reason, created_at, updated_at)
+SELECT
+  bs.booking_id,
+  bs.user_id,
+  bs.court_id,
+  bs.venue_id,
+  bs.booking_date,
+  bs.start_time,
+  bs.end_time,
+  'HOURLY',
+  'COMPLETED',
+  bs.total_amount,
+  bs.notes,
+  NULL,
+  bs.created_at,
+  bs.updated_at
+FROM booking_source bs
+ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
+  court_id = EXCLUDED.court_id,
+  venue_id = EXCLUDED.venue_id,
+  booking_date = EXCLUDED.booking_date,
+  start_time = EXCLUDED.start_time,
+  end_time = EXCLUDED.end_time,
+  type = EXCLUDED.type,
+  status = EXCLUDED.status,
+  total_amount = EXCLUDED.total_amount,
+  notes = EXCLUDED.notes,
+  cancel_reason = EXCLUDED.cancel_reason,
+  created_at = EXCLUDED.created_at,
+  updated_at = EXCLUDED.updated_at;
+
+WITH seed_venues AS (
+  SELECT
+    v.id AS venue_id,
+    v.platform_fee_rate,
+    ROW_NUMBER() OVER (ORDER BY v.id)::int AS venue_seq,
+    COUNT(c.id)::int AS court_count
+  FROM venues v
+  LEFT JOIN courts c ON c.venue_id = v.id
+  WHERE v.license_id LIKE 'ALOBO-SEED-%'
+  GROUP BY v.id, v.platform_fee_rate
+),
+seed_courts AS (
+  SELECT
+    c.id AS court_id,
+    c.venue_id,
+    c.price_per_hour,
+    ROW_NUMBER() OVER (PARTITION BY c.venue_id ORDER BY c.name, c.id)::int AS court_seq
+  FROM courts c
+  JOIN seed_venues sv ON sv.venue_id = c.venue_id
+),
+review_templates (template_seq, add_on_product_seq, add_on_quantity) AS (
+  VALUES
+    (1, 3, 1),
+    (2, 6, 2),
+    (3, 7, 1),
+    (4, 5, 1),
+    (5, NULL, NULL)
+),
+booking_product_source AS (
+  SELECT
+    sv.venue_seq,
+    rt.template_seq,
+    format('00000000-0000-0000-%s-%s', lpad((4100 + sv.venue_seq)::text, 4, '0'), lpad(rt.template_seq::text, 12, '0'))::uuid AS booking_id,
+    p.id AS product_id,
+    p.name AS product_name,
+    rt.add_on_quantity AS quantity,
+    p.price AS unit_price,
+    p.price * rt.add_on_quantity AS total_price
+  FROM seed_venues sv
+  JOIN review_templates rt ON rt.add_on_product_seq IS NOT NULL
+  JOIN seed_courts sc
+    ON sc.venue_id = sv.venue_id
+   AND sc.court_seq = ((rt.template_seq - 1) % sv.court_count) + 1
+  JOIN products p
+    ON p.id = format('00000000-0000-0000-%s-%s', lpad((3100 + sv.venue_seq)::text, 4, '0'), lpad(rt.add_on_product_seq::text, 12, '0'))::uuid
+)
+INSERT INTO booking_products (id, booking_id, product_id, product_name, quantity, unit_price, total_price)
+SELECT
+  format('00000000-0000-0000-%s-%s', lpad((7100 + bps.venue_seq)::text, 4, '0'), lpad(bps.template_seq::text, 12, '0'))::uuid,
+  bps.booking_id,
+  bps.product_id,
+  bps.product_name,
+  bps.quantity,
+  bps.unit_price,
+  bps.total_price
+FROM booking_product_source bps
+ON CONFLICT (id) DO UPDATE SET
+  booking_id = EXCLUDED.booking_id,
+  product_id = EXCLUDED.product_id,
+  product_name = EXCLUDED.product_name,
+  quantity = EXCLUDED.quantity,
+  unit_price = EXCLUDED.unit_price,
+  total_price = EXCLUDED.total_price;
+
+WITH seed_venues AS (
+  SELECT
+    v.id AS venue_id,
+    v.platform_fee_rate,
+    ROW_NUMBER() OVER (ORDER BY v.id)::int AS venue_seq,
+    COUNT(c.id)::int AS court_count
+  FROM venues v
+  LEFT JOIN courts c ON c.venue_id = v.id
+  WHERE v.license_id LIKE 'ALOBO-SEED-%'
+  GROUP BY v.id, v.platform_fee_rate
+),
+seed_courts AS (
+  SELECT
+    c.id AS court_id,
+    c.venue_id,
+    c.price_per_hour,
+    ROW_NUMBER() OVER (PARTITION BY c.venue_id ORDER BY c.name, c.id)::int AS court_seq
+  FROM courts c
+  JOIN seed_venues sv ON sv.venue_id = c.venue_id
+),
+review_templates (template_seq, add_on_product_seq, add_on_quantity) AS (
+  VALUES
+    (1, 3, 1),
+    (2, 6, 2),
+    (3, 7, 1),
+    (4, 5, 1),
+    (5, NULL, NULL)
+),
+finance_source AS (
+  SELECT
+    sv.venue_seq,
+    rt.template_seq,
+    format('00000000-0000-0000-%s-%s', lpad((4100 + sv.venue_seq)::text, 4, '0'), lpad(rt.template_seq::text, 12, '0'))::uuid AS booking_id,
+    (sc.price_per_hour * 2) + COALESCE(p.price * rt.add_on_quantity, 0::numeric) AS total_amount,
+    ROUND(((sc.price_per_hour * 2) + COALESCE(p.price * rt.add_on_quantity, 0::numeric)) * sv.platform_fee_rate, 2) AS platform_fee_amount
+  FROM seed_venues sv
+  JOIN review_templates rt ON TRUE
+  JOIN seed_courts sc
+    ON sc.venue_id = sv.venue_id
+   AND sc.court_seq = ((rt.template_seq - 1) % sv.court_count) + 1
+  LEFT JOIN products p
+    ON p.id = CASE
+      WHEN rt.add_on_product_seq IS NULL THEN NULL
+      ELSE format('00000000-0000-0000-%s-%s', lpad((3100 + sv.venue_seq)::text, 4, '0'), lpad(rt.add_on_product_seq::text, 12, '0'))::uuid
+    END
+)
+INSERT INTO finances (id, booking_id, total_amount, platform_fee_amount, venue_revenue, status)
+SELECT
+  format('00000000-0000-0000-%s-%s', lpad((6100 + fs.venue_seq)::text, 4, '0'), lpad(fs.template_seq::text, 12, '0'))::uuid,
+  fs.booking_id,
+  fs.total_amount,
+  fs.platform_fee_amount,
+  fs.total_amount - fs.platform_fee_amount,
+  'COMPLETED'
+FROM finance_source fs
+ON CONFLICT (id) DO UPDATE SET
+  booking_id = EXCLUDED.booking_id,
+  total_amount = EXCLUDED.total_amount,
+  platform_fee_amount = EXCLUDED.platform_fee_amount,
+  venue_revenue = EXCLUDED.venue_revenue,
+  status = EXCLUDED.status;
+
+WITH seed_venues AS (
+  SELECT v.id AS venue_id, ROW_NUMBER() OVER (ORDER BY v.id)::int AS venue_seq
+  FROM venues v
+  WHERE v.license_id LIKE 'ALOBO-SEED-%'
+),
+review_templates (template_seq, reviewer_id, rating, content, reply_text) AS (
+  VALUES
+    (1, '00000000-0000-0000-0000-000000000301'::uuid, 5, 'Sân sáng, sạch và nhân viên hỗ trợ nhận sân rất nhanh. Đội mình sẽ quay lại.', 'Cảm ơn anh/chị, bên em luôn giữ sàn và ánh sáng ổn định mỗi ngày.'),
+    (2, '00000000-0000-0000-0000-000000000302'::uuid, 5, 'Chỗ để xe rộng, quầy nước đủ đồ và giờ cao điểm vẫn phục vụ ổn.', NULL),
+    (3, '00000000-0000-0000-0000-000000000303'::uuid, 4, 'Mặt sân ổn, điều hoà và quạt chạy tốt. Nếu nhà vệ sinh sạch hơn nữa thì trọn vẹn.', 'Bên em đã tăng lịch vệ sinh cuối ca tối, mong lần tới chị thấy thuận tiện hơn.'),
+    (4, '00000000-0000-0000-0000-000000000304'::uuid, 4, 'Giá sân hợp lý, cầu và phụ kiện bán ngay tại quầy nên khá tiện.', NULL),
+    (5, '00000000-0000-0000-0000-000000000305'::uuid, 5, 'Không gian thoáng, phù hợp cả đánh phong trào lẫn đặt cố định theo tuần.', 'Cảm ơn chị đã phản hồi tích cực, bên em luôn sẵn sàng giữ lịch cố định cho đội.')
+)
+INSERT INTO reviews (id, user_id, booking_id, target_type, target_id, rating, content, reply_text, reply_at, is_deleted, created_at)
+SELECT
+  format('00000000-0000-0000-%s-%s', lpad((5100 + sv.venue_seq)::text, 4, '0'), lpad(rt.template_seq::text, 12, '0'))::uuid,
+  rt.reviewer_id,
+  format('00000000-0000-0000-%s-%s', lpad((4100 + sv.venue_seq)::text, 4, '0'), lpad(rt.template_seq::text, 12, '0'))::uuid,
+  'VENUE',
+  sv.venue_id,
+  rt.rating,
+  rt.content,
+  rt.reply_text,
+  CASE
+    WHEN rt.reply_text IS NULL THEN NULL
+    ELSE CURRENT_TIMESTAMP - ((sv.venue_seq + rt.template_seq + 2) || ' days')::interval
+  END,
+  FALSE,
+  CURRENT_TIMESTAMP - ((sv.venue_seq + rt.template_seq + 3) || ' days')::interval
+FROM seed_venues sv
+CROSS JOIN review_templates rt
+ON CONFLICT (id) DO UPDATE SET
+  user_id = EXCLUDED.user_id,
+  booking_id = EXCLUDED.booking_id,
+  target_type = EXCLUDED.target_type,
+  target_id = EXCLUDED.target_id,
+  rating = EXCLUDED.rating,
+  content = EXCLUDED.content,
+  reply_text = EXCLUDED.reply_text,
+  reply_at = EXCLUDED.reply_at,
+  is_deleted = EXCLUDED.is_deleted,
+  created_at = EXCLUDED.created_at;

@@ -51,3 +51,6 @@ apps/app-user/pubspec_overrides.yaml
 apps/app-user/flutter_*.log
 node_modules/
 frontend/
+.superpowers/
+apps/backend/scripts/__pycache__/
+localhost.session.sql

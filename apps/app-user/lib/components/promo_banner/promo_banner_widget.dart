@@ -78,16 +78,22 @@ class _PromoBannerWidgetState extends State<PromoBannerWidget> {
               alignment: AlignmentDirectional(-1.0, -1.0),
               children: [
                 Positioned.fill(
-                  child: CachedNetworkImage(
-                    fadeInDuration: Duration(milliseconds: 200),
-                    fadeOutDuration: Duration(milliseconds: 200),
-                    imageUrl: valueOrDefault<String>(
-                      widget!.imgDesc,
-                      'https://dimg.dreamflow.cloud/v1/image/badminton%20court%20tournament%20action',
-                    ),
-                    fit: BoxFit.cover,
-                    alignment: Alignment(0.0, 0.0),
-                  ),
+                  child: widget!.imgDesc.startsWith('http')
+                      ? CachedNetworkImage(
+                          fadeInDuration: Duration(milliseconds: 200),
+                          fadeOutDuration: Duration(milliseconds: 200),
+                          imageUrl: valueOrDefault<String>(
+                            widget!.imgDesc,
+                            'https://dimg.dreamflow.cloud/v1/image/badminton%20court%20tournament%20action',
+                          ),
+                          fit: BoxFit.cover,
+                          alignment: Alignment(0.0, 0.0),
+                        )
+                      : Image.asset(
+                          widget!.imgDesc,
+                          fit: BoxFit.cover,
+                          alignment: Alignment(0.0, 0.0),
+                        ),
                 ),
                 Container(
                   decoration: BoxDecoration(

@@ -89,6 +89,7 @@ export interface ProductResponse {
   price: number
   unit: string
   stock: number
+  imageId?: string | null
   active: boolean
 }
 

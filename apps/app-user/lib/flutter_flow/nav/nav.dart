@@ -68,6 +68,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           ),
         ),
         FFRoute(
+          name: AllProductsWidget.routeName,
+          path: AllProductsWidget.routePath,
+          builder: (context, params) => AllProductsWidget(
+            courtId: params.getParam(
+              'courtId',
+              ParamType.String,
+            ),
+          ),
+        ),
+        FFRoute(
           name: HomeDashboardWidget.routeName,
           path: HomeDashboardWidget.routePath,
           builder: (context, params) => HomeDashboardWidget(),

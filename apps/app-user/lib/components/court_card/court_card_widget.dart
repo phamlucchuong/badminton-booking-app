@@ -68,7 +68,18 @@ class _CourtCardWidgetState extends State<CourtCardWidget> {
       'https://images.unsplash.com/photo-1542144574-1a2c99d79046?q=80&w=600&auto=format&fit=crop',
     ];
     final imageIndex = widget.name.hashCode.abs() % venueImages.length;
-    final imageUrl = widget.imgDesc.startsWith('http') ? widget.imgDesc : venueImages[imageIndex];
+    String resolvedUrl = '';
+    if (widget.imgDesc.isNotEmpty) {
+      final parts = widget.imgDesc.split(',');
+      for (final part in parts) {
+        final trimmed = part.trim();
+        if (trimmed.startsWith('http')) {
+          resolvedUrl = trimmed;
+          break;
+        }
+      }
+    }
+    final imageUrl = resolvedUrl.isNotEmpty ? resolvedUrl : venueImages[imageIndex];
 
     final displayRating = widget.rating.isNotEmpty ? widget.rating : '4.8';
     // Mocks realistic pricing in VND per hour: e.g. 80,000 VND, 100,000 VND
