@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Package2, Plus } from 'lucide-react'
 import { useState, type ChangeEvent } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -10,11 +10,14 @@ import { useCreateProduct, useProducts } from '@/hooks/venue/use-products'
 import type { ProductResponse } from '@/types/api'
 
 const CATEGORIES = [
-  { value: 'DRINK', label: 'Đồ uống' },
-  { value: 'EQUIPMENT', label: 'Dụng cụ' },
-  { value: 'FOOD', label: 'Thức ăn' },
+  { value: 'RACKET_RENTAL', label: 'Cho thuê vợt' },
+  { value: 'SHUTTLECOCK', label: 'Cầu lông' },
+  { value: 'EQUIPMENT', label: 'Phụ kiện' },
+  { value: 'BEVERAGE', label: 'Đồ uống' },
   { value: 'OTHER', label: 'Khác' },
 ]
+
+const CATEGORY_LABELS = Object.fromEntries(CATEGORIES.map((item) => [item.value, item.label]))
 
 export function VenueProductsPage() {
   const { data: venue } = useMyVenue()
@@ -26,7 +29,7 @@ export function VenueProductsPage() {
   const [form, setForm] = useState({
     name: '',
     description: '',
-    category: 'DRINK',
+    category: 'BEVERAGE',
     price: '',
     unit: '',
     stock: '',
@@ -48,21 +51,41 @@ export function VenueProductsPage() {
     })
     toast.success('Đã thêm sản phẩm')
     setShowModal(false)
-    setForm({ name: '', description: '', category: 'DRINK', price: '', unit: '', stock: '' })
+    setForm({ name: '', description: '', category: 'BEVERAGE', price: '', unit: '', stock: '' })
   }
 
   const columns = [
     {
       key: 'name',
-      header: 'Tên sản phẩm',
-      render: (row: ProductResponse) => <span className="font-medium">{row.name}</span>,
+      header: 'Sản phẩm',
+      render: (row: ProductResponse) => (
+        <div className="flex items-center gap-3">
+          {row.imageId ? (
+            <img
+              src={row.imageId}
+              alt={row.name}
+              className="size-12 rounded-xl border border-border object-cover"
+            />
+          ) : (
+            <div className="flex size-12 items-center justify-center rounded-xl border border-dashed border-border bg-muted text-muted-foreground">
+              <Package2 className="size-5" />
+            </div>
+          )}
+          <div>
+            <p className="font-medium text-foreground">{row.name}</p>
+            {row.description ? (
+              <p className="line-clamp-2 text-xs text-muted-foreground">{row.description}</p>
+            ) : null}
+          </div>
+        </div>
+      ),
     },
     {
       key: 'category',
       header: 'Danh mục',
       render: (row: ProductResponse) => (
         <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-xs">
-          {row.category}
+          {CATEGORY_LABELS[row.category] ?? row.category}
         </span>
       ),
     },
@@ -124,7 +147,7 @@ export function VenueProductsPage() {
           <SelectField label="Danh mục *" value={form.category} onChange={set('category')} options={CATEGORIES} />
           <div className="grid grid-cols-2 gap-3">
             <FormField label="Giá (VND) *" type="number" value={form.price} onChange={set('price')} placeholder="10000" />
-            <FormField label="Đơn vị *" value={form.unit} onChange={set('unit')} placeholder="chai, cái..." />
+            <FormField label="Đơn vị *" value={form.unit} onChange={set('unit')} placeholder="chai, ống, vợt/buổi..." />
           </div>
           <FormField label="Số lượng tồn kho" type="number" value={form.stock} onChange={set('stock')} placeholder="0" />
           <FormField label="Mô tả" value={form.description} onChange={set('description')} />

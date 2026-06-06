@@ -13,7 +13,15 @@ import '/flutter_flow/uploaded_file.dart';
 double cartSubtotal(List<dynamic> cartAddons) {
   double total = 0.0;
   for (final item in cartAddons) {
-    total = total + (item.price.toDouble() * item.quantity);
+    if (item is Map) {
+      final priceVal = item['price'];
+      final quantityVal = item['quantity'];
+      if (priceVal != null && quantityVal != null) {
+        final price = double.tryParse(priceVal.toString()) ?? 0.0;
+        final quantity = int.tryParse(quantityVal.toString()) ?? 0;
+        total += price * quantity;
+      }
+    }
   }
   return total;
 }

@@ -1,4 +1,5 @@
 import '/models/venue.dart';
+import '/models/court.dart';
 import '/components/court_card/court_card_widget.dart';
 import '/components/promo_banner/promo_banner_widget.dart';
 import '/components/text_field/text_field_widget.dart';
@@ -14,6 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'home_dashboard_model.dart';
 export 'home_dashboard_model.dart';
+import 'package:app_user/main.dart';
 
 class HomeDashboardWidget extends StatefulWidget {
   const HomeDashboardWidget({super.key});
@@ -100,113 +102,126 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 40.0,
-                                  height: 40.0,
-                                  decoration: BoxDecoration(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: AlignmentDirectional(0.0, 0.0),
-                                  child: Text(
-                                    'JD',
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    style: FlutterFlowTheme.of(context)
-                                        .labelMedium
-                                        .override(
-                                          font: GoogleFonts.inter(
+                            InkWell(
+                              splashColor: Colors.transparent,
+                              focusColor: Colors.transparent,
+                              hoverColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: () async {
+                                context.pushNamed(UserProfileWidget.routeName);
+                              },
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 40.0,
+                                    height: 40.0,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          FlutterFlowTheme.of(context).primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    alignment: AlignmentDirectional(0.0, 0.0),
+                                    child: Text(
+                                      'JD',
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      style: FlutterFlowTheme.of(context)
+                                          .labelMedium
+                                          .override(
+                                            font: GoogleFonts.inter(
+                                              fontWeight: FontWeight.w600,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .labelMedium
+                                                      .fontStyle,
+                                            ),
+                                            color: FlutterFlowTheme.of(context)
+                                                .onPrimary,
+                                            fontSize: 15.2,
+                                            letterSpacing: 0.0,
                                             fontWeight: FontWeight.w600,
                                             fontStyle:
                                                 FlutterFlowTheme.of(context)
                                                     .labelMedium
                                                     .fontStyle,
-                                          ),
-                                          color: FlutterFlowTheme.of(context)
-                                              .onPrimary,
-                                          fontSize: 15.2,
-                                          letterSpacing: 0.0,
-                                          fontWeight: FontWeight.w600,
-                                          fontStyle:
-                                              FlutterFlowTheme.of(context)
-                                                  .labelMedium
-                                                  .fontStyle,
-                                          lineHeight: 1.3,
-                                        ),
-                                    overflow: TextOverflow.clip,
-                                  ),
-                                ),
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Hello, John',
-                                      style: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            font: GoogleFonts.plusJakartaSans(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .titleSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .titleSmall
-                                                    .fontStyle,
-                                            lineHeight: 1.4,
-                                          ),
-                                    ),
-                                    Text(
-                                      'Ho Chi Minh City',
-                                      style: FlutterFlowTheme.of(context)
-                                          .labelSmall
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelSmall
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .secondaryText,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelSmall
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelSmall
-                                                    .fontStyle,
                                             lineHeight: 1.3,
                                           ),
+                                      overflow: TextOverflow.clip,
                                     ),
-                                  ],
-                                ),
-                              ].divide(SizedBox(width: 16.0)),
+                                  ),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        context.l10n('Hello, John', 'Xin chào, John'),
+                                        style: FlutterFlowTheme.of(context)
+                                            .titleSmall
+                                            .override(
+                                              font: GoogleFonts.plusJakartaSans(
+                                                fontWeight:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontWeight,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleSmall
+                                                        .fontStyle,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primaryText,
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .titleSmall
+                                                      .fontStyle,
+                                              lineHeight: 1.4,
+                                            ),
+                                      ),
+                                      Text(
+                                        context.l10n('Ho Chi Minh City', 'Thành phố Hồ Chí Minh'),
+                                        style: FlutterFlowTheme.of(context)
+                                            .labelSmall
+                                            .override(
+                                              font: GoogleFonts.inter(
+                                                fontWeight:
+                                                    FlutterFlowTheme.of(context)
+                                                        .labelSmall
+                                                        .fontWeight,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .labelSmall
+                                                        .fontStyle,
+                                              ),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .secondaryText,
+                                              letterSpacing: 0.0,
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .labelSmall
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .labelSmall
+                                                      .fontStyle,
+                                              lineHeight: 1.3,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ].divide(SizedBox(width: 16.0)),
+                              ),
                             ),
                             Row(
                               mainAxisSize: MainAxisSize.max,
@@ -276,15 +291,19 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                                   buttonSize: 40.0,
                                   fillColor: Colors.transparent,
                                   icon: Icon(
-                                    Icons.help,
+                                    FFAppState().darkMode
+                                        ? Icons.wb_sunny_rounded
+                                        : Icons.nights_stay_rounded,
                                     color: FlutterFlowTheme.of(context)
                                         .secondaryText,
                                     size: 20.0,
                                   ),
                                   onPressed: () async {
-                                    FFAppState().darkMode =
-                                        !FFAppState().darkMode;
+                                    final newMode = !FFAppState().darkMode;
+                                    FFAppState().darkMode = newMode;
                                     FFAppState().update(() {});
+                                    MyApp.of(context).setThemeMode(
+                                        newMode ? ThemeMode.dark : ThemeMode.light);
                                   },
                                 ),
                               ].divide(SizedBox(width: 8.0)),
@@ -321,31 +340,28 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                           wrapWithModel(
                             model: _model.promoBannerModel1,
                             updateCallback: () => safeSetState(() {}),
-                            child: const PromoBannerWidget(
-                              imgDesc:
-                                  'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=800&auto=format&fit=crop',
-                              tag: 'Special Offer',
-                              title: '30% Off Morning Slots',
+                            child: PromoBannerWidget(
+                              imgDesc: 'assets/images/onboarding_1.png',
+                              tag: context.l10n('Special Offer', 'Ưu đãi đặc biệt'),
+                              title: context.l10n('30% Off Morning Slots', 'Giảm 30% giờ sáng'),
                             ),
                           ),
                           wrapWithModel(
                             model: _model.promoBannerModel2,
                             updateCallback: () => safeSetState(() {}),
-                            child: const PromoBannerWidget(
-                              imgDesc:
-                                  'https://images.unsplash.com/photo-1521537634581-0dced2fee2ef?q=80&w=800&auto=format&fit=crop',
-                              tag: 'New Equipment',
-                              title: 'Rent Pro Rackets Now',
+                            child: PromoBannerWidget(
+                              imgDesc: 'assets/images/onboarding_2.png',
+                              tag: context.l10n('New Equipment', 'Thiết bị mới'),
+                              title: context.l10n('Rent Pro Rackets Now', 'Thuê vợt Pro ngay'),
                             ),
                           ),
                           wrapWithModel(
                             model: _model.promoBannerModel3,
                             updateCallback: () => safeSetState(() {}),
-                            child: const PromoBannerWidget(
-                              imgDesc:
-                                  'https://images.unsplash.com/photo-1622279457486-62dcc4a4b1fa?q=80&w=800&auto=format&fit=crop',
-                              tag: 'Tournament',
-                              title: 'Weekend Championship Signup',
+                            child: PromoBannerWidget(
+                              imgDesc: 'assets/images/onboarding_3.png',
+                              tag: context.l10n('Tournament', 'Giải đấu'),
+                              title: context.l10n('Weekend Championship', 'Vô địch cuối tuần'),
                             ),
                           ),
                         ],
@@ -393,7 +409,7 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                               labelPresent: false,
                               helper: '',
                               helperPresent: false,
-                              hint: 'Search courts, districts...',
+                              hint: context.l10n('Search courts, districts...', 'Tìm kiếm sân, quận huyện...'),
                               value: FFAppState().searchQuery,
                               onChange: '',
                               onSubmit: '',
@@ -429,299 +445,7 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                   ),
                 ),
               ),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding:
-                          EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 16.0),
-                      child: Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: 34.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: FlutterFlowTheme.of(context).alternate,
-                                  width: 1.0,
-                                ),
-                              ),
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    12.0, 0.0, 12.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'All Courts',
-                                      style: FlutterFlowTheme.of(context)
-                                          .labelMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontStyle,
-                                            lineHeight: 1.3,
-                                          ),
-                                    ),
-                                  ].divide(SizedBox(width: 6.0)),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height: 34.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: FlutterFlowTheme.of(context).alternate,
-                                  width: 1.0,
-                                ),
-                              ),
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    12.0, 0.0, 12.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Near Me',
-                                      style: FlutterFlowTheme.of(context)
-                                          .labelMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontStyle,
-                                            lineHeight: 1.3,
-                                          ),
-                                    ),
-                                  ].divide(SizedBox(width: 6.0)),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height: 34.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: FlutterFlowTheme.of(context).alternate,
-                                  width: 1.0,
-                                ),
-                              ),
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    12.0, 0.0, 12.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Indoor',
-                                      style: FlutterFlowTheme.of(context)
-                                          .labelMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontStyle,
-                                            lineHeight: 1.3,
-                                          ),
-                                    ),
-                                  ].divide(SizedBox(width: 6.0)),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height: 34.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: FlutterFlowTheme.of(context).alternate,
-                                  width: 1.0,
-                                ),
-                              ),
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    12.0, 0.0, 12.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Premium',
-                                      style: FlutterFlowTheme.of(context)
-                                          .labelMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontStyle,
-                                            lineHeight: 1.3,
-                                          ),
-                                    ),
-                                  ].divide(SizedBox(width: 6.0)),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              height: 34.0,
-                              decoration: BoxDecoration(
-                                color: FlutterFlowTheme.of(context)
-                                    .secondaryBackground,
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: FlutterFlowTheme.of(context).alternate,
-                                  width: 1.0,
-                                ),
-                              ),
-                              alignment: AlignmentDirectional(0.0, 0.0),
-                              child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(
-                                    12.0, 0.0, 12.0, 0.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '24/7',
-                                      style: FlutterFlowTheme.of(context)
-                                          .labelMedium
-                                          .override(
-                                            font: GoogleFonts.inter(
-                                              fontWeight:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontWeight,
-                                              fontStyle:
-                                                  FlutterFlowTheme.of(context)
-                                                      .labelMedium
-                                                      .fontStyle,
-                                            ),
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            fontSize: 14.0,
-                                            letterSpacing: 0.0,
-                                            fontWeight:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontWeight,
-                                            fontStyle:
-                                                FlutterFlowTheme.of(context)
-                                                    .labelMedium
-                                                    .fontStyle,
-                                            lineHeight: 1.3,
-                                          ),
-                                    ),
-                                  ].divide(SizedBox(width: 6.0)),
-                                ),
-                              ),
-                            ),
-                          ].divide(SizedBox(width: 8.0)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
               Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
                 child: Column(
@@ -735,7 +459,7 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Recommended for you',
+                          context.l10n('Recommended for you', 'Đề xuất cho bạn'),
                           style:
                               FlutterFlowTheme.of(context).titleMedium.override(
                                     font: GoogleFonts.plusJakartaSans(
@@ -753,7 +477,7 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                                   ),
                         ),
                         Text(
-                          'See All',
+                          context.l10n('See All', 'Xem tất cả'),
                           style:
                               FlutterFlowTheme.of(context).labelLarge.override(
                                     font: GoogleFonts.inter(
@@ -807,7 +531,7 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                               hoverColor: Colors.transparent,
                               highlightColor: Colors.transparent,
                               onTap: () async {
-                                context.goNamed(
+                                context.pushNamed(
                                   CourtDetailsWidget.routeName,
                                   queryParameters: {
                                     'courtId': serializeParam(
@@ -817,14 +541,30 @@ class _HomeDashboardWidgetState extends State<HomeDashboardWidget> {
                                   }.withoutNulls,
                                 );
                               },
-                              child: CourtCardWidget(
-                                key: Key(
-                                    'Key364_${itemIndex}_of_${venues.length}'),
-                                imgDesc: venue.description ?? '',
-                                name: venue.name,
-                                rating: '',
-                                address: venue.address,
-                                price: '',
+                              child: FutureBuilder<List<Court>>(
+                                future: FFAppState()
+                                    .venueRepository
+                                    .getCourts(venue.id),
+                                builder: (context, courtSnapshot) {
+                                  String displayPrice = '';
+                                  if (courtSnapshot.hasData &&
+                                      courtSnapshot.data!.isNotEmpty) {
+                                    final minPrice = courtSnapshot.data!
+                                        .map((c) => c.pricePerHour)
+                                        .reduce((a, b) => a < b ? a : b);
+                                    displayPrice =
+                                        '${minPrice.toInt().toString().replaceAllMapped(RegExp(r"(\d{1,3})(?=(\d{3})+(?!\d))"), (Match m) => "${m[1]}.")}đ/' + context.l10n('hr', 'giờ');
+                                  }
+                                  return CourtCardWidget(
+                                    key: Key(
+                                        'Key364_${itemIndex}_of_${venues.length}'),
+                                    imgDesc: venue.bannerIds ?? '',
+                                    name: venue.name,
+                                    rating: '',
+                                    address: venue.address,
+                                    price: displayPrice,
+                                  );
+                                },
                               ),
                             );
                           },

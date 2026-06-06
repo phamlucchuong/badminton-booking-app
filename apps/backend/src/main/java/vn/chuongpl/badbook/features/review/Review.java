@@ -1,5 +1,7 @@
 package vn.chuongpl.badbook.features.review;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,10 +21,14 @@ public class Review {
     @Column(columnDefinition = "uuid") UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false) User user;
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"password", "roles", "deleted", "createdAt", "email", "phone", "hibernateLazyInitializer", "handler"})
+    User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booking_id", nullable = false) Booking booking;
+    @JoinColumn(name = "booking_id", nullable = false)
+    @JsonIgnore
+    Booking booking;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_type", nullable = false, length = 10) ReviewTarget targetType;

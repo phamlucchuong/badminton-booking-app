@@ -36,4 +36,13 @@ void main() {
     final courts = await repo.getCourts('v1');
     expect(courts.first.pricePerHour, 120000);
   });
+
+  test('getProducts parses a plain list of products', () async {
+    final repo = VenueRepository(clientReturning(
+        '{"code":200,"message":"ok","data":[{"id":"p1","venueId":"v1","name":"Racket","price":50000.0,"stock":10,"imageId":"img_url","active":true}]}'));
+    final products = await repo.getProducts('v1');
+    expect(products.first.price, 50000.0);
+    expect(products.first.name, 'Racket');
+    expect(products.first.imageId, 'img_url');
+  });
 }

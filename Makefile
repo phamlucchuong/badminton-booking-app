@@ -7,7 +7,7 @@ WEB_ADMIN_DIR ?= apps/web-admin
 APP_USER_DIR ?= apps/app-user
 COMPOSE_ENV_ARG = $(if $(wildcard $(BACKEND_ENV_FILE)),--env-file $(BACKEND_ENV_FILE),)
 
-.PHONY: run build test backend-verify verify compose-up compose-down compose-logs compose-reset wait-db db-create migrate migrate-info migrate-repair rollback-reset seed-alobo seed-alobo-images reset-seed-alobo web-admin-install web-admin-dev web-admin-build web-admin-lint app-user-pub-get app-user-run app-user-analyze app-user-test app-user-build env-backend-init
+.PHONY: run-backend run-web-admin run-app-user run-all build test backend-verify verify compose-up compose-down compose-logs compose-reset compose-clean-containers wait-db db-create migrate migrate-info migrate-repair rollback-reset seed-alobo seed-alobo-images reset-seed-alobo reset-seed-alobo-fresh web-admin-install web-admin-build web-admin-lint app-user-pub-get app-user-analyze app-user-test app-user-build env-backend-init
 
 ifneq ("$(wildcard $(BACKEND_ENV_FILE))","")
 include $(BACKEND_ENV_FILE)
@@ -20,11 +20,26 @@ DB_NAME ?= badbook
 DB_PORT ?= 5432
 DB_URL ?= jdbc:postgresql://localhost:$(DB_PORT)/$(DB_NAME)
 
-# Spring Boot commands
-run:
+# Run commands
+run-backend:
 	$(BACKEND_MVN) -f $(BACKEND_POM) spring-boot:run
+
+run-web-admin:
+	pnpm --dir $(WEB_ADMIN_DIR) dev
+
+run-app-user:
+	cd $(APP_USER_DIR) && flutter run
+
+run-all:
+	@printf '%s\n' 'Run these commands in separate terminals:'
+	@printf '  1. %s\n' 'make compose-up'
+	@printf '  2. %s\n' 'make run-backend'
+	@printf '  3. %s\n' 'make run-web-admin'
+	@printf '  4. %s\n' 'make run-app-user'
+
 build:
 	$(BACKEND_MVN) -f $(BACKEND_POM) clean package -DskipTests
+
 test:
 	$(BACKEND_MVN) -f $(BACKEND_POM) test
 
@@ -34,15 +49,22 @@ backend-verify:
 verify: backend-verify web-admin-lint web-admin-build app-user-analyze app-user-test
 
 # Docker Compose commands
-compose-up:
-	docker compose $(COMPOSE_ENV_ARG) -f $(BACKEND_COMPOSE) up -d
+compose-clean-containers:
+	-@docker rm -f badbook-db badbook-redis >/dev/null 2>&1 || true
+
+compose-up: compose-clean-containers
+	docker compose $(COMPOSE_ENV_ARG) -f $(BACKEND_COMPOSE) up -d --remove-orphans
+
 compose-down:
-	docker compose $(COMPOSE_ENV_ARG) -f $(BACKEND_COMPOSE) down
+	docker compose $(COMPOSE_ENV_ARG) -f $(BACKEND_COMPOSE) down -v --remove-orphans
+
 compose-logs:
 	docker compose $(COMPOSE_ENV_ARG) -f $(BACKEND_COMPOSE) logs -f
+
 compose-reset:
-	docker compose $(COMPOSE_ENV_ARG) -f $(BACKEND_COMPOSE) down -v
-	docker compose $(COMPOSE_ENV_ARG) -f $(BACKEND_COMPOSE) up -d
+	docker compose $(COMPOSE_ENV_ARG) -f $(BACKEND_COMPOSE) down -v --remove-orphans
+	$(MAKE) compose-clean-containers
+	docker compose $(COMPOSE_ENV_ARG) -f $(BACKEND_COMPOSE) up -d --remove-orphans
 
 wait-db:
 	@docker exec -i badbook-db sh -c 'until pg_isready -U "$(DB_USER)" -d postgres >/dev/null 2>&1; do sleep 1; done'
@@ -75,12 +97,16 @@ reset-seed-alobo:
 	docker exec -i badbook-db psql -U $(DB_USER) -d $(DB_NAME) -v ON_ERROR_STOP=1 -c "TRUNCATE TABLE booking_products, bookings, courts, finances, fixed_schedules, payments, platform_fee_invoices, products, reviews, search_history, user_roles, users, venue_operating_hours, venues RESTART IDENTITY CASCADE;"
 	$(MAKE) seed-alobo
 
+reset-seed-alobo-fresh:
+	$(MAKE) compose-reset
+	$(MAKE) wait-db
+	$(MAKE) db-create
+	$(MAKE) migrate
+	$(MAKE) seed-alobo
+
 # Frontend commands
 web-admin-install:
 	pnpm install --frozen-lockfile
-
-web-admin-dev:
-	pnpm --dir $(WEB_ADMIN_DIR) dev
 
 web-admin-build:
 	pnpm --dir $(WEB_ADMIN_DIR) build
@@ -90,9 +116,6 @@ web-admin-lint:
 
 app-user-pub-get:
 	cd $(APP_USER_DIR) && flutter pub get
-
-app-user-run:
-	cd $(APP_USER_DIR) && flutter run
 
 app-user-analyze:
 	cd $(APP_USER_DIR) && flutter analyze --no-fatal-warnings --no-fatal-infos
