@@ -1,3 +1,4 @@
+import '/app_state.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -7,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'social_auth_button_model.dart';
 export 'social_auth_button_model.dart';
@@ -16,9 +18,8 @@ class SocialAuthButtonWidget extends StatefulWidget {
     super.key,
     String? provider,
     String? label,
-  })  : this.provider =
-            provider ?? 'https://cdn.simpleicons.org/google/0f172a.svg',
-        this.label = label ?? 'Google';
+  })  : provider = provider ?? 'https://cdn.simpleicons.org/google/0f172a.svg',
+        label = label ?? 'Google';
 
   final String provider;
   final String label;
@@ -57,7 +58,37 @@ class _SocialAuthButtonWidgetState extends State<SocialAuthButtonWidget> {
       hoverColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () async {
-        context.goNamed(HomeDashboardWidget.routeName);
+        try {
+          final googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+          final account = await googleSignIn.signIn();
+          if (account == null) {
+            return;
+          }
+
+          final auth = await account.authentication;
+          final idToken = auth.idToken;
+          if (idToken == null) {
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Không lấy được Google ID token')),
+            );
+            return;
+          }
+
+          final result =
+              await FFAppState().authRepository.loginWithGoogle(idToken);
+          if (result.authenticated) {
+            FFAppState().isLoggedIn = true;
+            FFAppState().notifyListeners();
+            if (!context.mounted) return;
+            context.goNamed(HomeDashboardWidget.routeName);
+          }
+        } catch (e) {
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Đăng nhập Google thất bại: $e')),
+          );
+        }
       },
       child: Container(
         decoration: BoxDecoration(
@@ -79,7 +110,7 @@ class _SocialAuthButtonWidgetState extends State<SocialAuthButtonWidget> {
               children: [
                 SvgPicture.network(
                   valueOrDefault<String>(
-                    widget!.provider,
+                    widget.provider,
                     'https://cdn.simpleicons.org/google/0f172a.svg',
                   ),
                   width: 20.0,
@@ -88,7 +119,7 @@ class _SocialAuthButtonWidgetState extends State<SocialAuthButtonWidget> {
                 ),
                 Text(
                   valueOrDefault<String>(
-                    widget!.label,
+                    widget.label,
                     'Google',
                   ),
                   style: FlutterFlowTheme.of(context).labelLarge.override(

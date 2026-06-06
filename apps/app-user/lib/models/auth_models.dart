@@ -32,3 +32,12 @@ class AuthResult {
         authenticated: json['authenticated'] as bool? ?? false,
       );
 }
+
+/// Body for `POST /api/auth/google`.
+class GoogleLoginRequest {
+  final String idToken;
+
+  const GoogleLoginRequest({required this.idToken});
+
+  Map<String, dynamic> toJson() => {'idToken': idToken};
+}

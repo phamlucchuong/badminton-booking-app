@@ -20,10 +20,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import vn.chuongpl.badbook.common.enums.ErrorCode;
 import vn.chuongpl.badbook.common.exception.AppException;
 import vn.chuongpl.badbook.features.auth.dto.request.LoginRequest;
 import vn.chuongpl.badbook.features.auth.dto.response.AuthResponse;
+import vn.chuongpl.badbook.features.role.Role;
+import vn.chuongpl.badbook.features.role.RoleRepository;
 import vn.chuongpl.badbook.features.user.User;
 import vn.chuongpl.badbook.features.user.UserRepository;
 
@@ -32,6 +36,8 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -43,17 +49,80 @@ public class AuthService {
     @NonFinal
     @Value("${JWT_SECRET}")
     protected String SIGN_KEY;
+
+    @NonFinal
+    @Value("${google.client-id}")
+    String googleClientId;
+
     UserRepository userRepository;
+    RoleRepository roleRepository;
     JwtBlacklistService jwtBlacklistService;
+    WebClient googleWebClient;
 
     public AuthResponse authenticated(LoginRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         User user = userRepository.findByEmailAndDeletedFalse(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
-        if (!authenticated) {
+        if (user.getPassword() == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.AUTHENTICATION_FAILED);
+        }
+
+        String accessToken = generatedToken(user, "access", 30);
+        String refreshToken = generatedToken(user, "refresh", 7 * 24 * 60L);
+        return AuthResponse.builder()
+                .token(accessToken)
+                .refreshToken(refreshToken)
+                .authenticated(true)
+                .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    public AuthResponse loginWithGoogle(String idToken) {
+        Map<String, Object> tokenInfo;
+        try {
+            tokenInfo = googleWebClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/tokeninfo")
+                            .queryParam("id_token", idToken)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+        } catch (WebClientResponseException exception) {
+            throw new AppException(ErrorCode.GOOGLE_TOKEN_INVALID);
+        }
+
+        if (tokenInfo == null) {
+            throw new AppException(ErrorCode.GOOGLE_TOKEN_INVALID);
+        }
+
+        String aud = (String) tokenInfo.get("aud");
+        if (googleClientId == null || googleClientId.isBlank() || !googleClientId.equals(aud)) {
+            throw new AppException(ErrorCode.GOOGLE_TOKEN_AUDIENCE_MISMATCH);
+        }
+
+        String sub = (String) tokenInfo.get("sub");
+        String email = (String) tokenInfo.get("email");
+        String name = (String) tokenInfo.getOrDefault("name", email);
+        if (sub == null || email == null || email.isBlank()) {
+            throw new AppException(ErrorCode.GOOGLE_TOKEN_INVALID);
+        }
+
+        User user = userRepository.findByEmailAndDeletedFalse(email).orElse(null);
+        if (user == null) {
+            Role userRole = roleRepository.findByName("USER")
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+            user = User.builder()
+                    .name(name)
+                    .email(email)
+                    .googleId(sub)
+                    .roles(Set.of(userRole))
+                    .build();
+            user = userRepository.save(user);
+        } else if (user.getGoogleId() == null) {
+            user.setGoogleId(sub);
+            user = userRepository.save(user);
         }
 
         String accessToken = generatedToken(user, "access", 30);

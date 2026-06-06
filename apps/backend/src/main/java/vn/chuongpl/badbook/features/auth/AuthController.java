@@ -3,6 +3,7 @@ package vn.chuongpl.badbook.features.auth;
 import java.text.ParseException;
 
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.chuongpl.badbook.common.ApiResponse;
 import vn.chuongpl.badbook.common.enums.ErrorCode;
 import vn.chuongpl.badbook.common.exception.AppException;
+import vn.chuongpl.badbook.features.auth.dto.request.GoogleLoginRequest;
 import vn.chuongpl.badbook.features.auth.dto.request.LoginRequest;
 import vn.chuongpl.badbook.features.auth.dto.request.LogoutRequest;
 import vn.chuongpl.badbook.features.auth.dto.request.RefreshTokenRequest;
@@ -78,6 +80,13 @@ public class AuthController {
         userService.resetPassword(request.getEmail(), request.getNewPassword());
         return ApiResponse.<Void>builder()
                 .message("Đặt lại mật khẩu thành công")
+                .build();
+    }
+
+    @PostMapping("/google")
+    public ApiResponse<AuthResponse> loginWithGoogle(@RequestBody @Valid GoogleLoginRequest request) {
+        return ApiResponse.<AuthResponse>builder()
+                .data(authService.loginWithGoogle(request.getIdToken()))
                 .build();
     }
 }

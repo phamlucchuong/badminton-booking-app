@@ -1,7 +1,7 @@
+import '../models/auth_models.dart';
 import '../services/api_client.dart';
 import '../services/api_exception.dart';
 import '../services/token_store.dart';
-import '../models/auth_models.dart';
 
 /// Auth flows backed by `/api/auth`, `/api/auth/register`, `/api/otp/*`.
 class AuthRepository {
@@ -37,6 +37,23 @@ class AuthRepository {
       throw ApiException(
         500,
         'Login response is missing token data. Check backend response shape.',
+      );
+    }
+    final result = AuthResult.fromJson(data);
+    await _tokens.save(result.token);
+    return result;
+  }
+
+  Future<AuthResult> loginWithGoogle(String idToken) async {
+    final data = await _api.post(
+      '/api/auth/google',
+      body: GoogleLoginRequest(idToken: idToken).toJson(),
+      authenticated: false,
+    );
+    if (data is! Map<String, dynamic>) {
+      throw ApiException(
+        500,
+        'Google login response is missing token data.',
       );
     }
     final result = AuthResult.fromJson(data);

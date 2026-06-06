@@ -1,9 +1,9 @@
+import 'package:app_user/repositories/auth_repository.dart';
+import 'package:app_user/services/api_client.dart';
+import 'package:app_user/services/token_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:app_user/services/api_client.dart';
-import 'package:app_user/services/token_store.dart';
-import 'package:app_user/repositories/auth_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -31,6 +31,31 @@ void main() {
 
     expect(result.authenticated, isTrue);
     expect(await store.read(), 'JWT');
+    expect(captured.headers.containsKey('Authorization'), isFalse);
+  });
+
+  test('loginWithGoogle saves token and returns AuthResult', () async {
+    late http.Request captured;
+    final mock = MockClient((req) async {
+      captured = req;
+      return http.Response(
+          '{"code":200,"message":"ok","data":{"token":"GOOGLE_JWT","authenticated":true}}',
+          200);
+    });
+    final store = TokenStore();
+    final repo = AuthRepository(
+      ApiClient(
+          httpClient: mock,
+          baseUrl: 'http://test/badbook',
+          tokenProvider: store.read),
+      store,
+    );
+
+    final result = await repo.loginWithGoogle('google-id-token');
+
+    expect(result.authenticated, isTrue);
+    expect(await store.read(), 'GOOGLE_JWT');
+    expect(captured.url.path, '/badbook/api/auth/google');
     expect(captured.headers.containsKey('Authorization'), isFalse);
   });
 
