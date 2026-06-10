@@ -1,0 +1,11 @@
+{
+  "name": "badbook-monorepo",
+  "private": true,
+  "scripts": {
+    "dev:web-admin": "pnpm --filter web-admin dev",
+    "build:web-admin": "pnpm --filter web-admin build",
+    "lint:web-admin": "pnpm --filter web-admin lint",
+    "build": "pnpm run build:web-admin",
+    "lint": "pnpm run lint:web-admin"
+  }
+}

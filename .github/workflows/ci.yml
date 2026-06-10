@@ -1,18 +1,11 @@
-name: CI BACKEND
+name: CI
 on:
   push:
     branches: [ "main", "dev" ]
-    paths:
-      - 'src/**'
-      - 'pom.xml'
-      - '.github/workflows/ci.yml'
   pull_request:
     branches: [ "main", "dev" ]
-    paths:
-      - 'src/**'
-      - 'pom.xml'
 jobs:
-  test-user:
+  backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +16,37 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+          cache-dependency-path: apps/backend/pom.xml
 
-      - name: Run Auth Tests
-        run: |
-          mvn clean verify
+      - name: Verify backend
+        run: ./apps/backend/mvnw -f apps/backend/pom.xml clean verify
+
+  web-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint:web-admin
+      - run: pnpm build:web-admin
+
+  app-user:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+        working-directory: apps/app-user
+      - run: flutter analyze --no-fatal-warnings --no-fatal-infos
+        working-directory: apps/app-user
+      - run: flutter test
+        working-directory: apps/app-user

@@ -1,0 +1,20 @@
+services:
+  backend:
+    image: ${BACKEND_IMAGE}
+    container_name: badbook-backend
+    env_file:
+      - ${BACKEND_ENV_FILE:-.env}
+    environment:
+      PORT: 8080
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_JPA_SHOW_SQL: "false"
+    ports:
+      - "${BACKEND_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-8080}:8080"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
