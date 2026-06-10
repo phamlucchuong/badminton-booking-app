@@ -82,7 +82,7 @@ class ApiClient {
     } on SocketException catch (e) {
       debugPrint('[ApiClient] SocketException $method $uri: $e');
       throw Exception(
-        'Cannot connect to backend at $uri. If you are using an Android emulator, use 10.0.2.2. If you are using a physical device, use localhost only with adb reverse, otherwise use your LAN IP.',
+        'Cannot connect to backend at $uri. Ensure the backend is running. On Android, run `adb reverse tcp:8080 tcp:8080` and use `http://127.0.0.1:8080/badbook`, or use your machine LAN IP. Use `10.0.2.2` only for the Android emulator.',
       );
     } on http.ClientException catch (e) {
       debugPrint('[ApiClient] ClientException $method $uri: $e');

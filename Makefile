@@ -28,6 +28,7 @@ run-web-admin:
 	pnpm --dir $(WEB_ADMIN_DIR) dev
 
 run-app-user:
+	cd $(APP_USER_DIR) && adb reverse tcp:8080 tcp:8080 >/dev/null 2>&1 || true
 	cd $(APP_USER_DIR) && flutter run
 
 run-all:
@@ -128,3 +129,7 @@ app-user-build:
 
 env-backend-init:
 	cp -n $(BACKEND_DIR)/.env.example $(BACKEND_DIR)/.env
+
+
+adb-fix:
+	cd $(APP_USER_DIR) && adb reverse tcp:8080 tcp:8080
